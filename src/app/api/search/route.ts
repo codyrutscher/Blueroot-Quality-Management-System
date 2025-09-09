@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { generateEmbedding, generateChatResponse } from '@/lib/openai'
 import { queryVectors } from '@/lib/pinecone'
-import { prisma } from '@/lib/prisma'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
