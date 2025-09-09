@@ -13,7 +13,7 @@ import DocxEditor from './DocxEditor'
 
 export default function Dashboard() {
   const { data: session } = useSession()
-  const [activeTab, setActiveTab] = useState('search')
+  const [activeTab, setActiveTab] = useState('products')
   const [editingTemplate, setEditingTemplate] = useState(null)
   const [editingDocument, setEditingDocument] = useState(null)
   const [showAssignmentModal, setShowAssignmentModal] = useState(false)

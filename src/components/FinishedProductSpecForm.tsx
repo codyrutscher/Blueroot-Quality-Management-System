@@ -2,14 +2,15 @@
 
 import { useState, useCallback, memo, useEffect, useRef } from 'react'
 
-// Isolated input components
+// Completely isolated input that manages its own state
 const IsolatedInput = memo(function IsolatedInput({
   value: initialValue,
   onChange,
   placeholder,
   type = "text",
   readOnly = false,
-  className = ""
+  className = "",
+  path = ""
 }: {
   value: string
   onChange: (value: string) => void
@@ -17,18 +18,23 @@ const IsolatedInput = memo(function IsolatedInput({
   type?: string
   readOnly?: boolean
   className?: string
+  path?: string
 }) {
   const [localValue, setLocalValue] = useState(initialValue)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isMountedRef = useRef(true)
 
+  // Only update local value when prop changes from external source
   useEffect(() => {
     if (initialValue !== localValue) {
       setLocalValue(initialValue)
     }
   }, [initialValue])
 
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
+      isMountedRef.current = false
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
       }
@@ -38,17 +44,40 @@ const IsolatedInput = memo(function IsolatedInput({
   const handleChange = useCallback((newValue: string) => {
     setLocalValue(newValue)
     
+    // Clear existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }
     
+    // Only debounced update for stable cursor behavior
     timeoutRef.current = setTimeout(() => {
-      onChange(newValue)
+      if (isMountedRef.current) {
+        console.log('IsolatedInput: Sending debounced update to parent:', newValue)
+        onChange(newValue)
+      }
     }, 500)
   }, [onChange])
 
+  // Expose a method to flush pending changes immediately
+  useEffect(() => {
+    const element = inputRef.current
+    if (element) {
+      element.flushPendingChanges = () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current)
+          console.log('IsolatedInput: Force flushing update:', localValue)
+          onChange(localValue)
+        }
+      }
+    }
+  }, [localValue, onChange])
+
+  const inputRef = useRef<HTMLInputElement>(null)
+
   return (
     <input
+      ref={inputRef}
+      data-path={path}
       type={type}
       value={localValue}
       onChange={(e) => handleChange(e.target.value)}
@@ -59,13 +88,15 @@ const IsolatedInput = memo(function IsolatedInput({
   )
 })
 
+// Isolated textarea
 const IsolatedTextarea = memo(function IsolatedTextarea({
   value: initialValue,
   onChange,
   placeholder,
   rows = 3,
   readOnly = false,
-  className = ""
+  className = "",
+  path = ""
 }: {
   value: string
   onChange: (value: string) => void
@@ -73,9 +104,11 @@ const IsolatedTextarea = memo(function IsolatedTextarea({
   rows?: number
   readOnly?: boolean
   className?: string
+  path?: string
 }) {
   const [localValue, setLocalValue] = useState(initialValue)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isMountedRef = useRef(true)
 
   useEffect(() => {
     if (initialValue !== localValue) {
@@ -85,6 +118,7 @@ const IsolatedTextarea = memo(function IsolatedTextarea({
 
   useEffect(() => {
     return () => {
+      isMountedRef.current = false
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
       }
@@ -99,12 +133,16 @@ const IsolatedTextarea = memo(function IsolatedTextarea({
     }
     
     timeoutRef.current = setTimeout(() => {
-      onChange(newValue)
-    }, 500)
+      if (isMountedRef.current) {
+        console.log('IsolatedInput: Sending update to parent:', newValue)
+        onChange(newValue)
+      }
+    }, 300) // Reduced from 500ms to 300ms
   }, [onChange])
 
   return (
     <textarea
+      data-path={path}
       value={localValue}
       onChange={(e) => handleChange(e.target.value)}
       placeholder={placeholder}
@@ -112,6 +150,48 @@ const IsolatedTextarea = memo(function IsolatedTextarea({
       readOnly={readOnly}
       className={className}
     />
+  )
+})
+
+// Isolated select
+const IsolatedSelect = memo(function IsolatedSelect({
+  value: initialValue,
+  onChange,
+  options,
+  readOnly = false,
+  className = ""
+}: {
+  value: string
+  onChange: (value: string) => void
+  options: string[]
+  readOnly?: boolean
+  className?: string
+}) {
+  const [localValue, setLocalValue] = useState(initialValue)
+
+  useEffect(() => {
+    if (initialValue !== localValue) {
+      setLocalValue(initialValue)
+    }
+  }, [initialValue])
+
+  const handleChange = useCallback((newValue: string) => {
+    setLocalValue(newValue)
+    onChange(newValue) // Select doesn't need debouncing
+  }, [onChange])
+
+  return (
+    <select
+      value={localValue}
+      onChange={(e) => handleChange(e.target.value)}
+      disabled={readOnly}
+      className={className}
+    >
+      <option value="">Select option...</option>
+      {options.map(option => (
+        <option key={option} value={option}>{option}</option>
+      ))}
+    </select>
   )
 })
 
@@ -204,7 +284,7 @@ interface FinishedProductSpecFormProps {
   readOnly?: boolean
 }
 
-export default function FinishedProductSpecForm({ data, onChange, readOnly = false }: FinishedProductSpecFormProps) {
+const FinishedProductSpecForm = memo(function FinishedProductSpecForm({ data, onChange, readOnly = false }: FinishedProductSpecFormProps) {
   const updateField = (path: string, value: string) => {
     const keys = path.split('.')
     const newData = { ...data }
@@ -251,6 +331,7 @@ export default function FinishedProductSpecForm({ data, onChange, readOnly = fal
             rows={rows}
             readOnly={readOnly}
             className={inputClassName}
+            path={path}
           />
         ) : (
           <IsolatedInput
@@ -260,6 +341,7 @@ export default function FinishedProductSpecForm({ data, onChange, readOnly = fal
             type={type}
             readOnly={readOnly}
             className={inputClassName}
+            path={path}
           />
         )}
       </div>
@@ -485,4 +567,6 @@ export default function FinishedProductSpecForm({ data, onChange, readOnly = fal
       </div>
     </div>
   )
-}
+})
+
+export default FinishedProductSpecForm

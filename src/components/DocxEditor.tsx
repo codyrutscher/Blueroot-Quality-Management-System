@@ -939,12 +939,19 @@ export default function DocxEditor({ templatePath, templateName, documentId, doc
             <div className="flex items-center space-x-4 text-sm text-gray-600">
               <span className="flex items-center">
                 <DocumentArrowDownIcon className="h-4 w-4 mr-1" />
-                Template: {templateName}
+                {documentId ? 'Document' : 'Template'}: {templateName}
               </span>
-              <span className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium">
-                <PencilIcon className="h-3 w-3 mr-1" />
-                Working Copy
-              </span>
+              {!documentId && (
+                <span className="flex items-center bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full font-medium text-xs">
+                  ⚠️ Initial Setup - Click Save to create editable document
+                </span>
+              )}
+              {documentId && (
+                <span className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium">
+                  <PencilIcon className="h-3 w-3 mr-1" />
+                  Editable Document
+                </span>
+              )}
             </div>
           </div>
           {hasChanges && (
@@ -1046,10 +1053,27 @@ export default function DocxEditor({ templatePath, templateName, documentId, doc
 
       {/* Document Editor - Full Page */}
       <div className="max-w-7xl mx-auto px-6 py-6">
+        {!documentId && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0">
+                <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600 mt-0.5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-yellow-800">Template Setup Mode</h3>
+                <p className="text-sm text-yellow-700 mt-1">
+                  You're setting up a new document from this template. Fill in any initial information, then click <strong>"Save"</strong> to create your editable document. 
+                  Once created, you'll be able to edit and save changes continuously.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {loading ? (
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-2 text-gray-600">Loading template...</p>
+            <p className="mt-2 text-gray-600">Loading {documentId ? 'document' : 'template'}...</p>
           </div>
         ) : (
           renderTemplateForm

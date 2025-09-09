@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 
 // Mock notifications storage
-let mockNotifications: any[] = []
+const mockNotifications: any[] = []
 
 export async function GET() {
   try {

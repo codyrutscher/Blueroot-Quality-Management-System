@@ -19,7 +19,7 @@ export async function POST(
     const { action, comments, signature, timestamp } = await request.json()
 
     // Update specific document in Supabase
-    const updates: any = {
+    const updates: Record<string, any> = {
       updatedAt: new Date().toISOString()
     }
 

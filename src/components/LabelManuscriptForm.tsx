@@ -9,7 +9,8 @@ const IsolatedInput = memo(function IsolatedInput({
   placeholder,
   type = "text",
   readOnly = false,
-  className = ""
+  className = "",
+  path = ""
 }: {
   value: string
   onChange: (value: string) => void
@@ -17,6 +18,7 @@ const IsolatedInput = memo(function IsolatedInput({
   type?: string
   readOnly?: boolean
   className?: string
+  path?: string
 }) {
   const [localValue, setLocalValue] = useState(initialValue)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -47,16 +49,35 @@ const IsolatedInput = memo(function IsolatedInput({
       clearTimeout(timeoutRef.current)
     }
     
-    // Debounced update to parent
+    // Only debounced update for stable cursor behavior
     timeoutRef.current = setTimeout(() => {
       if (isMountedRef.current) {
+        console.log('IsolatedInput: Sending debounced update to parent:', newValue)
         onChange(newValue)
       }
     }, 500)
   }, [onChange])
 
+  // Expose a method to flush pending changes immediately
+  useEffect(() => {
+    const element = inputRef.current
+    if (element) {
+      element.flushPendingChanges = () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current)
+          console.log('IsolatedInput: Force flushing update:', localValue)
+          onChange(localValue)
+        }
+      }
+    }
+  }, [localValue, onChange])
+
+  const inputRef = useRef<HTMLInputElement>(null)
+
   return (
     <input
+      ref={inputRef}
+      data-path={path}
       type={type}
       value={localValue}
       onChange={(e) => handleChange(e.target.value)}
@@ -74,7 +95,8 @@ const IsolatedTextarea = memo(function IsolatedTextarea({
   placeholder,
   rows = 3,
   readOnly = false,
-  className = ""
+  className = "",
+  path = ""
 }: {
   value: string
   onChange: (value: string) => void
@@ -82,6 +104,7 @@ const IsolatedTextarea = memo(function IsolatedTextarea({
   rows?: number
   readOnly?: boolean
   className?: string
+  path?: string
 }) {
   const [localValue, setLocalValue] = useState(initialValue)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -111,13 +134,15 @@ const IsolatedTextarea = memo(function IsolatedTextarea({
     
     timeoutRef.current = setTimeout(() => {
       if (isMountedRef.current) {
+        console.log('IsolatedInput: Sending update to parent:', newValue)
         onChange(newValue)
       }
-    }, 500)
+    }, 300) // Reduced from 500ms to 300ms
   }, [onChange])
 
   return (
     <textarea
+      data-path={path}
       value={localValue}
       onChange={(e) => handleChange(e.target.value)}
       placeholder={placeholder}
@@ -227,7 +252,7 @@ interface LabelManuscriptFormProps {
   readOnly?: boolean
 }
 
-export default function LabelManuscriptForm({ data, onChange, readOnly = false }: LabelManuscriptFormProps) {
+const LabelManuscriptForm = memo(function LabelManuscriptForm({ data, onChange, readOnly = false }: LabelManuscriptFormProps) {
   // Ensure data structure exists with defaults
   const safeData = {
     productInfo: data?.productInfo || {},
@@ -300,6 +325,7 @@ export default function LabelManuscriptForm({ data, onChange, readOnly = false }
             rows={rows}
             readOnly={readOnly}
             className={inputClassName}
+            path={path}
           />
         ) : (
           <IsolatedInput
@@ -309,6 +335,7 @@ export default function LabelManuscriptForm({ data, onChange, readOnly = false }
             type={type}
             readOnly={readOnly}
             className={inputClassName}
+            path={path}
           />
         )}
       </div>
@@ -430,4 +457,6 @@ export default function LabelManuscriptForm({ data, onChange, readOnly = false }
       </div>
     </div>
   )
-}
+})
+
+export default LabelManuscriptForm

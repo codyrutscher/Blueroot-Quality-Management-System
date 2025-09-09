@@ -152,7 +152,12 @@ export default function DocumentList({ onEditDocument, onNavigateToDocuments }: 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string, workflowStatus?: string) => {
+    // If workflow status is REJECTED, show rejected status regardless of document status
+    if (workflowStatus === 'REJECTED') {
+      return 'text-red-600 bg-red-100'
+    }
+    
     switch (status) {
       case 'SIGNED': return 'text-green-600 bg-green-100'
       case 'EDIT_MODE': return 'text-blue-600 bg-blue-100'
@@ -160,6 +165,22 @@ export default function DocumentList({ onEditDocument, onNavigateToDocuments }: 
       case 'ERROR': return 'text-red-600 bg-red-100'
       case 'READY': return 'text-gray-600 bg-gray-100' // Legacy status
       default: return 'text-gray-600 bg-gray-100'
+    }
+  }
+
+  const getStatusText = (status: string, workflowStatus?: string) => {
+    // If workflow status is REJECTED, show rejected message
+    if (workflowStatus === 'REJECTED') {
+      return 'rejected/please fix'
+    }
+    
+    switch (status) {
+      case 'SIGNED': return 'signed'
+      case 'EDIT_MODE': return 'edit mode'
+      case 'PROCESSING': return 'processing'
+      case 'ERROR': return 'error'
+      case 'READY': return 'ready'
+      default: return status?.toLowerCase() || 'unknown'
     }
   }
 
@@ -227,8 +248,8 @@ export default function DocumentList({ onEditDocument, onNavigateToDocuments }: 
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(document.status)}`}>
-                    {document.status.toLowerCase()}
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(document.status, document.workflowStatus)}`}>
+                    {getStatusText(document.status, document.workflowStatus)}
                   </span>
                   <span className={`px-2 py-1 text-xs font-medium rounded ${getCategoryColor(document.category)}`}>
                     {document.category.replace('_', ' ').toLowerCase()}
@@ -424,7 +445,7 @@ export default function DocumentList({ onEditDocument, onNavigateToDocuments }: 
           <div className="bg-white rounded-lg w-full max-w-md p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Document</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete "{documentToDelete.title}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{documentToDelete.title}&quot;? This action cannot be undone.
             </p>
             <div className="flex justify-end space-x-3">
               <button
@@ -576,7 +597,7 @@ function DocumentViewer({ document, isOpen, onClose }: {
                     <div className="bg-gray-50 p-4 rounded border">
                       <p className="text-sm text-gray-600 mb-3">
                         <strong>Form Data Preview:</strong> This document contains structured form data. 
-                        Click "Edit" to view in the form interface.
+                        Click &quot;Edit&quot; to view in the form interface.
                       </p>
                       <div className="text-xs font-mono text-gray-600 max-h-96 overflow-y-auto bg-white p-3 rounded border">
                         <pre>{JSON.stringify(JSON.parse(documentDetails.content), null, 2)}</pre>

@@ -197,7 +197,12 @@ export default function ProductDetail({ sku, onBack, onNavigateToDocuments }: Pr
     }
   }
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string, workflowStatus?: string) => {
+    // If workflow status is REJECTED, show rejected status regardless of document status
+    if (workflowStatus === 'REJECTED') {
+      return 'text-red-600 bg-red-100'
+    }
+    
     switch (status) {
       case 'SIGNED': return 'text-green-600 bg-green-100'
       case 'EDIT_MODE': return 'text-blue-600 bg-blue-100'
@@ -209,6 +214,26 @@ export default function ProductDetail({ sku, onBack, onNavigateToDocuments }: Pr
       case 'DRAFT': return 'text-gray-600 bg-gray-100'
       case 'REJECTED': return 'text-red-600 bg-red-100'
       default: return 'text-gray-600 bg-gray-100'
+    }
+  }
+
+  const getStatusText = (status: string, workflowStatus?: string) => {
+    // If workflow status is REJECTED, show rejected message
+    if (workflowStatus === 'REJECTED') {
+      return 'rejected/please fix'
+    }
+    
+    switch (status) {
+      case 'SIGNED': return 'signed'
+      case 'EDIT_MODE': return 'edit mode'
+      case 'PROCESSING': return 'processing'
+      case 'ERROR': return 'error'
+      case 'READY': return 'ready'
+      case 'APPROVED': return 'approved'
+      case 'IN_REVIEW': return 'in review'
+      case 'DRAFT': return 'draft'
+      case 'REJECTED': return 'rejected/please fix'
+      default: return status?.toLowerCase() || 'unknown'
     }
   }
 
@@ -412,8 +437,8 @@ export default function ProductDetail({ sku, onBack, onNavigateToDocuments }: Pr
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(doc.status || 'EDIT_MODE')}`}>
-                          {(doc.status || 'edit_mode').toLowerCase().replace('_', ' ')}
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(doc.status || 'EDIT_MODE', doc.workflowStatus)}`}>
+                          {getStatusText(doc.status || 'EDIT_MODE', doc.workflowStatus)}
                         </span>
                         <span className={`px-2 py-1 text-xs font-medium rounded ${getCategoryColor(doc.category || 'SPECIFICATION')}`}>
                           {(doc.category || 'specification').replace('_', ' ').toLowerCase()}
