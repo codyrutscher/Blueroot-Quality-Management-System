@@ -1,7 +1,6 @@
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
-import { prisma } from '@/lib/prisma'
 
 export const authOptions = {
   providers: [
@@ -44,27 +43,7 @@ export const authOptions = {
           }
         }
 
-        // Try to find user in database
-        try {
-          const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
-          })
-
-          if (user && user.password) {
-            // Verify password
-            const isValidPassword = await compare(credentials.password, user.password)
-            if (isValidPassword) {
-              return {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                role: user.role,
-              }
-            }
-          }
-        } catch (error) {
-          console.log('Database lookup failed, using demo mode')
-        }
+        // Using demo mode only - no database lookup needed
 
         return null
       },
