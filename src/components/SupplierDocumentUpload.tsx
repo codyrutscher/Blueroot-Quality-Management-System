@@ -108,22 +108,42 @@ export default function SupplierDocumentUpload() {
       return
     }
 
+    // Check file sizes (localStorage limit is typically 5-10MB)
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0)
+    const maxSize = 5 * 1024 * 1024 // 5MB limit
+    
+    if (totalSize > maxSize) {
+      alert(`Total file size (${(totalSize / 1024 / 1024).toFixed(2)}MB) exceeds the 5MB limit. Please select smaller files or fewer files.`)
+      return
+    }
+
     setUploading(true)
     try {
       // Get existing supplier documents from localStorage
       const allSupplierDocs = localStorage.getItem('supplierDocuments')
       let supplierDocs = allSupplierDocs ? JSON.parse(allSupplierDocs) : {}
       
-      // Create document entries for each file
-      const newDocuments = files.map((file, index) => ({
-        id: `${Date.now()}-${index}`,
-        title: files.length === 1 ? documentTitle : `${documentTitle} - ${file.name}`,
-        description: documentDescription,
-        fileName: file.name,
-        fileSize: file.size,
-        uploadDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
-        uploader: session?.user?.name || 'Unknown User',
-        fileType: file.type || 'application/octet-stream'
+      // Create document entries for each file with actual file data
+      const newDocuments = await Promise.all(files.map(async (file, index) => {
+        // Convert file to base64 for storage
+        const fileData = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
+
+        return {
+          id: `${Date.now()}-${index}`,
+          title: files.length === 1 ? documentTitle : `${documentTitle} - ${file.name}`,
+          description: documentDescription,
+          fileName: file.name,
+          fileSize: file.size,
+          uploadDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
+          uploader: session?.user?.name || 'Unknown User',
+          fileType: file.type || 'application/octet-stream',
+          fileData: fileData // Store the actual file data as base64
+        }
       }))
 
       // Add documents to the selected supplier
@@ -132,8 +152,18 @@ export default function SupplierDocumentUpload() {
       }
       supplierDocs[selectedSupplier].push(...newDocuments)
 
-      // Save back to localStorage
-      localStorage.setItem('supplierDocuments', JSON.stringify(supplierDocs))
+      // Save back to localStorage with error handling
+      try {
+        localStorage.setItem('supplierDocuments', JSON.stringify(supplierDocs))
+      } catch (storageError) {
+        console.error('Storage error:', storageError)
+        if (storageError instanceof Error && storageError.name === 'QuotaExceededError') {
+          alert('Storage quota exceeded. Please try uploading smaller files or clear some browser data.')
+        } else {
+          alert('Failed to save documents. Please try again.')
+        }
+        return
+      }
       
       // Dispatch custom event to notify other components
       window.dispatchEvent(new CustomEvent('supplierDocumentsUpdated', {
@@ -322,7 +352,12 @@ export default function SupplierDocumentUpload() {
           {/* Selected Files */}
           {files.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700">Selected Files ({files.length})</h4>
+              <div className="flex justify-between items-center">
+                <h4 className="text-sm font-medium text-gray-700">Selected Files ({files.length})</h4>
+                <span className="text-xs text-gray-500">
+                  Total: {(files.reduce((sum, file) => sum + file.size, 0) / 1024 / 1024).toFixed(2)}MB / 5MB
+                </span>
+              </div>
               <div className="max-h-40 overflow-y-auto space-y-1">
                 {files.map((file, index) => (
                   <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">

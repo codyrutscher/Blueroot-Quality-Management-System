@@ -19,6 +19,7 @@ interface SupplierDocument {
   uploadDate: string
   uploader: string
   fileType: string
+  fileData?: string // Base64 encoded file data
 }
 
 interface SupplierDetailProps {
@@ -155,41 +156,34 @@ export default function SupplierDetail({ supplierName, onBack }: SupplierDetailP
   }
 
   const handleDocumentDownload = (document: SupplierDocument) => {
-    // Since we're only storing metadata in localStorage, we'll create a mock download
-    // In a real app with a backend, this would fetch the actual file
     try {
-      // Create a mock file content based on the document type
-      let content = `Document: ${document.title}\nDescription: ${document.description || 'No description'}\nSupplier: ${supplierName}\nUploaded by: ${document.uploader}\nUpload Date: ${document.uploadDate}\n\nThis is a placeholder for the actual document content.`
-      
-      // Create blob based on file type
-      let blob: Blob
-      let downloadName = document.fileName
-      
-      if (document.fileType.includes('pdf') || document.fileName.toLowerCase().includes('.pdf')) {
-        // For PDFs, create a simple text file since we don't have the original
-        blob = new Blob([content], { type: 'text/plain' })
-        downloadName = document.fileName.replace('.pdf', '_metadata.txt')
-      } else if (document.fileType.includes('text') || document.fileName.toLowerCase().includes('.txt')) {
-        blob = new Blob([content], { type: 'text/plain' })
-      } else {
-        // For other file types, create a text file with metadata
-        blob = new Blob([content], { type: 'text/plain' })
-        downloadName = document.fileName.split('.')[0] + '_metadata.txt'
+      if (!document.fileData) {
+        // Fallback for documents without file data (legacy)
+        alert('This document was uploaded without file data and cannot be downloaded.')
+        return
       }
+
+      // Convert base64 data URL back to blob
+      const response = fetch(document.fileData)
+      response.then(res => res.blob()).then(blob => {
+        // Create download link with original file
+        const url = URL.createObjectURL(blob)
+        const link = window.document.createElement('a')
+        link.href = url
+        link.download = document.fileName
+        window.document.body.appendChild(link)
+        link.click()
+        
+        // Cleanup
+        window.document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+        
+        console.log('Downloaded document:', document.fileName)
+      }).catch(error => {
+        console.error('Download error:', error)
+        alert('Download failed. Please try again.')
+      })
       
-      // Create download link
-      const url = URL.createObjectURL(blob)
-      const link = window.document.createElement('a')
-      link.href = url
-      link.download = downloadName
-      window.document.body.appendChild(link)
-      link.click()
-      
-      // Cleanup
-      window.document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-      
-      console.log('Downloaded document:', downloadName)
     } catch (error) {
       console.error('Download error:', error)
       alert('Download failed. Please try again.')
