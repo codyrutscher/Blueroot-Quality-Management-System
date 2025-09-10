@@ -10,7 +10,11 @@ interface Supplier {
   approvalStatus: string
 }
 
-export default function SupplierIndex() {
+interface SupplierIndexProps {
+  onSupplierSelect: (supplierName: string) => void
+}
+
+export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) {
   const { data: session } = useSession()
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [loading, setLoading] = useState(true)
@@ -226,9 +230,10 @@ export default function SupplierIndex() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSuppliers.map((supplier, index) => (
-          <div
+          <button
             key={`${supplier.name}-${index}`}
-            className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
+            onClick={() => onSupplierSelect(supplier.name)}
+            className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow text-left w-full"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center">
@@ -255,7 +260,12 @@ export default function SupplierIndex() {
                 </span>
               </div>
             </div>
-          </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <span className="text-xs text-gray-600">Click to view details</span>
+              <span className="text-xs text-blue-600 font-medium">View Details →</span>
+            </div>
+          </button>
         ))}
       </div>
 

@@ -9,6 +9,8 @@ import TemplateManager from './TemplateManager'
 import ProductIndex from './ProductIndex'
 import ProductDetail from './ProductDetail'
 import SupplierIndex from './SupplierIndex'
+import SupplierDetail from './SupplierDetail'
+import SupplierDocumentUpload from './SupplierDocumentUpload'
 import NotificationCenter from './NotificationCenter'
 import DocxEditor from './DocxEditor'
 
@@ -20,6 +22,7 @@ export default function Dashboard() {
   const [showAssignmentModal, setShowAssignmentModal] = useState(false)
   const [refreshDocuments, setRefreshDocuments] = useState(0)
   const [selectedProductSku, setSelectedProductSku] = useState(null)
+  const [selectedSupplierName, setSelectedSupplierName] = useState(null)
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -100,6 +103,16 @@ export default function Dashboard() {
               📋 Templates
             </button>
             <button
+              onClick={() => setActiveTab('supplier-upload')}
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                activeTab === 'supplier-upload'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]'
+                  : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50'
+              }`}
+            >
+              📤 Supplier Documents Upload
+            </button>
+            <button
               onClick={() => setActiveTab('documents')}
               className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
                 activeTab === 'documents'
@@ -107,7 +120,7 @@ export default function Dashboard() {
                   : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50'
               }`}
             >
-              📄 My Documents
+              📄 BRH Documents
             </button>
           </nav>
         </div>
@@ -155,7 +168,13 @@ export default function Dashboard() {
             <div className="p-1">
               {activeTab === 'search' && <SearchInterface />}
               {activeTab === 'upload' && <DocumentUpload />}
-              {activeTab === 'suppliers' && <SupplierIndex />}
+              {activeTab === 'suppliers' && !selectedSupplierName && <SupplierIndex onSupplierSelect={setSelectedSupplierName} />}
+              {activeTab === 'suppliers' && selectedSupplierName && (
+                <SupplierDetail 
+                  supplierName={selectedSupplierName} 
+                  onBack={() => setSelectedSupplierName(null)}
+                />
+              )}
               {activeTab === 'products' && !selectedProductSku && <ProductIndex onProductSelect={setSelectedProductSku} />}
               {activeTab === 'products' && selectedProductSku && (
                 <ProductDetail 
@@ -165,6 +184,7 @@ export default function Dashboard() {
                 />
               )}
               {activeTab === 'templates' && <TemplateManager onEditTemplate={setEditingTemplate} />}
+              {activeTab === 'supplier-upload' && <SupplierDocumentUpload />}
               {activeTab === 'documents' && <DocumentList key={refreshDocuments} onEditDocument={setEditingDocument} onNavigateToDocuments={() => setActiveTab('documents')} />}
             </div>
           </div>
