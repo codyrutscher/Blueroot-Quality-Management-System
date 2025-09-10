@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { ArrowLeftIcon, DocumentIcon, BuildingOfficeIcon, CalendarIcon, UserIcon, ArrowPathIcon } from '@heroicons/react/24/outline'
+import { supabase } from '../../lib/supabase'
+import { getSupplierByName } from '../../lib/suppliers'
 
 interface Supplier {
   name: string
@@ -19,7 +21,8 @@ interface SupplierDocument {
   uploadDate: string
   uploader: string
   fileType: string
-  fileData?: string // Base64 encoded file data
+  fileData?: string // Base64 encoded file data (localStorage)
+  filePath?: string // Supabase Storage file path
 }
 
 interface SupplierDetailProps {
@@ -103,15 +106,81 @@ export default function SupplierDetail({ supplierName, onBack }: SupplierDetailP
 
   const fetchSupplierDocuments = async () => {
     try {
-      // Get documents from localStorage for this supplier
-      const allSupplierDocs = localStorage.getItem('supplierDocuments')
-      let supplierDocs = allSupplierDocs ? JSON.parse(allSupplierDocs) : {}
+      let documents: SupplierDocument[] = []
       
-      const supplierDocuments = supplierDocs[supplierName] || []
-      setDocuments(supplierDocuments)
-      console.log(`Found ${supplierDocuments.length} documents for ${supplierName}`)
+      // Try to fetch from Supabase first
+      try {
+        const supplier = await getSupplierByName(supplierName)
+        if (supplier) {
+          console.log(`📥 Fetching documents for supplier: ${supplierName} (ID: ${supplier.id})`)
+          
+          const { data: supabaseDocuments, error } = await supabase
+            .from('supplier_documents')
+            .select('*')
+            .eq('supplier_id', supplier.id)
+            .order('uploaded_at', { ascending: false })
+
+          if (error) {
+            console.warn('⚠️ Supabase document fetch failed:', error.message)
+          } else {
+            // Transform Supabase documents to match interface
+            documents = supabaseDocuments.map(doc => ({
+              id: doc.id,
+              title: doc.title,
+              description: doc.description,
+              fileName: doc.file_name,
+              fileSize: doc.file_size,
+              uploadDate: doc.uploaded_at.split('T')[0], // Convert to YYYY-MM-DD
+              uploader: doc.uploaded_by,
+              fileType: doc.file_type,
+              fileData: undefined, // Supabase documents don't have base64 data
+              filePath: doc.file_path // Add file path for Supabase downloads
+            }))
+            console.log(`✅ Found ${documents.length} documents in Supabase for ${supplierName}`)
+          }
+        }
+      } catch (supabaseError) {
+        console.warn('⚠️ Supabase fetch failed, checking localStorage:', supabaseError)
+      }
+      
+      // Also check localStorage for fallback documents
+      try {
+        const allSupplierDocs = localStorage.getItem('supplierDocuments')
+        const supplierDocs = allSupplierDocs ? JSON.parse(allSupplierDocs) : {}
+        const localDocuments = supplierDocs[supplierName] || []
+        
+        if (localDocuments.length > 0) {
+          console.log(`📦 Found ${localDocuments.length} documents in localStorage for ${supplierName}`)
+          
+          // Transform localStorage documents to match interface
+          const transformedLocalDocs = localDocuments.map((doc: any) => ({
+            id: doc.id,
+            title: doc.title,
+            description: doc.description,
+            fileName: doc.fileName,
+            fileSize: doc.fileSize,
+            uploadDate: doc.uploadDate,
+            uploader: doc.uploader,
+            fileType: doc.fileType,
+            fileData: doc.fileData, // localStorage documents have base64 data
+            filePath: undefined // localStorage documents don't have file paths
+          }))
+          
+          // Combine with Supabase documents (avoid duplicates by ID)
+          const existingIds = new Set(documents.map(d => d.id))
+          const newLocalDocs = transformedLocalDocs.filter((doc: any) => !existingIds.has(doc.id))
+          documents = [...documents, ...newLocalDocs]
+        }
+      } catch (localError) {
+        console.warn('⚠️ localStorage fetch failed:', localError)
+      }
+      
+      setDocuments(documents)
+      console.log(`📄 Total documents found for ${supplierName}: ${documents.length}`)
+      
     } catch (error) {
-      console.error('Error fetching supplier documents:', error)
+      console.error('❌ Error fetching supplier documents:', error)
+      setDocuments([])
     } finally {
       setLoading(false)
     }
@@ -155,38 +224,84 @@ export default function SupplierDetail({ supplierName, onBack }: SupplierDetailP
     })
   }
 
-  const handleDocumentDownload = (document: SupplierDocument) => {
+  const handleDocumentDownload = async (document: SupplierDocument) => {
     try {
-      if (!document.fileData) {
-        // Fallback for documents without file data (legacy)
-        alert('This document was uploaded without file data and cannot be downloaded.')
-        return
-      }
+      console.log(`🔽 Downloading document: ${document.fileName}`)
+      
+      // Check if it's a Supabase document (has filePath)
+      if (document.filePath) {
+        console.log(`📁 Downloading from Supabase Storage: ${document.filePath}`)
+        
+        try {
+          // Download from Supabase Storage
+          const { data, error } = await supabase.storage
+            .from('supplier-documents')
+            .download(document.filePath)
 
-      // Convert base64 data URL back to blob
-      const response = fetch(document.fileData)
-      response.then(res => res.blob()).then(blob => {
-        // Create download link with original file
-        const url = URL.createObjectURL(blob)
-        const link = window.document.createElement('a')
-        link.href = url
-        link.download = document.fileName
-        window.document.body.appendChild(link)
-        link.click()
+          if (error) {
+            throw new Error(`Supabase download failed: ${error.message}`)
+          }
+
+          // Create download link
+          const url = URL.createObjectURL(data)
+          const link = window.document.createElement('a')
+          link.href = url
+          link.download = document.fileName
+          window.document.body.appendChild(link)
+          link.click()
+          
+          // Cleanup
+          window.document.body.removeChild(link)
+          URL.revokeObjectURL(url)
+          
+          console.log(`✅ Downloaded from Supabase: ${document.fileName}`)
+          return
+          
+        } catch (supabaseError) {
+          console.error('❌ Supabase download failed:', supabaseError)
+          alert(`Download failed: ${supabaseError instanceof Error ? supabaseError.message : 'Unknown error'}`)
+          return
+        }
+      }
+      
+      // Check if it's a localStorage document (has fileData)
+      if (document.fileData) {
+        console.log(`💾 Downloading from localStorage: ${document.fileName}`)
         
-        // Cleanup
-        window.document.body.removeChild(link)
-        URL.revokeObjectURL(url)
-        
-        console.log('Downloaded document:', document.fileName)
-      }).catch(error => {
-        console.error('Download error:', error)
-        alert('Download failed. Please try again.')
-      })
+        try {
+          // Convert base64 data URL back to blob
+          const response = await fetch(document.fileData)
+          const blob = await response.blob()
+          
+          // Create download link
+          const url = URL.createObjectURL(blob)
+          const link = window.document.createElement('a')
+          link.href = url
+          link.download = document.fileName
+          window.document.body.appendChild(link)
+          link.click()
+          
+          // Cleanup
+          window.document.body.removeChild(link)
+          URL.revokeObjectURL(url)
+          
+          console.log(`✅ Downloaded from localStorage: ${document.fileName}`)
+          return
+          
+        } catch (localError) {
+          console.error('❌ localStorage download failed:', localError)
+          alert(`Download failed: ${localError instanceof Error ? localError.message : 'Unknown error'}`)
+          return
+        }
+      }
+      
+      // No file data available
+      console.warn('⚠️ No file data available for download')
+      alert('This document has no file data and cannot be downloaded. It may be a metadata-only entry.')
       
     } catch (error) {
-      console.error('Download error:', error)
-      alert('Download failed. Please try again.')
+      console.error('❌ Download error:', error)
+      alert(`Download failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 

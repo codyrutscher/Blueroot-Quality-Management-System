@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, memo, useEffect, useRef }
+import { useState, useCallback, memo, useEffect, useRef } from 'react'
 import { AutoResizingInput, AutoResizingTextarea, AutoResizingSelect } from './AutoResizingInputs'
 
 // Auto-resizing input that manages its own state
