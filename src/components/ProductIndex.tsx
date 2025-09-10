@@ -28,7 +28,16 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterCategory, setFilterCategory] = useState('')
+  const [filters, setFilters] = useState({
+    healthCategory: '',
+    brand: '',
+    nutrientType: '',
+    therapeuticPlatform: '',
+    format: '',
+    manufacturer: '',
+    containsIron: ''
+  })
+  const [sortBy, setSortBy] = useState('productName')
 
   useEffect(() => {
     fetchProducts()
@@ -51,14 +60,55 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
     }
   }
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.sku.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = !filterCategory || product.healthCategory === filterCategory
-    return matchesSearch && matchesCategory
-  })
+  const filteredAndSortedProducts = () => {
+    let filtered = products.filter(product => {
+      // Search filter
+      const matchesSearch = product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           product.brand.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      // Multi-filters
+      const matchesHealthCategory = !filters.healthCategory || product.healthCategory === filters.healthCategory
+      const matchesBrand = !filters.brand || product.brand === filters.brand
+      const matchesNutrientType = !filters.nutrientType || product.nutrientType === filters.nutrientType
+      const matchesTherapeuticPlatform = !filters.therapeuticPlatform || product.therapeuticPlatform === filters.therapeuticPlatform
+      const matchesFormat = !filters.format || product.format === filters.format
+      const matchesManufacturer = !filters.manufacturer || product.manufacturer === filters.manufacturer
+      const matchesIron = !filters.containsIron || 
+        (filters.containsIron === 'yes' ? product.containsIron : !product.containsIron)
 
-  const categories = [...new Set(products.map(p => p.healthCategory).filter(Boolean))]
+      return matchesSearch && matchesHealthCategory && matchesBrand && matchesNutrientType && 
+             matchesTherapeuticPlatform && matchesFormat && matchesManufacturer && matchesIron
+    })
+
+    // Sorting
+    filtered.sort((a, b) => {
+      const aValue = a[sortBy as keyof Product] || ''
+      const bValue = b[sortBy as keyof Product] || ''
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return aValue.localeCompare(bValue)
+      }
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return aValue - bValue
+      }
+      return 0
+    })
+
+    return filtered
+  }
+
+  // Get unique values for filter dropdowns
+  const filterOptions = {
+    healthCategory: [...new Set(products.map(p => p.healthCategory).filter(Boolean))],
+    brand: [...new Set(products.map(p => p.brand).filter(Boolean))],
+    nutrientType: [...new Set(products.map(p => p.nutrientType).filter(Boolean))],
+    therapeuticPlatform: [...new Set(products.map(p => p.therapeuticPlatform).filter(Boolean))],
+    format: [...new Set(products.map(p => p.format).filter(Boolean))],
+    manufacturer: [...new Set(products.map(p => p.manufacturer).filter(Boolean))]
+  }
+
+  const filteredProducts = filteredAndSortedProducts()
 
   if (loading) {
     return (
@@ -79,27 +129,147 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
       </div>
 
       {/* Search and Filter Controls */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
+      <div className="mb-6 space-y-4">
+        {/* Search Bar */}
+        <div className="relative">
           <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search products by name or SKU..."
+            placeholder="Search products by name, SKU, or brand..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
           />
         </div>
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          className="px-4 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="">All Categories</option>
-          {categories.map(category => (
-            <option key={category} value={category}>{category}</option>
-          ))}
-        </select>
+
+        {/* Sort and Filters */}
+        <div className="flex flex-wrap gap-3">
+          {/* Sort By */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          >
+            <option value="productName">Sort by Name</option>
+            <option value="sku">Sort by SKU</option>
+            <option value="brand">Sort by Brand</option>
+            <option value="unitCount">Sort by Unit Count</option>
+          </select>
+
+          {/* Health Category Filter */}
+          <select
+            value={filters.healthCategory}
+            onChange={(e) => setFilters({...filters, healthCategory: e.target.value})}
+            className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          >
+            <option value="">All Categories</option>
+            {filterOptions.healthCategory.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+
+          {/* Brand Filter */}
+          <select
+            value={filters.brand}
+            onChange={(e) => setFilters({...filters, brand: e.target.value})}
+            className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          >
+            <option value="">All Brands</option>
+            {filterOptions.brand.map(brand => (
+              <option key={brand} value={brand}>{brand}</option>
+            ))}
+          </select>
+
+          {/* Format Filter */}
+          <select
+            value={filters.format}
+            onChange={(e) => setFilters({...filters, format: e.target.value})}
+            className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          >
+            <option value="">All Formats</option>
+            {filterOptions.format.map(format => (
+              <option key={format} value={format}>{format}</option>
+            ))}
+          </select>
+
+          {/* Manufacturer Filter */}
+          <select
+            value={filters.manufacturer}
+            onChange={(e) => setFilters({...filters, manufacturer: e.target.value})}
+            className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          >
+            <option value="">All Manufacturers</option>
+            {filterOptions.manufacturer.map(manufacturer => (
+              <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
+            ))}
+          </select>
+
+          {/* Contains Iron Filter */}
+          <select
+            value={filters.containsIron}
+            onChange={(e) => setFilters({...filters, containsIron: e.target.value})}
+            className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          >
+            <option value="">Iron - Any</option>
+            <option value="yes">Contains Iron</option>
+            <option value="no">No Iron</option>
+          </select>
+
+          {/* Clear Filters Button */}
+          <button
+            onClick={() => {
+              setFilters({
+                healthCategory: '',
+                brand: '',
+                nutrientType: '',
+                therapeuticPlatform: '',
+                format: '',
+                manufacturer: '',
+                containsIron: ''
+              })
+              setSearchTerm('')
+            }}
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
+          >
+            Clear All Filters
+          </button>
+        </div>
+
+        {/* Advanced Filters (Second Row) */}
+        <div className="flex flex-wrap gap-3">
+          {/* Nutrient Type Filter */}
+          <select
+            value={filters.nutrientType}
+            onChange={(e) => setFilters({...filters, nutrientType: e.target.value})}
+            className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          >
+            <option value="">All Nutrient Types</option>
+            {filterOptions.nutrientType.map(nutrientType => (
+              <option key={nutrientType} value={nutrientType}>{nutrientType}</option>
+            ))}
+          </select>
+
+          {/* Therapeutic Platform Filter */}
+          <select
+            value={filters.therapeuticPlatform}
+            onChange={(e) => setFilters({...filters, therapeuticPlatform: e.target.value})}
+            className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          >
+            <option value="">All Therapeutic Platforms</option>
+            {filterOptions.therapeuticPlatform.map(platform => (
+              <option key={platform} value={platform}>{platform}</option>
+            ))}
+          </select>
+
+          {/* Active Filters Count */}
+          {Object.values(filters).some(filter => filter !== '') && (
+            <div className="flex items-center px-3 py-2 bg-blue-100 text-blue-800 rounded-lg text-sm">
+              <span className="font-medium">
+                {Object.values(filters).filter(filter => filter !== '').length} active filters
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Products Grid */}
