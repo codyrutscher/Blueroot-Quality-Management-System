@@ -1,5 +1,6 @@
 'use client'
 
+import { AutoResizingInput, AutoResizingTextarea, AutoResizingSelect } from './AutoResizingInputs'
 import { useState, useCallback, memo, useEffect, useRef } from 'react'
 
 // Completely isolated input that manages its own state
@@ -305,7 +306,7 @@ const RawMaterialSpecForm = memo(function RawMaterialSpecForm({ data, onChange, 
       <div className="mb-4">
         <label className="block text-sm font-bold text-gray-900 mb-2">{label}</label>
         {rows ? (
-          <IsolatedTextarea
+          <AutoResizingTextarea
             value={getValue()}
             onChange={(value) => updateField(path, value)}
             placeholder={placeholder}
@@ -315,7 +316,7 @@ const RawMaterialSpecForm = memo(function RawMaterialSpecForm({ data, onChange, 
             path={path}
           />
         ) : (
-          <IsolatedInput
+          <AutoResizingInput
             value={getValue()}
             onChange={(value) => updateField(path, value)}
             placeholder={placeholder}

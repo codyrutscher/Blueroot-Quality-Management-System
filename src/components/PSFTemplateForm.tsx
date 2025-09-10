@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useCallback, memo, useEffect, useRef } from 'react'
+import { useState, useCallback, memo, useEffect, useRef }
+import { AutoResizingInput, AutoResizingTextarea, AutoResizingSelect } from './AutoResizingInputs'
 
-// Completely isolated input that manages its own state
+// Auto-resizing input that manages its own state
 const IsolatedInput = memo(function IsolatedInput({
   value: initialValue,
   onChange,
@@ -21,6 +22,8 @@ const IsolatedInput = memo(function IsolatedInput({
   const [localValue, setLocalValue] = useState(initialValue)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isMountedRef = useRef(true)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const hiddenSpanRef = useRef<HTMLSpanElement>(null)
 
   // Only update local value when prop changes from external source
   useEffect(() => {
@@ -39,8 +42,26 @@ const IsolatedInput = memo(function IsolatedInput({
     }
   }, [])
 
+  // Auto-resize functionality
+  const adjustWidth = useCallback(() => {
+    const input = inputRef.current
+    const hiddenSpan = hiddenSpanRef.current
+    if (input && hiddenSpan) {
+      hiddenSpan.textContent = localValue || placeholder || ''
+      const newWidth = Math.max(hiddenSpan.scrollWidth + 20, 100) // 20px padding, 100px minimum
+      input.style.width = `${newWidth}px`
+    }
+  }, [localValue, placeholder])
+
+  useEffect(() => {
+    adjustWidth()
+  }, [localValue, adjustWidth])
+
   const handleChange = useCallback((newValue: string) => {
     setLocalValue(newValue)
+    
+    // Adjust width immediately for better UX
+    setTimeout(adjustWidth, 0)
     
     // Clear existing timeout
     if (timeoutRef.current) {
@@ -53,21 +74,36 @@ const IsolatedInput = memo(function IsolatedInput({
         onChange(newValue)
       }
     }, 500)
-  }, [onChange])
+  }, [onChange, adjustWidth])
 
   return (
-    <input
-      type={type}
-      value={localValue}
-      onChange={(e) => handleChange(e.target.value)}
-      placeholder={placeholder}
-      readOnly={readOnly}
-      className={className}
-    />
+    <div className="relative inline-block">
+      <input
+        ref={inputRef}
+        type={type}
+        value={localValue}
+        onChange={(e) => handleChange(e.target.value)}
+        placeholder={placeholder}
+        readOnly={readOnly}
+        className={`${className} min-w-[100px]`}
+        style={{ minWidth: '100px' }}
+      />
+      <span
+        ref={hiddenSpanRef}
+        className={`absolute invisible whitespace-pre ${className}`}
+        style={{ 
+          fontSize: 'inherit',
+          fontFamily: 'inherit',
+          padding: 'inherit',
+          border: 'inherit'
+        }}
+        aria-hidden="true"
+      />
+    </div>
   )
 })
 
-// Isolated textarea
+// Auto-resizing textarea
 const IsolatedTextarea = memo(function IsolatedTextarea({
   value: initialValue,
   onChange,
@@ -86,6 +122,7 @@ const IsolatedTextarea = memo(function IsolatedTextarea({
   const [localValue, setLocalValue] = useState(initialValue)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isMountedRef = useRef(true)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     if (initialValue !== localValue) {
@@ -102,8 +139,24 @@ const IsolatedTextarea = memo(function IsolatedTextarea({
     }
   }, [])
 
+  // Auto-resize functionality
+  const adjustHeight = useCallback(() => {
+    const textarea = textareaRef.current
+    if (textarea) {
+      textarea.style.height = 'auto'
+      textarea.style.height = Math.max(textarea.scrollHeight, rows * 24) + 'px'
+    }
+  }, [rows])
+
+  useEffect(() => {
+    adjustHeight()
+  }, [localValue, adjustHeight])
+
   const handleChange = useCallback((newValue: string) => {
     setLocalValue(newValue)
+    
+    // Adjust height immediately for better UX
+    setTimeout(adjustHeight, 0)
     
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
@@ -114,16 +167,17 @@ const IsolatedTextarea = memo(function IsolatedTextarea({
         onChange(newValue)
       }
     }, 500)
-  }, [onChange])
+  }, [onChange, adjustHeight])
 
   return (
     <textarea
+      ref={textareaRef}
       value={localValue}
       onChange={(e) => handleChange(e.target.value)}
       placeholder={placeholder}
-      rows={rows}
       readOnly={readOnly}
-      className={className}
+      className={`${className} resize-none overflow-hidden`}
+      style={{ minHeight: `${rows * 24}px` }}
     />
   )
 })
@@ -269,7 +323,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
           
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">SKU</label>
-            <IsolatedInput
+            <AutoResizingInput
               value={getValue('productSummary.sku')}
               onChange={(value) => updateField('productSummary.sku', value)}
               placeholder="Enter SKU"
@@ -280,7 +334,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
 
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">Sales Description</label>
-            <IsolatedInput
+            <AutoResizingInput
               value={getValue('productSummary.salesDescription')}
               onChange={(value) => updateField('productSummary.salesDescription', value)}
               placeholder="Product description"
@@ -291,7 +345,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
 
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">PSF Submittal Date</label>
-            <IsolatedInput
+            <AutoResizingInput
               value={getValue('productSummary.psfSubmittalDate')}
               onChange={(value) => updateField('productSummary.psfSubmittalDate', value)}
               type="date"
@@ -302,7 +356,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
 
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">PSF Revision</label>
-            <IsolatedInput
+            <AutoResizingInput
               value={getValue('productSummary.psfRevision')}
               onChange={(value) => updateField('productSummary.psfRevision', value)}
               placeholder="Revision number"
@@ -313,7 +367,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
 
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">Product Type</label>
-            <IsolatedSelect
+            <AutoResizingSelect
               value={getValue('productSummary.productType')}
               onChange={(value) => updateField('productSummary.productType', value)}
               options={['Insourcing', 'New', 'Change']}
@@ -324,7 +378,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
 
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">Brand</label>
-            <IsolatedInput
+            <AutoResizingInput
               value={getValue('productSummary.brand')}
               onChange={(value) => updateField('productSummary.brand', value)}
               placeholder="Brand name"
@@ -335,7 +389,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
 
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">Health Category</label>
-            <IsolatedInput
+            <AutoResizingInput
               value={getValue('productSummary.healthCategory')}
               onChange={(value) => updateField('productSummary.healthCategory', value)}
               placeholder="Health category"
@@ -346,7 +400,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
 
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">Nutrient Type</label>
-            <IsolatedInput
+            <AutoResizingInput
               value={getValue('productSummary.nutrientType')}
               onChange={(value) => updateField('productSummary.nutrientType', value)}
               placeholder="Type of nutrients"
@@ -357,7 +411,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
 
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">Therapeutic Platform</label>
-            <IsolatedInput
+            <AutoResizingInput
               value={getValue('productSummary.therapeuticPlatform')}
               onChange={(value) => updateField('productSummary.therapeuticPlatform', value)}
               placeholder="Platform"
@@ -368,7 +422,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
 
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">Pilot Required</label>
-            <IsolatedSelect
+            <AutoResizingSelect
               value={getValue('productSummary.pilotRequired')}
               onChange={(value) => updateField('productSummary.pilotRequired', value)}
               options={['Yes', 'No']}
@@ -379,7 +433,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
 
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-900 mb-2">Intended Release Date (only for new)</label>
-            <IsolatedInput
+            <AutoResizingInput
               value={getValue('productSummary.intendedReleaseDate')}
               onChange={(value) => updateField('productSummary.intendedReleaseDate', value)}
               type="date"
@@ -396,7 +450,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
         <h2 className="text-xl font-bold text-gray-900 mb-6">Raw Materials</h2>
         <div className="mb-4">
           <label className="block text-sm font-bold text-gray-900 mb-2">Raw Materials List</label>
-          <IsolatedTextarea
+          <AutoResizingTextarea
             value={getValue('rawMaterials')}
             onChange={(value) => updateField('rawMaterials', value)}
             placeholder="List all raw materials and specifications"
@@ -412,7 +466,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
         <h2 className="text-xl font-bold text-gray-900 mb-6">Blending Bill of Materials</h2>
         <div className="mb-4">
           <label className="block text-sm font-bold text-gray-900 mb-2">Routing (select one)</label>
-          <IsolatedSelect
+          <AutoResizingSelect
             value={getValue('blending.routing')}
             onChange={(value) => updateField('blending.routing', value)}
             options={[
@@ -434,7 +488,7 @@ const PSFTemplateForm = memo(function PSFTemplateForm({ data, onChange, readOnly
         <h2 className="text-xl font-bold text-gray-900 mb-6">Formulary Sheet</h2>
         <div className="mb-4">
           <label className="block text-sm font-bold text-gray-900 mb-2">Formulary Details</label>
-          <IsolatedTextarea
+          <AutoResizingTextarea
             value={getValue('formularySheet')}
             onChange={(value) => updateField('formularySheet', value)}
             placeholder="<PASTE FORMULARY>"

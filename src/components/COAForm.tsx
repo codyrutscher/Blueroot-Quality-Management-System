@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useCallback, memo, useEffect, useRef } from 'react'
+import { useState, useCallback, memo, useEffect, useRef }
+import { AutoResizingInput, AutoResizingTextarea, AutoResizingSelect } from './AutoResizingInputs'
 
 // Completely isolated input that manages its own state
 const IsolatedInput = memo(function IsolatedInput({
@@ -368,7 +369,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
       return (
         <div className="mb-4">
           <label className="block text-sm font-bold text-gray-900 mb-2">{label}</label>
-          <IsolatedSelect
+          <AutoResizingSelect
             value={getValue(path)}
             onChange={(value) => updateField(path, value)}
             options={options}
@@ -383,7 +384,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
       <div className="mb-4">
         <label className="block text-sm font-bold text-gray-900 mb-2">{label}</label>
         {rows ? (
-          <IsolatedTextarea
+          <AutoResizingTextarea
             value={getValue(path)}
             onChange={(value) => updateField(path, value)}
             placeholder={placeholder}
@@ -393,7 +394,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
             path={path}
           />
         ) : (
-          <IsolatedInput
+          <AutoResizingInput
             value={getValue(path)}
             onChange={(value) => updateField(path, value)}
             placeholder={placeholder}
@@ -460,7 +461,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
           
           {safeData.specifications.map((spec, index) => (
             <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-white rounded border">
-              <IsolatedInput
+              <AutoResizingInput
                 value={spec.parameter}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -473,7 +474,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg text-sm"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={spec.specification}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -486,7 +487,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg text-sm"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={spec.method}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -499,7 +500,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg text-sm"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={spec.result}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -512,7 +513,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg text-sm"
               />
-              <IsolatedSelect
+              <AutoResizingSelect
                 value={spec.status}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -563,7 +564,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
           
           {safeData.microbiological.map((test, index) => (
             <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-white rounded border">
-              <IsolatedInput
+              <AutoResizingInput
                 value={test.test}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -576,7 +577,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg text-sm"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={test.specification}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -589,7 +590,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg text-sm"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={test.result}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -602,7 +603,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg text-sm"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={test.method}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -615,7 +616,7 @@ export default function COAForm({ data, onChange, readOnly = false, companyName 
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg text-sm"
               />
-              <IsolatedSelect
+              <AutoResizingSelect
                 value={test.status}
                 onChange={(value) => {
                   const newData = { ...safeData }

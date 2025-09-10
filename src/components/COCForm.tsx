@@ -1,5 +1,6 @@
 'use client'
 
+import { AutoResizingInput, AutoResizingTextarea, AutoResizingSelect } from './AutoResizingInputs'
 import { useState, useCallback, memo, useEffect, useRef } from 'react'
 
 // Completely isolated input that manages its own state
@@ -378,7 +379,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
       return (
         <div className="mb-4">
           <label className="block text-sm font-bold text-gray-900 mb-2">{label}</label>
-          <IsolatedSelect
+          <AutoResizingSelect
             value={getValue(path)}
             onChange={(value) => updateField(path, value)}
             options={options}
@@ -393,7 +394,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
       <div className="mb-4">
         <label className="block text-sm font-bold text-gray-900 mb-2">{label}</label>
         {rows ? (
-          <IsolatedTextarea
+          <AutoResizingTextarea
             value={getValue(path)}
             onChange={(value) => updateField(path, value)}
             placeholder={placeholder}
@@ -403,7 +404,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
             path={path}
           />
         ) : (
-          <IsolatedInput
+          <AutoResizingInput
             value={getValue(path)}
             onChange={(value) => updateField(path, value)}
             placeholder={placeholder}
@@ -456,7 +457,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
         <div className="space-y-4 mb-6">
           {safeData.compliance.regulations.map((reg, index) => (
             <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-white rounded border">
-              <IsolatedInput
+              <AutoResizingInput
                 value={reg.regulation}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -469,7 +470,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={reg.standard}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -482,7 +483,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg"
               />
-              <IsolatedSelect
+              <AutoResizingSelect
                 value={reg.compliance}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -495,7 +496,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={reg.notes}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -532,7 +533,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
         <div className="space-y-4">
           {safeData.compliance.certifications.map((cert, index) => (
             <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-white rounded border">
-              <IsolatedInput
+              <AutoResizingInput
                 value={cert.certification}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -545,7 +546,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={cert.certifyingBody}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -558,7 +559,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={cert.certificateNumber}
                 onChange={(value) => {
                   const newData = { ...safeData }
@@ -571,7 +572,7 @@ const COCForm = memo(function COCForm({ data, onChange, readOnly = false, compan
                 readOnly={readOnly}
                 className="px-3 py-2 border rounded-lg"
               />
-              <IsolatedInput
+              <AutoResizingInput
                 value={cert.validUntil}
                 onChange={(value) => {
                   const newData = { ...safeData }
