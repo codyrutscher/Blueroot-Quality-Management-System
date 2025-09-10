@@ -110,11 +110,37 @@ export default function SupplierDocumentUpload() {
 
     setUploading(true)
     try {
-      // Here you would implement the actual upload logic
-      // For now, we'll simulate an upload
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Get existing supplier documents from localStorage
+      const allSupplierDocs = localStorage.getItem('supplierDocuments')
+      let supplierDocs = allSupplierDocs ? JSON.parse(allSupplierDocs) : {}
       
-      console.log('Uploading documents:', {
+      // Create document entries for each file
+      const newDocuments = files.map((file, index) => ({
+        id: `${Date.now()}-${index}`,
+        title: files.length === 1 ? documentTitle : `${documentTitle} - ${file.name}`,
+        description: documentDescription,
+        fileName: file.name,
+        fileSize: file.size,
+        uploadDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
+        uploader: session?.user?.name || 'Unknown User',
+        fileType: file.type || 'application/octet-stream'
+      }))
+
+      // Add documents to the selected supplier
+      if (!supplierDocs[selectedSupplier]) {
+        supplierDocs[selectedSupplier] = []
+      }
+      supplierDocs[selectedSupplier].push(...newDocuments)
+
+      // Save back to localStorage
+      localStorage.setItem('supplierDocuments', JSON.stringify(supplierDocs))
+      
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('supplierDocumentsUpdated', {
+        detail: { supplier: selectedSupplier }
+      }))
+      
+      console.log('Successfully saved documents:', {
         supplier: selectedSupplier,
         title: documentTitle,
         description: documentDescription,

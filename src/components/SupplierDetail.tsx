@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { ArrowLeftIcon, DocumentIcon, BuildingOfficeIcon, CalendarIcon, UserIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, DocumentIcon, BuildingOfficeIcon, CalendarIcon, UserIcon, ArrowPathIcon } from '@heroicons/react/24/outline'
 
 interface Supplier {
   name: string
@@ -35,6 +35,27 @@ export default function SupplierDetail({ supplierName, onBack }: SupplierDetailP
   useEffect(() => {
     fetchSupplierDetails()
     fetchSupplierDocuments()
+  }, [supplierName])
+
+  // Listen for custom events and storage changes to refresh documents when new ones are uploaded
+  useEffect(() => {
+    const handleDocumentUpdate = (event: CustomEvent) => {
+      if (event.detail.supplier === supplierName) {
+        fetchSupplierDocuments()
+      }
+    }
+    
+    const handleStorageChange = () => {
+      fetchSupplierDocuments()
+    }
+    
+    window.addEventListener('supplierDocumentsUpdated', handleDocumentUpdate as EventListener)
+    window.addEventListener('storage', handleStorageChange)
+    
+    return () => {
+      window.removeEventListener('supplierDocumentsUpdated', handleDocumentUpdate as EventListener)
+      window.removeEventListener('storage', handleStorageChange)
+    }
   }, [supplierName])
 
   const fetchSupplierDetails = async () => {
@@ -81,43 +102,13 @@ export default function SupplierDetail({ supplierName, onBack }: SupplierDetailP
 
   const fetchSupplierDocuments = async () => {
     try {
-      // Simulate fetching documents for this supplier
-      // In a real app, this would be an API call
-      const mockDocuments: SupplierDocument[] = [
-        {
-          id: '1',
-          title: 'Certificate of Analysis',
-          description: 'Latest COA for product batch #12345',
-          fileName: 'COA_Batch_12345.pdf',
-          fileSize: 2.5 * 1024 * 1024, // 2.5 MB
-          uploadDate: '2024-01-15',
-          uploader: 'John Troup',
-          fileType: 'application/pdf'
-        },
-        {
-          id: '2',
-          title: 'Quality Management System Document',
-          description: 'ISO 9001:2015 certification',
-          fileName: 'ISO_9001_Certificate.pdf',
-          fileSize: 1.8 * 1024 * 1024, // 1.8 MB
-          uploadDate: '2024-01-10',
-          uploader: 'Dana Rutscher',
-          fileType: 'application/pdf'
-        },
-        {
-          id: '3',
-          title: 'Safety Data Sheet',
-          description: 'SDS for raw material component',
-          fileName: 'SDS_Component_A.pdf',
-          fileSize: 0.5 * 1024 * 1024, // 0.5 MB
-          uploadDate: '2024-01-08',
-          uploader: 'Matt White',
-          fileType: 'application/pdf'
-        }
-      ]
+      // Get documents from localStorage for this supplier
+      const allSupplierDocs = localStorage.getItem('supplierDocuments')
+      let supplierDocs = allSupplierDocs ? JSON.parse(allSupplierDocs) : {}
       
-      // Filter documents for this supplier (in real app, this would be done server-side)
-      setDocuments(mockDocuments)
+      const supplierDocuments = supplierDocs[supplierName] || []
+      setDocuments(supplierDocuments)
+      console.log(`Found ${supplierDocuments.length} documents for ${supplierName}`)
     } catch (error) {
       console.error('Error fetching supplier documents:', error)
     } finally {
@@ -228,13 +219,22 @@ export default function SupplierDetail({ supplierName, onBack }: SupplierDetailP
 
       {/* Documents Section */}
       <div className="bg-white border border-gray-200 rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Documents ({documents.length})
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            All documents uploaded for {supplier.name}
-          </p>
+        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Documents ({documents.length})
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              All documents uploaded for {supplier.name}
+            </p>
+          </div>
+          <button
+            onClick={fetchSupplierDocuments}
+            className="flex items-center px-3 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+          >
+            <ArrowPathIcon className="h-4 w-4 mr-1" />
+            Refresh
+          </button>
         </div>
 
         {documents.length === 0 ? (
