@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { MagnifyingGlassIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
 import { fetchSuppliersFromDB, syncSuppliersFromCSV } from '../../lib/suppliers'
+import { testSupabaseConnection, setupDatabase } from '../../lib/test-supabase'
 
 interface Supplier {
   id: string
@@ -35,27 +36,42 @@ export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) 
 
   const fetchSuppliers = async () => {
     try {
-      // First try to fetch from Supabase
+      // Test Supabase connection first
+      console.log('🔄 Testing Supabase connection...')
+      const connectionTest = await testSupabaseConnection()
+      
+      if (!connectionTest.success) {
+        console.warn('⚠️ Supabase connection failed, falling back to CSV:', connectionTest.error)
+        return await fetchSuppliersFromCSV()
+      }
+      
+      // Test database setup
+      const dbTest = await setupDatabase()
+      if (!dbTest.success) {
+        console.warn('⚠️ Database setup issue, falling back to CSV:', dbTest.error)
+        return await fetchSuppliersFromCSV()
+      }
+      
+      // Fetch from Supabase
       let suppliersData = await fetchSuppliersFromDB()
       
       // If no suppliers in database, sync from CSV first
       if (suppliersData.length === 0) {
-        console.log('No suppliers found in database, syncing from CSV...')
+        console.log('📥 No suppliers found in database, syncing from CSV...')
         const syncResult = await syncSuppliersFromCSV()
         if (syncResult.success) {
           suppliersData = await fetchSuppliersFromDB()
+          console.log('✅ Successfully synced suppliers to database!')
         } else {
-          console.error('Failed to sync suppliers:', syncResult.error)
-          // Fallback to CSV if Supabase is not available
-          return fetchSuppliersFromCSV()
+          console.error('❌ Failed to sync suppliers:', syncResult.error)
+          return await fetchSuppliersFromCSV()
         }
       }
       
-      console.log('Total suppliers loaded from database:', suppliersData.length)
+      console.log(`✅ Loaded ${suppliersData.length} suppliers from Supabase database`)
       setSuppliers(suppliersData)
     } catch (error) {
-      console.error('Error fetching suppliers from database:', error)
-      // Fallback to CSV if Supabase is not available
+      console.error('❌ Error with Supabase, falling back to CSV:', error)
       await fetchSuppliersFromCSV()
     } finally {
       setLoading(false)
