@@ -103,16 +103,6 @@ export default function Dashboard() {
               📋 Templates
             </button>
             <button
-              onClick={() => setActiveTab('supplier-upload')}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                activeTab === 'supplier-upload'
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]'
-                  : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50'
-              }`}
-            >
-              📤 Supplier Documents Upload
-            </button>
-            <button
               onClick={() => setActiveTab('documents')}
               className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
                 activeTab === 'documents'
@@ -121,6 +111,16 @@ export default function Dashboard() {
               }`}
             >
               📄 BRH Documents
+            </button>
+            <button
+              onClick={() => setActiveTab('supplier-upload')}
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                activeTab === 'supplier-upload'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]'
+                  : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50'
+              }`}
+            >
+              📤 Supplier Documents Upload
             </button>
           </nav>
         </div>
