@@ -3,11 +3,15 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { MagnifyingGlassIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
+import { fetchSuppliersFromDB, syncSuppliersFromCSV } from '../../lib/suppliers'
 
 interface Supplier {
+  id: string
   name: string
   type: string
-  approvalStatus: string
+  approval_status: string
+  created_at: string
+  updated_at: string
 }
 
 interface SupplierIndexProps {
@@ -31,18 +35,43 @@ export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) 
 
   const fetchSuppliers = async () => {
     try {
+      // First try to fetch from Supabase
+      let suppliersData = await fetchSuppliersFromDB()
+      
+      // If no suppliers in database, sync from CSV first
+      if (suppliersData.length === 0) {
+        console.log('No suppliers found in database, syncing from CSV...')
+        const syncResult = await syncSuppliersFromCSV()
+        if (syncResult.success) {
+          suppliersData = await fetchSuppliersFromDB()
+        } else {
+          console.error('Failed to sync suppliers:', syncResult.error)
+          // Fallback to CSV if Supabase is not available
+          return fetchSuppliersFromCSV()
+        }
+      }
+      
+      console.log('Total suppliers loaded from database:', suppliersData.length)
+      setSuppliers(suppliersData)
+    } catch (error) {
+      console.error('Error fetching suppliers from database:', error)
+      // Fallback to CSV if Supabase is not available
+      await fetchSuppliersFromCSV()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchSuppliersFromCSV = async () => {
+    try {
       const response = await fetch('/suppliers - Sheet1.csv')
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       const csvText = await response.text()
-      console.log('Raw CSV text:', csvText.substring(0, 200) + '...')
       
       const lines = csvText.trim().split('\n').filter(line => line.trim())
-      console.log('Number of lines:', lines.length)
-      
       const suppliersData = lines.map((line, index) => {
-        // Handle CSV parsing with proper quote handling
         const columns = []
         let current = ''
         let inQuotes = false
@@ -61,30 +90,21 @@ export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) 
         columns.push(current.trim())
         
         const [name, type, approvalStatus] = columns
-        const supplier = {
+        return {
+          id: `csv-${index}`,
           name: name ? name.replace(/^"|"$/g, '') : `Supplier ${index + 1}`,
           type: type ? type.replace(/^"|"$/g, '') : 'unknown',
-          approvalStatus: approvalStatus ? approvalStatus.replace(/^"|"$/g, '') : 'unknown'
+          approval_status: approvalStatus ? approvalStatus.replace(/^"|"$/g, '') : 'unknown',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         }
-        
-        if (index < 5) {
-          console.log(`Supplier ${index + 1}:`, supplier)
-        }
-        
-        return supplier
       })
       
-      console.log('Total suppliers loaded:', suppliersData.length)
+      console.log('Fallback: loaded suppliers from CSV:', suppliersData.length)
       setSuppliers(suppliersData)
     } catch (error) {
-      console.error('Error fetching suppliers:', error)
-      // Set some dummy data for debugging
-      setSuppliers([
-        { name: 'Test Supplier 1', type: 'supplier', approvalStatus: 'approved' },
-        { name: 'Test Co-man 1', type: 'co-man', approvalStatus: 'conditionally approved' }
-      ])
-    } finally {
-      setLoading(false)
+      console.error('Error fetching suppliers from CSV:', error)
+      setSuppliers([])
     }
   }
 
@@ -92,10 +112,10 @@ export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) 
     let filtered = suppliers.filter(supplier => {
       const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            supplier.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           supplier.approvalStatus.toLowerCase().includes(searchTerm.toLowerCase())
+                           supplier.approval_status.toLowerCase().includes(searchTerm.toLowerCase())
       
       const matchesType = !filters.type || supplier.type === filters.type
-      const matchesStatus = !filters.approvalStatus || supplier.approvalStatus === filters.approvalStatus
+      const matchesStatus = !filters.approvalStatus || supplier.approval_status === filters.approvalStatus
 
       return matchesSearch && matchesType && matchesStatus
     })
@@ -115,7 +135,7 @@ export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) 
 
   const filterOptions = {
     type: [...new Set(suppliers.map(s => s.type).filter(Boolean))],
-    approvalStatus: [...new Set(suppliers.map(s => s.approvalStatus).filter(Boolean))]
+    approvalStatus: [...new Set(suppliers.map(s => s.approval_status).filter(Boolean))]
   }
 
   const filteredSuppliers = filteredAndSortedSuppliers()
@@ -255,8 +275,8 @@ export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) 
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-500 text-sm">Status:</span>
-                <span className={`px-2 py-1 text-xs rounded-full font-medium ${getStatusColor(supplier.approvalStatus)}`}>
-                  {supplier.approvalStatus}
+                <span className={`px-2 py-1 text-xs rounded-full font-medium ${getStatusColor(supplier.approval_status)}`}>
+                  {supplier.approval_status}
                 </span>
               </div>
             </div>
