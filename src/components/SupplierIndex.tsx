@@ -28,21 +28,57 @@ export default function SupplierIndex() {
   const fetchSuppliers = async () => {
     try {
       const response = await fetch('/suppliers - Sheet1.csv')
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
       const csvText = await response.text()
+      console.log('Raw CSV text:', csvText.substring(0, 200) + '...')
       
-      const lines = csvText.trim().split('\n')
-      const suppliersData = lines.map(line => {
-        const [name, type, approvalStatus] = line.split(',')
-        return {
-          name: name.replace(/"/g, ''),
-          type: type.trim(),
-          approvalStatus: approvalStatus.trim()
+      const lines = csvText.trim().split('\n').filter(line => line.trim())
+      console.log('Number of lines:', lines.length)
+      
+      const suppliersData = lines.map((line, index) => {
+        // Handle CSV parsing with proper quote handling
+        const columns = []
+        let current = ''
+        let inQuotes = false
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i]
+          if (char === '"') {
+            inQuotes = !inQuotes
+          } else if (char === ',' && !inQuotes) {
+            columns.push(current.trim())
+            current = ''
+          } else {
+            current += char
+          }
         }
+        columns.push(current.trim())
+        
+        const [name, type, approvalStatus] = columns
+        const supplier = {
+          name: name ? name.replace(/^"|"$/g, '') : `Supplier ${index + 1}`,
+          type: type ? type.replace(/^"|"$/g, '') : 'unknown',
+          approvalStatus: approvalStatus ? approvalStatus.replace(/^"|"$/g, '') : 'unknown'
+        }
+        
+        if (index < 5) {
+          console.log(`Supplier ${index + 1}:`, supplier)
+        }
+        
+        return supplier
       })
       
+      console.log('Total suppliers loaded:', suppliersData.length)
       setSuppliers(suppliersData)
     } catch (error) {
       console.error('Error fetching suppliers:', error)
+      // Set some dummy data for debugging
+      setSuppliers([
+        { name: 'Test Supplier 1', type: 'supplier', approvalStatus: 'approved' },
+        { name: 'Test Co-man 1', type: 'co-man', approvalStatus: 'conditionally approved' }
+      ])
     } finally {
       setLoading(false)
     }
