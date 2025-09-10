@@ -70,16 +70,6 @@ export default function Dashboard() {
         <div className="mb-8">
           <nav className="flex space-x-1 bg-white rounded-2xl p-2 shadow-md border border-slate-200">
             <button
-              onClick={() => setActiveTab('suppliers')}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                activeTab === 'suppliers'
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]'
-                  : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50'
-              }`}
-            >
-              🏢 Suppliers
-            </button>
-            <button
               onClick={() => setActiveTab('products')}
               className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
                 activeTab === 'products'
@@ -88,6 +78,16 @@ export default function Dashboard() {
               }`}
             >
               🏭 Products
+            </button>
+            <button
+              onClick={() => setActiveTab('suppliers')}
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                activeTab === 'suppliers'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]'
+                  : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50'
+              }`}
+            >
+              🏢 Suppliers
             </button>
             <button
               onClick={() => setActiveTab('templates')}
