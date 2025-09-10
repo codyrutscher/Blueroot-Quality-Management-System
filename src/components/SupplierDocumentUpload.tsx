@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { CloudArrowUpIcon, DocumentIcon, MagnifyingGlassIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
+import { supabase } from '../../lib/supabase'
+import { getSupplierByName } from '../../lib/suppliers'
 
 interface Supplier {
   name: string
@@ -108,75 +110,127 @@ export default function SupplierDocumentUpload() {
       return
     }
 
-    // Check file sizes (localStorage limit is typically 5-10MB)
+    // Check file sizes (Supabase allows 50MB per file)
     const totalSize = files.reduce((sum, file) => sum + file.size, 0)
-    const maxSize = 5 * 1024 * 1024 // 5MB limit
+    const maxFileSize = 50 * 1024 * 1024 // 50MB per file
+    const maxTotalSize = 100 * 1024 * 1024 // 100MB total per upload
     
-    if (totalSize > maxSize) {
-      alert(`Total file size (${(totalSize / 1024 / 1024).toFixed(2)}MB) exceeds the 5MB limit. Please select smaller files or fewer files.`)
+    const oversizedFiles = files.filter(file => file.size > maxFileSize)
+    if (oversizedFiles.length > 0) {
+      alert(`Some files exceed the 50MB limit: ${oversizedFiles.map(f => f.name).join(', ')}`)
+      return
+    }
+    
+    if (totalSize > maxTotalSize) {
+      alert(`Total file size (${(totalSize / 1024 / 1024).toFixed(2)}MB) exceeds the 100MB limit. Please select fewer files.`)
       return
     }
 
     setUploading(true)
     try {
-      // Get existing supplier documents from localStorage
-      const allSupplierDocs = localStorage.getItem('supplierDocuments')
-      let supplierDocs = allSupplierDocs ? JSON.parse(allSupplierDocs) : {}
-      
-      // Create document entries for each file with actual file data
-      const newDocuments = await Promise.all(files.map(async (file, index) => {
-        // Convert file to base64 for storage
-        const fileData = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onload = () => resolve(reader.result as string)
-          reader.onerror = reject
-          reader.readAsDataURL(file)
-        })
-
-        return {
-          id: `${Date.now()}-${index}`,
-          title: files.length === 1 ? documentTitle : `${documentTitle} - ${file.name}`,
-          description: documentDescription,
-          fileName: file.name,
-          fileSize: file.size,
-          uploadDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
-          uploader: session?.user?.name || 'Unknown User',
-          fileType: file.type || 'application/octet-stream',
-          fileData: fileData // Store the actual file data as base64
-        }
-      }))
-
-      // Add documents to the selected supplier
-      if (!supplierDocs[selectedSupplier]) {
-        supplierDocs[selectedSupplier] = []
+      // Get supplier ID from database
+      const supplier = await getSupplierByName(selectedSupplier)
+      if (!supplier) {
+        throw new Error(`Supplier "${selectedSupplier}" not found in database`)
       }
-      supplierDocs[selectedSupplier].push(...newDocuments)
 
-      // Save back to localStorage with error handling
+      console.log(`📤 Uploading ${files.length} files for supplier: ${selectedSupplier}`)
+
+      // Try Supabase first, fallback to localStorage
+      let uploadMethod = 'supabase'
+      const newDocuments = []
+
       try {
-        localStorage.setItem('supplierDocuments', JSON.stringify(supplierDocs))
-      } catch (storageError) {
-        console.error('Storage error:', storageError)
-        if (storageError instanceof Error && storageError.name === 'QuotaExceededError') {
-          alert('Storage quota exceeded. Please try uploading smaller files or clear some browser data.')
-        } else {
-          alert('Failed to save documents. Please try again.')
+        // Upload each file to Supabase Storage and save metadata to database
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i]
+          const fileId = `${Date.now()}-${i}`
+          const filePath = `${supplier.id}/${fileId}-${file.name}`
+
+          console.log(`📁 Uploading file ${i + 1}/${files.length}: ${file.name}`)
+
+          // Upload file to Supabase Storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('supplier-documents')
+            .upload(filePath, file, {
+              cacheControl: '3600',
+              upsert: false
+            })
+
+          if (uploadError) {
+            throw new Error(`File upload failed: ${uploadError.message}`)
+          }
+
+          // Save document metadata to database
+          const { data: docData, error: docError } = await supabase
+            .from('supplier_documents')
+            .insert({
+              supplier_id: supplier.id,
+              title: files.length === 1 ? documentTitle : `${documentTitle} - ${file.name}`,
+              description: documentDescription || null,
+              file_name: file.name,
+              file_size: file.size,
+              file_type: file.type || 'application/octet-stream',
+              file_path: filePath,
+              uploaded_by: session?.user?.name || 'Unknown User'
+            })
+            .select()
+            .single()
+
+          if (docError) {
+            // Clean up uploaded file if database insert fails
+            await supabase.storage.from('supplier-documents').remove([filePath])
+            throw new Error(`Database save failed: ${docError.message}`)
+          }
+
+          newDocuments.push(docData)
+          console.log(`✅ Successfully uploaded: ${file.name}`)
         }
-        return
+
+        console.log(`🎉 Successfully uploaded ${files.length} files via Supabase`)
+        
+      } catch (supabaseError) {
+        console.warn('⚠️ Supabase upload failed, falling back to localStorage:', supabaseError)
+        uploadMethod = 'localStorage'
+        
+        // Fallback to localStorage storage
+        const allSupplierDocs = localStorage.getItem('supplierDocuments')
+        let supplierDocs = allSupplierDocs ? JSON.parse(allSupplierDocs) : {}
+        
+        const fallbackDocuments = await Promise.all(files.map(async (file, index) => {
+          const fileData = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(reader.result as string)
+            reader.onerror = reject
+            reader.readAsDataURL(file)
+          })
+
+          return {
+            id: `${Date.now()}-${index}`,
+            title: files.length === 1 ? documentTitle : `${documentTitle} - ${file.name}`,
+            description: documentDescription,
+            fileName: file.name,
+            fileSize: file.size,
+            uploadDate: new Date().toISOString().split('T')[0],
+            uploader: session?.user?.name || 'Unknown User',
+            fileType: file.type || 'application/octet-stream',
+            fileData: fileData
+          }
+        }))
+
+        if (!supplierDocs[selectedSupplier]) {
+          supplierDocs[selectedSupplier] = []
+        }
+        supplierDocs[selectedSupplier].push(...fallbackDocuments)
+        localStorage.setItem('supplierDocuments', JSON.stringify(supplierDocs))
+        
+        console.log('📦 Documents saved to localStorage as fallback')
       }
-      
-      // Dispatch custom event to notify other components
+
+      // Dispatch update event
       window.dispatchEvent(new CustomEvent('supplierDocumentsUpdated', {
-        detail: { supplier: selectedSupplier }
+        detail: { supplier: selectedSupplier, method: uploadMethod }
       }))
-      
-      console.log('Successfully saved documents:', {
-        supplier: selectedSupplier,
-        title: documentTitle,
-        description: documentDescription,
-        files: files.map(f => f.name),
-        uploader: session?.user?.name
-      })
 
       // Reset form after successful upload
       setFiles([])
@@ -185,10 +239,12 @@ export default function SupplierDocumentUpload() {
       setSelectedSupplier('')
       setSupplierSearch('')
       
-      alert(`Successfully uploaded ${files.length} document(s) for ${selectedSupplier}`)
+      const methodText = uploadMethod === 'supabase' ? 'to cloud storage' : 'locally'
+      alert(`Successfully uploaded ${files.length} document(s) for ${selectedSupplier} ${methodText}!`)
+      
     } catch (error) {
-      console.error('Upload error:', error)
-      alert('Upload failed. Please try again.')
+      console.error('❌ Upload error:', error)
+      alert(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setUploading(false)
     }
@@ -355,7 +411,7 @@ export default function SupplierDocumentUpload() {
               <div className="flex justify-between items-center">
                 <h4 className="text-sm font-medium text-gray-700">Selected Files ({files.length})</h4>
                 <span className="text-xs text-gray-500">
-                  Total: {(files.reduce((sum, file) => sum + file.size, 0) / 1024 / 1024).toFixed(2)}MB / 5MB
+                  Total: {(files.reduce((sum, file) => sum + file.size, 0) / 1024 / 1024).toFixed(2)}MB / 100MB
                 </span>
               </div>
               <div className="max-h-40 overflow-y-auto space-y-1">
