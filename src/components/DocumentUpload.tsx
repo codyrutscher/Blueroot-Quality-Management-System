@@ -10,6 +10,11 @@ export default function DocumentUpload() {
     type: 'success' | 'error' | null
     message: string
   }>({ type: null, message: '' })
+  const [uploadTarget, setUploadTarget] = useState<'product' | 'supplier'>('product')
+  const [selectedProduct, setSelectedProduct] = useState('')
+  const [selectedSupplier, setSelectedSupplier] = useState('')
+  const [products, setProducts] = useState([])
+  const [suppliers, setSuppliers] = useState([])
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -100,7 +105,7 @@ export default function DocumentUpload() {
           <div>
             <h2 className="text-2xl font-bold text-slate-900">Document Upload</h2>
             <p className="text-slate-600 mt-1">
-              Upload manufacturing documents to make them searchable with AI
+              Upload documents and associate them with products or suppliers
             </p>
           </div>
           <div className="flex items-center space-x-2 text-sm text-slate-500">

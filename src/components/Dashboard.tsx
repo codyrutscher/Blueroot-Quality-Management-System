@@ -124,14 +124,14 @@ export default function Dashboard() {
               📄 BRH Documents
             </button>
             <button
-              onClick={() => setActiveTab('supplier-upload')}
+              onClick={() => setActiveTab('document-upload')}
               className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                activeTab === 'supplier-upload'
+                activeTab === 'document-upload'
                   ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]'
                   : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50'
               }`}
             >
-              📤 Supplier Documents Upload
+              📤 Document Upload
             </button>
           </nav>
         </div>
@@ -196,7 +196,7 @@ export default function Dashboard() {
               )}
               {activeTab === 'raw-materials' && <RawMaterials />}
               {activeTab === 'templates' && <TemplateManager onEditTemplate={setEditingTemplate} />}
-              {activeTab === 'supplier-upload' && <SupplierDocumentUpload />}
+              {activeTab === 'document-upload' && <DocumentUpload />}
               {activeTab === 'documents' && <DocumentList key={refreshDocuments} onEditDocument={setEditingDocument} onNavigateToDocuments={() => setActiveTab('documents')} />}
             </div>
           </div>
