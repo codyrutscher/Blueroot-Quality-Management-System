@@ -215,24 +215,6 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
             <option value="no">No Iron</option>
           </select>
 
-          {/* Clear Filters Button */}
-          <button
-            onClick={() => {
-              setFilters({
-                healthCategory: '',
-                brand: '',
-                nutrientType: '',
-                therapeuticPlatform: '',
-                format: '',
-                manufacturer: '',
-                containsIron: ''
-              })
-              setSearchTerm('')
-            }}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
-          >
-            Clear All Filters
-          </button>
         </div>
 
         {/* Advanced Filters (Second Row) */}
@@ -269,6 +251,25 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
               </span>
             </div>
           )}
+
+          {/* Clear Filters Button */}
+          <button
+            onClick={() => {
+              setFilters({
+                healthCategory: '',
+                brand: '',
+                nutrientType: '',
+                therapeuticPlatform: '',
+                format: '',
+                manufacturer: '',
+                containsIron: ''
+              })
+              setSearchTerm('')
+            }}
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
+          >
+            Clear All Filters
+          </button>
         </div>
       </div>
 
