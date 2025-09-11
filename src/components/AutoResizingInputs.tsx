@@ -21,9 +21,11 @@ export const AutoResizingInput = memo(function AutoResizingInput({
   path?: string
 }) {
   const [localValue, setLocalValue] = useState(initialValue)
+  const [useTextarea, setUseTextarea] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isMountedRef = useRef(true)
   const inputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const hiddenSpanRef = useRef<HTMLSpanElement>(null)
 
   // Only update local value when prop changes from external source
@@ -43,27 +45,80 @@ export const AutoResizingInput = memo(function AutoResizingInput({
     }
   }, [])
 
-  // Auto-resize functionality
-  const adjustWidth = useCallback(() => {
-    const input = inputRef.current
-    const hiddenSpan = hiddenSpanRef.current
-    if (input && hiddenSpan) {
-      const textToMeasure = localValue || placeholder || ''
-      hiddenSpan.textContent = textToMeasure
-      const newWidth = Math.max(hiddenSpan.scrollWidth + 24, 120) // 24px padding, 120px minimum
-      input.style.width = `${newWidth}px`
-    }
-  }, [localValue, placeholder])
+  // Check if content is too long for input, switch to textarea
+  const checkContentLength = useCallback(() => {
+    const text = localValue || ''
+    const shouldUseTextarea = text.length > 100 || text.includes('\n')
+    setUseTextarea(shouldUseTextarea)
+  }, [localValue])
 
   useEffect(() => {
-    adjustWidth()
-  }, [localValue, adjustWidth])
+    checkContentLength()
+  }, [localValue, checkContentLength])
+
+  // Auto-resize functionality for input
+  const adjustInputWidth = useCallback(() => {
+    const input = inputRef.current
+    const hiddenSpan = hiddenSpanRef.current
+    if (input && hiddenSpan && !useTextarea) {
+      const textToMeasure = localValue || placeholder || ''
+      hiddenSpan.textContent = textToMeasure
+      
+      // Get container width to set responsive limits
+      const container = input.closest('.grid, .flex, [class*="col"], .form-field') as HTMLElement
+      const maxWidth = container ? Math.min(container.clientWidth * 0.8, 500) : 350 // Max 80% of container or 500px
+      const minWidth = 120
+      
+      const idealWidth = hiddenSpan.scrollWidth + 24 // 24px padding
+      const newWidth = Math.min(Math.max(idealWidth, minWidth), maxWidth)
+      
+      input.style.width = `${newWidth}px`
+    }
+  }, [localValue, placeholder, useTextarea])
+
+  // Auto-resize functionality for textarea
+  const adjustTextareaHeight = useCallback(() => {
+    const textarea = textareaRef.current
+    if (textarea && useTextarea) {
+      textarea.style.height = 'auto'
+      const newHeight = Math.max(textarea.scrollHeight, 40) // 40px minimum
+      textarea.style.height = `${newHeight}px`
+    }
+  }, [useTextarea])
+
+  useEffect(() => {
+    if (useTextarea) {
+      adjustTextareaHeight()
+    } else {
+      adjustInputWidth()
+    }
+  }, [localValue, useTextarea, adjustInputWidth, adjustTextareaHeight])
+
+  // Adjust on window resize for responsiveness
+  useEffect(() => {
+    const handleResize = () => {
+      if (useTextarea) {
+        adjustTextareaHeight()
+      } else {
+        adjustInputWidth()
+      }
+    }
+    
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [adjustInputWidth, adjustTextareaHeight, useTextarea])
 
   const handleChange = useCallback((newValue: string) => {
     setLocalValue(newValue)
     
-    // Adjust width immediately for better UX
-    setTimeout(adjustWidth, 0)
+    // Adjust size immediately for better UX
+    setTimeout(() => {
+      if (useTextarea) {
+        adjustTextareaHeight()
+      } else {
+        adjustInputWidth()
+      }
+    }, 0)
     
     // Clear existing timeout
     if (timeoutRef.current) {
@@ -76,10 +131,29 @@ export const AutoResizingInput = memo(function AutoResizingInput({
         onChange(newValue)
       }
     }, 500)
-  }, [onChange, adjustWidth])
+  }, [onChange, adjustInputWidth, adjustTextareaHeight, useTextarea])
+
+  if (useTextarea) {
+    return (
+      <div className="relative w-full">
+        <textarea
+          ref={textareaRef}
+          value={localValue}
+          onChange={(e) => handleChange(e.target.value)}
+          placeholder={placeholder}
+          readOnly={readOnly}
+          className={`${className} w-full resize-none overflow-hidden`}
+          style={{ 
+            minHeight: '40px',
+            maxWidth: '100%'
+          }}
+        />
+      </div>
+    )
+  }
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block max-w-full">
       <input
         ref={inputRef}
         type={type}
@@ -87,8 +161,11 @@ export const AutoResizingInput = memo(function AutoResizingInput({
         onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
         readOnly={readOnly}
-        className={`${className} min-w-[120px]`}
-        style={{ minWidth: '120px' }}
+        className={`${className} min-w-[120px] max-w-full`}
+        style={{ 
+          minWidth: '120px',
+          maxWidth: '100%'
+        }}
       />
       <span
         ref={hiddenSpanRef}
@@ -98,10 +175,11 @@ export const AutoResizingInput = memo(function AutoResizingInput({
           fontFamily: 'inherit',
           fontWeight: 'inherit',
           letterSpacing: 'inherit',
-          padding: '0.5rem 0.75rem', // Match typical input padding
+          padding: '0.5rem 0.75rem',
           top: 0,
           left: 0,
-          zIndex: -1
+          zIndex: -1,
+          maxWidth: '500px'
         }}
         aria-hidden="true"
       />
