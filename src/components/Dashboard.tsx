@@ -11,6 +11,7 @@ import ProductDetail from './ProductDetail'
 import SupplierIndex from './SupplierIndex'
 import SupplierDetail from './SupplierDetail'
 import SupplierDocumentUpload from './SupplierDocumentUpload'
+import RawMaterials from './RawMaterials'
 import NotificationCenter from './NotificationCenter'
 import DocxEditor from './DocxEditor'
 
@@ -91,6 +92,16 @@ export default function Dashboard() {
               }`}
             >
               🏢 Suppliers
+            </button>
+            <button
+              onClick={() => setActiveTab('raw-materials')}
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                activeTab === 'raw-materials'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]'
+                  : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50'
+              }`}
+            >
+              🧪 Raw Materials
             </button>
             <button
               onClick={() => setActiveTab('templates')}
@@ -183,6 +194,7 @@ export default function Dashboard() {
                   onNavigateToDocuments={() => setActiveTab('documents')}
                 />
               )}
+              {activeTab === 'raw-materials' && <RawMaterials />}
               {activeTab === 'templates' && <TemplateManager onEditTemplate={setEditingTemplate} />}
               {activeTab === 'supplier-upload' && <SupplierDocumentUpload />}
               {activeTab === 'documents' && <DocumentList key={refreshDocuments} onEditDocument={setEditingDocument} onNavigateToDocuments={() => setActiveTab('documents')} />}
