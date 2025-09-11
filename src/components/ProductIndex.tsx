@@ -156,18 +156,6 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
             <option value="unitCount">Sort by Unit Count</option>
           </select>
 
-          {/* Health Category Filter */}
-          <select
-            value={filters.healthCategory}
-            onChange={(e) => setFilters({...filters, healthCategory: e.target.value})}
-            className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-          >
-            <option value="">All Categories</option>
-            {filterOptions.healthCategory.map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-
           {/* Brand Filter */}
           <select
             value={filters.brand}
@@ -219,6 +207,18 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
 
         {/* Advanced Filters (Second Row) */}
         <div className="flex flex-wrap gap-3">
+          {/* Health Category Filter */}
+          <select
+            value={filters.healthCategory}
+            onChange={(e) => setFilters({...filters, healthCategory: e.target.value})}
+            className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          >
+            <option value="">All Categories</option>
+            {filterOptions.healthCategory.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+
           {/* Nutrient Type Filter */}
           <select
             value={filters.nutrientType}
