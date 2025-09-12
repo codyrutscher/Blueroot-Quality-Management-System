@@ -60,31 +60,39 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div 
+        className="relative bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.15)), url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')`
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24">
           <div className="text-center">
-            <div className="flex justify-center mb-8">
-              <img src="/logo.png" alt="Blue Root Health" className="h-24 w-24 object-contain" />
-            </div>
-            <h1 className="text-5xl font-bold text-gray-900 mb-6">
-              Blue Root Health
-              <span className="block text-3xl text-blue-600 mt-2">Quality Management System</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Streamline your manufacturing operations with our comprehensive quality management platform. 
-              Create, manage, and approve documents with ease while ensuring regulatory compliance.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/login"
-                className="inline-flex items-center px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-lg"
-              >
-                Access Portal
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
-              </Link>
-              <button className="inline-flex items-center px-8 py-4 border-2 border-blue-600 text-blue-600 text-lg font-semibold rounded-xl hover:bg-blue-50 transition-colors">
-                Learn More
-              </button>
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-12 shadow-2xl border border-white/50 max-w-4xl mx-auto">
+              <div className="flex justify-center mb-8">
+                <img src="/logo.png" alt="Blue Root Health" className="h-24 w-24 object-contain" />
+              </div>
+              <h1 className="text-5xl font-bold text-gray-900 mb-6">
+                Blue Root Health
+                <span className="block text-3xl bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent mt-2">Quality Management System</span>
+              </h1>
+              <p className="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+                Streamline your manufacturing operations with our comprehensive quality management platform. 
+                Create, manage, and approve documents with ease while ensuring regulatory compliance.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/login"
+                  className="inline-flex items-center px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-lg"
+                >
+                  Access Portal
+                  <ArrowRightIcon className="ml-2 h-5 w-5" />
+                </Link>
+                <button className="inline-flex items-center px-8 py-4 border-2 border-blue-600 text-blue-600 text-lg font-semibold rounded-xl hover:bg-blue-50 transition-colors">
+                  Learn More
+                </button>
+              </div>
             </div>
           </div>
         </div>

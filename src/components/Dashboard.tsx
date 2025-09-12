@@ -75,12 +75,7 @@ export default function Dashboard() {
       </header>
 
       {/* Landing Content */}
-      <div 
-        className="flex items-center justify-center py-12 relative bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1)), url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')`
-        }}
-      >
+      <div className="bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center py-12">
         <div className="max-w-4xl mx-auto text-center px-4">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/50">
             <div className="flex justify-center mb-8">
@@ -90,7 +85,7 @@ export default function Dashboard() {
             <h1 className="text-5xl font-bold text-gray-900 mb-4">
               Welcome, {session?.user?.name}
             </h1>
-            <h2 className="text-3xl font-semibold text-blue-600 mb-8">
+            <h2 className="text-3xl font-semibold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent mb-8">
               Quality Management System
             </h2>
             <p className="text-xl text-gray-700 mb-12 max-w-2xl mx-auto">
