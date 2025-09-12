@@ -75,24 +75,31 @@ export default function Dashboard() {
       </header>
 
       {/* Landing Content */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12">
+      <div 
+        className="flex items-center justify-center py-12 relative bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1)), url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')`
+        }}
+      >
         <div className="max-w-4xl mx-auto text-center px-4">
-          <div className="flex justify-center mb-8">
-            <img src="/logo.png" alt="Blue Root Health" className="h-32 w-32 object-contain" />
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/50">
+            <div className="flex justify-center mb-8">
+              <img src="/logo.png" alt="Blue Root Health" className="h-32 w-32 object-contain" />
+            </div>
+            
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">
+              Welcome, {session?.user?.name}
+            </h1>
+            <h2 className="text-3xl font-semibold text-blue-600 mb-8">
+              Quality Management System
+            </h2>
+            <p className="text-xl text-gray-700 mb-12 max-w-2xl mx-auto">
+              Select a section below to get started with your quality management tasks.
+            </p>
           </div>
-          
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            Welcome, {session?.user?.name}
-          </h1>
-          <h2 className="text-3xl font-semibold text-blue-600 mb-8">
-            Quality Management System
-          </h2>
-          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-            Select a section below to get started with your quality management tasks.
-          </p>
 
           {/* Large Navigation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mt-12">
           <button
             onClick={() => handleTabSelection('products')}
             className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
