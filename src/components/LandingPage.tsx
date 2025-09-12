@@ -89,9 +89,12 @@ export default function LandingPage() {
                   Access Portal
                   <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Link>
-                <button className="inline-flex items-center px-8 py-4 border-2 border-blue-600 text-blue-600 text-lg font-semibold rounded-xl hover:bg-blue-50 transition-colors">
+                <Link
+                  href="/about"
+                  className="inline-flex items-center px-8 py-4 border-2 border-blue-600 text-blue-600 text-lg font-semibold rounded-xl hover:bg-blue-50 transition-colors"
+                >
                   Learn More
-                </button>
+                </Link>
               </div>
             </div>
           </div>
