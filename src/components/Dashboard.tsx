@@ -33,24 +33,66 @@ export default function Dashboard() {
 
   // Dashboard Landing Component
   const DashboardLanding = () => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <div className="max-w-4xl mx-auto text-center px-4">
-        <div className="flex justify-center mb-8">
-          <img src="/logo.png" alt="Blue Root Health" className="h-32 w-32 object-contain" />
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <header className="bg-white shadow-lg border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center justify-center">
+                <img src="/logo.png" alt="Company Logo" className="w-20 h-20 object-contain" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent">
+                  Quality Management System
+                </h1>
+              </div>
+            </div>
+            <div className="flex items-center space-x-6">
+              <NotificationCenter />
+              <div className="flex items-center space-x-3">
+                <span className="text-base text-slate-700 font-medium">
+                  Welcome, {session?.user?.name}
+                </span>
+                <div className="h-11 w-11 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-lg ring-2 ring-blue-100">
+                  <span className="text-white text-lg font-semibold">
+                    {session?.user?.name?.charAt(0)?.toUpperCase()}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    console.log('Logging out...')
+                    window.location.href = '/api/auth/signout'
+                  }}
+                  className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <h1 className="text-5xl font-bold text-gray-900 mb-4">
-          Welcome, {session?.user?.name}
-        </h1>
-        <h2 className="text-3xl font-semibold text-blue-600 mb-8">
-          Quality Management System
-        </h2>
-        <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-          Select a section below to get started with your quality management tasks.
-        </p>
+      </header>
 
-        {/* Large Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      {/* Landing Content */}
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12">
+        <div className="max-w-4xl mx-auto text-center px-4">
+          <div className="flex justify-center mb-8">
+            <img src="/logo.png" alt="Blue Root Health" className="h-32 w-32 object-contain" />
+          </div>
+          
+          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+            Welcome, {session?.user?.name}
+          </h1>
+          <h2 className="text-3xl font-semibold text-blue-600 mb-8">
+            Quality Management System
+          </h2>
+          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+            Select a section below to get started with your quality management tasks.
+          </p>
+
+          {/* Large Navigation Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           <button
             onClick={() => handleTabSelection('products')}
             className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
@@ -104,6 +146,7 @@ export default function Dashboard() {
             <h3 className="text-2xl font-bold text-gray-900 mb-2">Document Upload</h3>
             <p className="text-gray-600">Upload documents for suppliers</p>
           </button>
+          </div>
         </div>
       </div>
     </div>
