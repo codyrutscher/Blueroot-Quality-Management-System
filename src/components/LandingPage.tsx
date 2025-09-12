@@ -209,8 +209,8 @@ export default function LandingPage() {
             <p>&copy; 2024 Blue Root Health. All rights reserved.</p>
             <p className="mt-2 text-sm">Professional Quality Management System for Manufacturing Excellence</p>
           </div>
-        </footer>
-      </div>
+        </div>
+      </footer>
     </div>
   )
 }
