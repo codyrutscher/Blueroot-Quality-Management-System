@@ -24,6 +24,94 @@ export default function Dashboard() {
   const [refreshDocuments, setRefreshDocuments] = useState(0)
   const [selectedProductSku, setSelectedProductSku] = useState(null)
   const [selectedSupplierName, setSelectedSupplierName] = useState(null)
+  const [showDashboardLanding, setShowDashboardLanding] = useState(true)
+
+  const handleTabSelection = (tabName: string) => {
+    setActiveTab(tabName)
+    setShowDashboardLanding(false)
+  }
+
+  // Dashboard Landing Component
+  const DashboardLanding = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="max-w-4xl mx-auto text-center px-4">
+        <div className="flex justify-center mb-8">
+          <img src="/logo.png" alt="Blue Root Health" className="h-32 w-32 object-contain" />
+        </div>
+        
+        <h1 className="text-5xl font-bold text-gray-900 mb-4">
+          Welcome, {session?.user?.name}
+        </h1>
+        <h2 className="text-3xl font-semibold text-blue-600 mb-8">
+          Quality Management System
+        </h2>
+        <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+          Select a section below to get started with your quality management tasks.
+        </p>
+
+        {/* Large Navigation Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <button
+            onClick={() => handleTabSelection('products')}
+            className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+          >
+            <div className="text-6xl mb-4">🏭</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Products</h3>
+            <p className="text-gray-600">Manage product catalog and documentation</p>
+          </button>
+
+          <button
+            onClick={() => handleTabSelection('suppliers')}
+            className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+          >
+            <div className="text-6xl mb-4">🏢</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Suppliers</h3>
+            <p className="text-gray-600">View suppliers and upload documents</p>
+          </button>
+
+          <button
+            onClick={() => handleTabSelection('raw-materials')}
+            className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+          >
+            <div className="text-6xl mb-4">🧪</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Raw Materials</h3>
+            <p className="text-gray-600">Browse ingredient inventory and specs</p>
+          </button>
+
+          <button
+            onClick={() => handleTabSelection('templates')}
+            className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+          >
+            <div className="text-6xl mb-4">📋</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Templates</h3>
+            <p className="text-gray-600">Create documents from quality templates</p>
+          </button>
+
+          <button
+            onClick={() => handleTabSelection('documents')}
+            className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+          >
+            <div className="text-6xl mb-4">📄</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">BRH Documents</h3>
+            <p className="text-gray-600">Access and manage company documents</p>
+          </button>
+
+          <button
+            onClick={() => handleTabSelection('document-upload')}
+            className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+          >
+            <div className="text-6xl mb-4">📤</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Document Upload</h3>
+            <p className="text-gray-600">Upload documents for suppliers</p>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  if (showDashboardLanding) {
+    return <DashboardLanding />
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -32,9 +120,12 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center justify-center">
+              <button 
+                onClick={() => setShowDashboardLanding(true)}
+                className="flex items-center justify-center hover:bg-blue-50 rounded-lg p-2 transition-colors"
+              >
                 <img src="/logo.png" alt="Company Logo" className="w-20 h-20 object-contain" />
-              </div>
+              </button>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent">
                   Quality Management System
