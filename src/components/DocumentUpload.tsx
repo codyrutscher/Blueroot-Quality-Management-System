@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CloudArrowUpIcon, DocumentIcon } from '@heroicons/react/24/outline'
+import MultiSelectDropdown from './MultiSelectDropdown'
 
 export default function DocumentUpload() {
   const [dragActive, setDragActive] = useState(false)
@@ -21,9 +22,83 @@ export default function DocumentUpload() {
     suppliers: [],
     rawMaterials: []
   })
-  const [products, setProducts] = useState([])
-  const [suppliers, setSuppliers] = useState([])
-  const [rawMaterials, setRawMaterials] = useState([])
+  const [products, setProducts] = useState<Array<{id: string, name: string, sku?: string}>>([])
+  const [suppliers, setSuppliers] = useState<Array<{id: string, name: string}>>([])
+  const [rawMaterials, setRawMaterials] = useState<Array<{id: string, name: string}>>([])
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchProducts()
+    fetchSuppliers()
+    fetchRawMaterials()
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      let response = await fetch('/api/debug/products')
+      if (!response.ok) {
+        response = await fetch('/api/products')
+      }
+      const data = await response.json()
+      const productOptions = (data.products || []).map((product: any) => ({
+        id: product.sku || product.id,
+        name: product.productName || product.name,
+        sku: product.sku
+      }))
+      setProducts(productOptions)
+    } catch (error) {
+      console.error('Error fetching products:', error)
+    }
+  }
+
+  const fetchSuppliers = async () => {
+    try {
+      const response = await fetch('/api/suppliers')
+      const data = await response.json()
+      const supplierOptions = (data.suppliers || []).map((supplier: any) => ({
+        id: supplier.id || supplier.name,
+        name: supplier.name
+      }))
+      setSuppliers(supplierOptions)
+    } catch (error) {
+      console.error('Error fetching suppliers:', error)
+      // Mock data for now
+      setSuppliers([
+        { id: 'bariatric-fusion', name: 'Bariatric Fusion' },
+        { id: 'fairhaven-health', name: 'Fairhaven Health' },
+        { id: 'vital-nutrients', name: 'Vital Nutrients' },
+        { id: 'hyperbiotics', name: 'Hyperbiotics' },
+        { id: 'unjury', name: 'Unjury' }
+      ])
+    }
+  }
+
+  const fetchRawMaterials = async () => {
+    try {
+      const response = await fetch('/api/raw-materials')
+      const data = await response.json()
+      const rawMaterialOptions = (data.rawMaterials || []).map((material: any) => ({
+        id: material.id || material.name,
+        name: material.name
+      }))
+      setRawMaterials(rawMaterialOptions)
+    } catch (error) {
+      console.error('Error fetching raw materials:', error)
+      // Mock data for now
+      setRawMaterials([
+        { id: 'vitamin-c', name: 'Vitamin C (Ascorbic Acid)' },
+        { id: 'vitamin-d3', name: 'Vitamin D3 (Cholecalciferol)' },
+        { id: 'calcium-carbonate', name: 'Calcium Carbonate' },
+        { id: 'magnesium-oxide', name: 'Magnesium Oxide' },
+        { id: 'iron-fumarate', name: 'Iron Fumarate' },
+        { id: 'zinc-gluconate', name: 'Zinc Gluconate' },
+        { id: 'b12-cyanocobalamin', name: 'B12 (Cyanocobalamin)' },
+        { id: 'folate', name: 'Folate (Folic Acid)' },
+        { id: 'biotin', name: 'Biotin' },
+        { id: 'probiotics', name: 'Probiotic Blend' }
+      ])
+    }
+  }
 
   const documentTypes = [
     'Label Printer Proofs',
@@ -55,10 +130,10 @@ export default function DocumentUpload() {
     )
   }
 
-  const handleAssociationChange = (type: 'products' | 'suppliers' | 'rawMaterials', value: string) => {
+  const handleAssociationChange = (type: 'products' | 'suppliers' | 'rawMaterials', values: string[]) => {
     setAssociations(prev => ({
       ...prev,
-      [type]: value ? [value] : []
+      [type]: values
     }))
   }
 
@@ -265,50 +340,41 @@ export default function DocumentUpload() {
           selectedDestinations.includes('rawMaterials')) && (
           <div className="mb-8">
             <h3 className="text-lg font-medium text-slate-900 mb-4">Required Associations</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-6">
               {selectedDestinations.includes('products') && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Select Product *
-                  </label>
-                  <input
-                    type="text"
-                    value={associations.products[0] || ''}
-                    onChange={(e) => handleAssociationChange('products', e.target.value)}
-                    placeholder="Enter product SKU or name..."
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                <MultiSelectDropdown
+                  options={products}
+                  selectedValues={associations.products}
+                  onChange={(values) => handleAssociationChange('products', values)}
+                  placeholder="Select products..."
+                  searchPlaceholder="Search products by name or SKU..."
+                  label="Select Products"
+                  required
+                />
               )}
               
               {selectedDestinations.includes('suppliers') && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Select Supplier/Co-Man *
-                  </label>
-                  <input
-                    type="text"
-                    value={associations.suppliers[0] || ''}
-                    onChange={(e) => handleAssociationChange('suppliers', e.target.value)}
-                    placeholder="Enter supplier/co-man name..."
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                <MultiSelectDropdown
+                  options={suppliers}
+                  selectedValues={associations.suppliers}
+                  onChange={(values) => handleAssociationChange('suppliers', values)}
+                  placeholder="Select suppliers/co-men..."
+                  searchPlaceholder="Search suppliers and co-men..."
+                  label="Select Suppliers/Co-Men"
+                  required
+                />
               )}
 
               {selectedDestinations.includes('rawMaterials') && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Select Raw Material *
-                  </label>
-                  <input
-                    type="text"
-                    value={associations.rawMaterials[0] || ''}
-                    onChange={(e) => handleAssociationChange('rawMaterials', e.target.value)}
-                    placeholder="Enter raw material name..."
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                <MultiSelectDropdown
+                  options={rawMaterials}
+                  selectedValues={associations.rawMaterials}
+                  onChange={(values) => handleAssociationChange('rawMaterials', values)}
+                  placeholder="Select raw materials..."
+                  searchPlaceholder="Search raw materials..."
+                  label="Select Raw Materials"
+                  required
+                />
               )}
             </div>
           </div>
