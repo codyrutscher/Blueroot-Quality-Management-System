@@ -166,6 +166,16 @@ export default function Dashboard() {
     setSelectedSupplierName(null);
   };
 
+  // When coming from landing page, set the first category as default
+  const handleEnterSidebar = () => {
+    setShowDashboardLanding(false);
+    if (!activeCategory) {
+      const firstCategoryId = Object.keys(categories)[0];
+      setActiveCategory(firstCategoryId);
+      setActiveTab(categories[firstCategoryId].pages[0].id);
+    }
+  };
+
   const handleTabSelection = (tabName: string) => {
     setActiveTab(tabName);
     // Reset selections when switching tabs
@@ -229,11 +239,11 @@ export default function Dashboard() {
               <button
                 key={categoryId}
                 onClick={() => handleCategorySelection(categoryId)}
-                className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+                className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
               >
-                <div className="text-6xl mb-4">{category.icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{category.name}</h3>
-                <p className="text-gray-600">{category.description}</p>
+                <div className="text-4xl mb-3">{category.icon}</div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{category.name}</h3>
+                <p className="text-sm text-gray-600">{category.description}</p>
               </button>
             ))}
           </div>
@@ -251,7 +261,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg border-r border-slate-200 flex flex-col">
+      <div className="w-72 bg-white shadow-lg border-r border-slate-200 flex flex-col">
         {/* Sidebar Header */}
         <div className="p-6 border-b border-slate-200">
           <button
@@ -270,34 +280,24 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* Category Title */}
-        {currentCategory && (
-          <div className="p-6 border-b border-slate-200">
-            <div className="flex items-center space-x-3">
-              <div className="text-3xl">{currentCategory.icon}</div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">{currentCategory.name}</h2>
-                <p className="text-sm text-slate-600">{currentCategory.description}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Navigation Menu */}
+        {/* Navigation Menu - All Categories */}
         <nav className="flex-1 p-4">
-          <div className="space-y-2">
-            {currentCategory?.pages.map((page) => (
+          <div className="space-y-1">
+            {Object.entries(categories).map(([categoryId, category]) => (
               <button
-                key={page.id}
-                onClick={() => handleTabSelection(page.id)}
+                key={categoryId}
+                onClick={() => {
+                  setActiveCategory(categoryId);
+                  setActiveTab(category.pages[0].id);
+                }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                  activeTab === page.id
+                  activeTab === category.pages[0].id
                     ? 'bg-blue-100 text-blue-700 border border-blue-200'
                     : 'text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <span className="text-xl">{page.icon}</span>
-                <span className="font-medium">{page.name}</span>
+                <span className="text-xl">{category.icon}</span>
+                <span className="font-medium text-sm">{category.name}</span>
               </button>
             ))}
           </div>
@@ -337,7 +337,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <h1 className="text-2xl font-bold text-slate-900">
-                  {currentCategory?.pages.find(p => p.id === activeTab)?.name || 'Dashboard'}
+                  {currentCategory?.name || 'Dashboard'}
                 </h1>
               </div>
               <NotificationCenter />
