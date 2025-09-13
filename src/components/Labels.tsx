@@ -78,18 +78,21 @@ export default function Labels() {
 
   if (loading) {
     return (
-      <div className="p-8 text-center">
-        <div className="text-6xl mb-4">🏷️</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          Loading Labels...
-        </h2>
+      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="text-6xl mb-4">🏷️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Loading Labels...
+          </h2>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
+    <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="text-4xl">🏷️</div>
@@ -101,9 +104,11 @@ export default function Labels() {
             {filteredLabels.length} labels found
           </div>
         </div>
+      </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <input
               type="text"

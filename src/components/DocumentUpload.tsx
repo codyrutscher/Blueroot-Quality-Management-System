@@ -258,9 +258,10 @@ export default function DocumentUpload() {
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold text-slate-900">Document Upload</h2>
             <p className="text-slate-600 mt-1">
@@ -274,6 +275,11 @@ export default function DocumentUpload() {
             <span>Secure & Encrypted</span>
           </div>
         </div>
+      </div>
+
+      {/* Upload Form */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="mb-8">
 
         {/* Document Type Selection */}
         <div className="mb-8">

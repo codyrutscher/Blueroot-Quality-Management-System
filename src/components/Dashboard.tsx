@@ -426,92 +426,108 @@ export default function Dashboard() {
               )}
               {activeTab === "labels" && <Labels />}
               {activeTab === "allergens" && (
-                <div className="p-8 text-center">
-                  <div className="text-6xl mb-4">⚠️</div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    Allergens Management
-                  </h2>
-                  <p className="text-gray-600">
-                    Allergen tracking and management system coming soon.
-                  </p>
+                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <div className="text-6xl mb-4">⚠️</div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Allergens Management
+                    </h2>
+                    <p className="text-gray-600">
+                      Allergen tracking and management system coming soon.
+                    </p>
+                  </div>
                 </div>
               )}
               {activeTab === "ccrs" && (
-                <div className="p-8 text-center">
-                  <div className="text-6xl mb-4">📊</div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    CCRs Management
-                  </h2>
-                  <p className="text-gray-600">
-                    Critical Control Records management system coming soon.
-                  </p>
+                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <div className="text-6xl mb-4">📊</div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      CCRs Management
+                    </h2>
+                    <p className="text-gray-600">
+                      Critical Control Records management system coming soon.
+                    </p>
+                  </div>
                 </div>
               )}
               {activeTab === "shelf-life" && (
-                <div className="p-8 text-center">
-                  <div className="text-6xl mb-4">📅</div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    Shelf-Life Program
-                  </h2>
-                  <p className="text-gray-600">
-                    Product shelf-life monitoring and expiration tracking coming
-                    soon.
-                  </p>
+                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <div className="text-6xl mb-4">📅</div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Shelf-Life Program
+                    </h2>
+                    <p className="text-gray-600">
+                      Product shelf-life monitoring and expiration tracking coming
+                      soon.
+                    </p>
+                  </div>
                 </div>
               )}
               {activeTab === "testing" && (
-                <div className="p-8 text-center">
-                  <div className="text-6xl mb-4">🔬</div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    Testing
-                  </h2>
-                  <p className="text-gray-600">
-                    Laboratory testing and analysis system coming soon.
-                  </p>
+                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <div className="text-6xl mb-4">🔬</div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Testing
+                    </h2>
+                    <p className="text-gray-600">
+                      Laboratory testing and analysis system coming soon.
+                    </p>
+                  </div>
                 </div>
               )}
               {activeTab === "sops" && (
-                <div className="p-8 text-center">
-                  <div className="text-6xl mb-4">📖</div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    SOPs
-                  </h2>
-                  <p className="text-gray-600">
-                    Standard Operating Procedures management coming soon.
-                  </p>
+                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <div className="text-6xl mb-4">📖</div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      SOPs
+                    </h2>
+                    <p className="text-gray-600">
+                      Standard Operating Procedures management coming soon.
+                    </p>
+                  </div>
                 </div>
               )}
               {activeTab === "new-products" && (
-                <div className="p-8 text-center">
-                  <div className="text-6xl mb-4">✨</div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    New Products
-                  </h2>
-                  <p className="text-gray-600">
-                    New product development and launch system coming soon.
-                  </p>
+                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <div className="text-6xl mb-4">✨</div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      New Products
+                    </h2>
+                    <p className="text-gray-600">
+                      New product development and launch system coming soon.
+                    </p>
+                  </div>
                 </div>
               )}
               {activeTab === "customer-complaints" && (
-                <div className="p-8 text-center">
-                  <div className="text-6xl mb-4">📞</div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    Customer Complaints
-                  </h2>
-                  <p className="text-gray-600">
-                    Customer feedback and complaint management system coming soon.
-                  </p>
+                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <div className="text-6xl mb-4">📞</div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Customer Complaints
+                    </h2>
+                    <p className="text-gray-600">
+                      Customer feedback and complaint management system coming soon.
+                    </p>
+                  </div>
                 </div>
               )}
               {activeTab === "regulatory" && (
-                <div className="p-8 text-center">
-                  <div className="text-6xl mb-4">⚖️</div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    Regulatory
-                  </h2>
-                  <p className="text-gray-600">
-                    Regulatory compliance and documentation system coming soon.
-                  </p>
+                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <div className="text-6xl mb-4">⚖️</div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Regulatory
+                    </h2>
+                    <p className="text-gray-600">
+                      Regulatory compliance and documentation system coming soon.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>

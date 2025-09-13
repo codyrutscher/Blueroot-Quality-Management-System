@@ -123,13 +123,14 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-      <div className="mb-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Product Directory</h2>
         <p className="text-gray-600">Manage quality documentation for all products</p>
       </div>
 
       {/* Search and Filter Controls */}
-      <div className="mb-6 space-y-4">
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6 space-y-4">
         {/* Search Bar */}
         <div className="relative">
           <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
