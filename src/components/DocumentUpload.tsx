@@ -77,7 +77,7 @@ export default function DocumentUpload() {
     try {
       const response = await fetch('/api/raw-materials')
       const data = await response.json()
-      const rawMaterialOptions = (data.rawMaterials || []).map((material: any) => ({
+      const rawMaterialOptions = (data.rawMaterials || []).map((material: unknown) => ({
         id: material.id || material.name,
         name: material.name
       }))

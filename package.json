@@ -10,7 +10,9 @@
     "index-content": "node scripts/index-content-supabase.js",
     "upload-labels": "node scripts/upload-labels-to-supabase.js",
     "test-labels": "node scripts/test-labels-setup.js",
-    "create-bucket": "node scripts/create-storage-bucket.js"
+    "create-bucket": "node scripts/create-storage-bucket.js",
+    "clear-labels": "node scripts/clear-labels.js",
+    "setup-documents": "node scripts/setup-documents-tables.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
