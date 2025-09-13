@@ -15,6 +15,7 @@ import RawMaterials from "./RawMaterials";
 import NotificationCenter from "./NotificationCenter";
 import DocxEditor from "./DocxEditor";
 import Labels from "./Labels";
+import { error } from "console";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -551,6 +552,7 @@ export default function Dashboard() {
             }}
           />
         )}
+        </div>
       </div>
     </div>
   );
