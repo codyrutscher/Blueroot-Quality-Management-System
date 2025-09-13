@@ -36,7 +36,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header className="bg-white shadow-lg border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-4">
               <div className="flex items-center justify-center">
@@ -80,9 +80,9 @@ export default function Dashboard() {
 
       {/* Landing Content */}
       <div className="bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center py-12">
-        <div className="max-w-4xl mx-auto text-center px-4">
+        <div className="w-full text-center px-4">
           {/* Large Navigation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
             <button
               onClick={() => handleTabSelection("products")}
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
@@ -172,7 +172,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50">
       {/* Enhanced Header with Blue Root Health styling */}
       <header className="bg-white shadow-lg border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-4">
               <button
@@ -218,7 +218,7 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Professional Navigation Tabs */}
         <div className="mb-8">
           <nav className="flex space-x-1 bg-white rounded-2xl p-2 shadow-md border border-slate-200">
@@ -553,7 +553,7 @@ function AssignmentModal({
       product.brand?.toLowerCase().includes(productSearch.toLowerCase())
   );
 
-  const handleUserToggle = (user: any) => {
+  const handleUserToggle = (user: unknown) => {
     const userName = user.name;
     setAssignedUsers((prev) =>
       prev.includes(userName)
