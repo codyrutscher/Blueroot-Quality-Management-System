@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# Label files - these should be uploaded to Supabase storage instead
+templates/LABEL PRINTER PROOFS/
