@@ -1,6 +1,9 @@
--- Create documents table
+-- First, check if documents table exists and what type the id column is
+-- If it exists with TEXT id, we'll work with that, otherwise create with UUID
+
+-- Create documents table (will use TEXT id to match existing pattern)
 CREATE TABLE IF NOT EXISTS documents (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  id TEXT DEFAULT gen_random_uuid()::text PRIMARY KEY,
   filename TEXT NOT NULL,
   original_filename TEXT NOT NULL,
   file_type TEXT,
@@ -16,8 +19,8 @@ CREATE TABLE IF NOT EXISTS documents (
 
 -- Create document_associations table for specific relationships
 CREATE TABLE IF NOT EXISTS document_associations (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  document_id UUID REFERENCES documents(id) ON DELETE CASCADE,
+  id TEXT DEFAULT gen_random_uuid()::text PRIMARY KEY,
+  document_id TEXT REFERENCES documents(id) ON DELETE CASCADE,
   association_type TEXT NOT NULL, -- 'product', 'supplier', 'raw_material'
   association_id TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

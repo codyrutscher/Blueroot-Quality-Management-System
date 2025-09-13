@@ -18,7 +18,8 @@ import Labels from "./Labels";
 
 export default function Dashboard() {
   const { data: session } = useSession();
-  const [activeTab, setActiveTab] = useState("products");
+  const [activeCategory, setActiveCategory] = useState("");
+  const [activeTab, setActiveTab] = useState("");
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [editingDocument, setEditingDocument] = useState(null);
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
@@ -27,9 +28,103 @@ export default function Dashboard() {
   const [selectedSupplierName, setSelectedSupplierName] = useState(null);
   const [showDashboardLanding, setShowDashboardLanding] = useState(true);
 
+  // Define categories and their associated pages
+  const categories = {
+    "quality-management": {
+      name: "Quality Management",
+      icon: "🏭",
+      description: "Manage product catalog and documentation",
+      pages: [
+        { id: "products", name: "Products", icon: "📦" },
+        { id: "suppliers", name: "Suppliers & Co-Men", icon: "🏢" },
+        { id: "raw-materials", name: "Raw Materials", icon: "🧪" },
+        { id: "templates", name: "Templates", icon: "📋" },
+        { id: "documents", name: "BRH Documents", icon: "📄" },
+        { id: "document-upload", name: "Document Upload", icon: "📤" }
+      ]
+    },
+    "labels-allergens": {
+      name: "Labels & Allergens",
+      icon: "🏷️",
+      description: "Track and manage labels and allergen information",
+      pages: [
+        { id: "labels", name: "Labels", icon: "🏷️" },
+        { id: "allergens", name: "Allergens", icon: "⚠️" }
+      ]
+    },
+    "ccrs": {
+      name: "CCRs",
+      icon: "📊",
+      description: "Critical Control Records management",
+      pages: [
+        { id: "ccrs", name: "CCRs", icon: "📊" }
+      ]
+    },
+    "shelf-life": {
+      name: "Shelf-Life Program",
+      icon: "📅",
+      description: "Monitor product shelf-life and expiration",
+      pages: [
+        { id: "shelf-life", name: "Shelf-Life Program", icon: "📅" }
+      ]
+    },
+    "testing": {
+      name: "Testing",
+      icon: "🔬",
+      description: "Laboratory testing and analysis",
+      pages: [
+        { id: "testing", name: "Testing", icon: "🔬" }
+      ]
+    },
+    "sops": {
+      name: "SOPs",
+      icon: "📖",
+      description: "Standard Operating Procedures",
+      pages: [
+        { id: "sops", name: "SOPs", icon: "📖" }
+      ]
+    },
+    "new-products": {
+      name: "New Products",
+      icon: "✨",
+      description: "New product development and launch",
+      pages: [
+        { id: "new-products", name: "New Products", icon: "✨" }
+      ]
+    },
+    "customer-complaints": {
+      name: "Customer Complaints",
+      icon: "📞",
+      description: "Customer feedback and complaint management",
+      pages: [
+        { id: "customer-complaints", name: "Customer Complaints", icon: "📞" }
+      ]
+    },
+    "regulatory": {
+      name: "Regulatory",
+      icon: "⚖️",
+      description: "Regulatory compliance and documentation",
+      pages: [
+        { id: "regulatory", name: "Regulatory", icon: "⚖️" }
+      ]
+    }
+  };
+
+  const handleCategorySelection = (categoryId: string) => {
+    setActiveCategory(categoryId);
+    setShowDashboardLanding(false);
+    // Set the first page of the category as active
+    const firstPage = categories[categoryId]?.pages[0]?.id;
+    if (firstPage) {
+      setActiveTab(firstPage);
+    }
+    // Reset selections when switching categories
+    setSelectedProductSku(null);
+    setSelectedSupplierName(null);
+  };
+
   const handleTabSelection = (tabName: string) => {
     setActiveTab(tabName);
-    setShowDashboardLanding(false);
     // Reset selections when switching tabs
     setSelectedProductSku(null);
     setSelectedSupplierName(null);
@@ -86,128 +181,18 @@ export default function Dashboard() {
       <div className="bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center py-12">
         <div className="w-full text-center px-4">
           {/* Large Navigation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 w-full">
-            <button
-              onClick={() => handleTabSelection("products")}
-              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-            >
-              <div className="text-6xl mb-4">🏭</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Products</h3>
-              <p className="text-gray-600">
-                Manage product catalog and documentation
-              </p>
-            </button>
-
-            <button
-              onClick={() => handleTabSelection("suppliers")}
-              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-            >
-              <div className="text-6xl mb-4">🏢</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Suppliers & Co-Men
-              </h3>
-              <p className="text-gray-600">
-                View suppliers and co-men and uploaded documents
-              </p>
-            </button>
-
-            <button
-              onClick={() => handleTabSelection("raw-materials")}
-              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-            >
-              <div className="text-6xl mb-4">🧪</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Raw Materials
-              </h3>
-              <p className="text-gray-600">
-                Browse ingredient inventory and specs
-              </p>
-            </button>
-
-            <button
-              onClick={() => handleTabSelection("templates")}
-              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-            >
-              <div className="text-6xl mb-4">📋</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Templates
-              </h3>
-              <p className="text-gray-600">
-                Create documents from quality templates
-              </p>
-            </button>
-
-            <button
-              onClick={() => handleTabSelection("documents")}
-              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-            >
-              <div className="text-6xl mb-4">📄</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                BRH Documents
-              </h3>
-              <p className="text-gray-600">
-                Access and manage company documents
-              </p>
-            </button>
-
-            <button
-              onClick={() => handleTabSelection("document-upload")}
-              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-            >
-              <div className="text-6xl mb-4">📤</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Document Upload
-              </h3>
-              <p className="text-gray-600">Upload documents</p>
-            </button>
-
-            <button
-              onClick={() => handleTabSelection("labels")}
-              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-            >
-              <div className="text-6xl mb-4">🏷️</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Labels</h3>
-              <p className="text-gray-600">
-                Manage product labels and specifications
-              </p>
-            </button>
-
-            <button
-              onClick={() => handleTabSelection("allergens")}
-              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-            >
-              <div className="text-6xl mb-4">⚠️</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Allergens
-              </h3>
-              <p className="text-gray-600">
-                Track and manage allergen information
-              </p>
-            </button>
-
-            <button
-              onClick={() => handleTabSelection("ccrs")}
-              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-            >
-              <div className="text-6xl mb-4">📊</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">CCRs</h3>
-              <p className="text-gray-600">
-                Critical Control Records management
-              </p>
-            </button>
-
-            <button
-              onClick={() => handleTabSelection("shelf-life")}
-              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-            >
-              <div className="text-6xl mb-4">📅</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Shelf-Life Program
-              </h3>
-              <p className="text-gray-600">
-                Monitor product shelf-life and expiration
-              </p>
-            </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto">
+            {Object.entries(categories).map(([categoryId, category]) => (
+              <button
+                key={categoryId}
+                onClick={() => handleCategorySelection(categoryId)}
+                className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+              >
+                <div className="text-6xl mb-4">{category.icon}</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{category.name}</h3>
+                <p className="text-gray-600">{category.description}</p>
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -218,208 +203,151 @@ export default function Dashboard() {
     return <DashboardLanding />;
   }
 
+  const currentCategory = categories[activeCategory];
+
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Enhanced Header with Blue Root Health styling */}
-      <header className="bg-white shadow-lg border-b border-slate-200">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setShowDashboardLanding(true)}
-                className="flex items-center justify-center hover:bg-blue-50 rounded-lg p-2 transition-colors"
-              >
-                <img
-                  src="/logo.png"
-                  alt="Company Logo"
-                  className="w-20 h-20 object-contain"
-                />
-              </button>
+    <div className="min-h-screen bg-slate-50 flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-white shadow-lg border-r border-slate-200 flex flex-col">
+        {/* Sidebar Header */}
+        <div className="p-6 border-b border-slate-200">
+          <button
+            onClick={() => setShowDashboardLanding(true)}
+            className="flex items-center space-x-3 hover:bg-slate-50 rounded-lg p-2 transition-colors w-full"
+          >
+            <img
+              src="/logo.png"
+              alt="Company Logo"
+              className="w-12 h-12 object-contain"
+            />
+            <div className="text-left">
+              <div className="text-lg font-bold text-slate-900">QMS</div>
+              <div className="text-xs text-slate-500">Back to Home</div>
+            </div>
+          </button>
+        </div>
+
+        {/* Category Title */}
+        {currentCategory && (
+          <div className="p-6 border-b border-slate-200">
+            <div className="flex items-center space-x-3">
+              <div className="text-3xl">{currentCategory.icon}</div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent">
-                  Quality Management System
+                <h2 className="text-lg font-bold text-slate-900">{currentCategory.name}</h2>
+                <p className="text-sm text-slate-600">{currentCategory.description}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-4">
+          <div className="space-y-2">
+            {currentCategory?.pages.map((page) => (
+              <button
+                key={page.id}
+                onClick={() => handleTabSelection(page.id)}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                  activeTab === page.id
+                    ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <span className="text-xl">{page.icon}</span>
+                <span className="font-medium">{page.name}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* User Info */}
+        <div className="p-4 border-t border-slate-200">
+          <div className="flex items-center space-x-3">
+            <div className="h-10 w-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
+              <span className="text-white text-sm font-semibold">
+                {session?.user?.name?.charAt(0)?.toUpperCase()}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-slate-900 truncate">
+                {session?.user?.name}
+              </div>
+              <button
+                onClick={() => {
+                  console.log("Logging out...");
+                  window.location.href = "/api/auth/signout";
+                }}
+                className="text-xs text-slate-500 hover:text-slate-700"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Header */}
+        <header className="bg-white shadow-sm border-b border-slate-200">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <h1 className="text-2xl font-bold text-slate-900">
+                  {currentCategory?.pages.find(p => p.id === activeTab)?.name || 'Dashboard'}
                 </h1>
               </div>
-            </div>
-            <div className="flex items-center space-x-6">
               <NotificationCenter />
-              <div className="flex items-center space-x-3">
-                <span className="text-base text-slate-700 font-medium">
-                  Welcome, {session?.user?.name}
-                </span>
-                <div className="h-11 w-11 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-lg ring-2 ring-blue-100">
-                  <span className="text-white text-lg font-semibold">
-                    {session?.user?.name?.charAt(0)?.toUpperCase()}
-                  </span>
-                </div>
-                <button
-                  onClick={() => {
-                    console.log("Logging out...");
-                    window.location.href = "/api/auth/signout";
-                  }}
-                  className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50"
-                >
-                  Logout
-                </button>
-              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content Area */}
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
-        {/* Professional Navigation Tabs */}
-        <div className="mb-8">
-          <nav className="flex space-x-1 bg-white rounded-2xl p-2 shadow-md border border-slate-200">
-            <button
-              onClick={() => setActiveTab("products")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                activeTab === "products"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
-                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              🏭 Products
-            </button>
-            <button
-              onClick={() => setActiveTab("suppliers")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                activeTab === "suppliers"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
-                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              🏢 Suppliers & Co-Men
-            </button>
-            <button
-              onClick={() => setActiveTab("raw-materials")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                activeTab === "raw-materials"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
-                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              🧪 Raw Materials
-            </button>
-            <button
-              onClick={() => setActiveTab("templates")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                activeTab === "templates"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
-                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              📋 Templates
-            </button>
-            <button
-              onClick={() => setActiveTab("documents")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                activeTab === "documents"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
-                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              📄 BRH Documents
-            </button>
-            <button
-              onClick={() => setActiveTab("document-upload")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                activeTab === "document-upload"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
-                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              📤 Document Upload
-            </button>
-            <button
-              onClick={() => setActiveTab("labels")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                activeTab === "labels"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
-                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              🏷️ Labels
-            </button>
-            <button
-              onClick={() => setActiveTab("allergens")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                activeTab === "allergens"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
-                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              ⚠️ Allergens
-            </button>
-            <button
-              onClick={() => setActiveTab("ccrs")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                activeTab === "ccrs"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
-                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              📊 CCRs
-            </button>
-            <button
-              onClick={() => setActiveTab("shelf-life")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
-                activeTab === "shelf-life"
-                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
-                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              📅 Shelf-Life Program
-            </button>
-          </nav>
-        </div>
-
-        {/* Content Container with Enhanced Styling */}
-        {editingTemplate ? (
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-            <DocxEditor
-              templatePath={editingTemplate.name}
-              templateName={editingTemplate.name}
-              isOpen={true}
-              onClose={() => {
-                setEditingTemplate(null);
-                setActiveTab("templates");
-                window.scrollTo(0, 0);
-              }}
-              onSave={() => {
-                setShowAssignmentModal(true);
-                // Don't clear editingTemplate yet - we need it for the assignment modal
-              }}
-            />
-          </div>
-        ) : editingDocument ? (
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-            <DocxEditor
-              templatePath={
-                editingDocument.template?.name || editingDocument.filename
-              }
-              templateName={
-                editingDocument.template?.name || editingDocument.title
-              }
-              documentId={editingDocument.id}
-              isOpen={true}
-              onClose={() => {
-                setEditingDocument(null);
-                setActiveTab("documents");
-                window.scrollTo(0, 0);
-              }}
-              onSave={() => {
-                // Save document changes and refresh
-                setEditingDocument(null);
-                setRefreshDocuments((prev) => prev + 1);
-                setActiveTab("documents");
-              }}
-            />
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden card">
-            <div className="p-1">
+        {/* Content Area */}
+        <div className="flex-1 p-6 overflow-auto">
+          {editingTemplate ? (
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+              <DocxEditor
+                templatePath={editingTemplate.name}
+                templateName={editingTemplate.name}
+                isOpen={true}
+                onClose={() => {
+                  setEditingTemplate(null);
+                  setActiveTab("templates");
+                  window.scrollTo(0, 0);
+                }}
+                onSave={() => {
+                  setShowAssignmentModal(true);
+                  // Don't clear editingTemplate yet - we need it for the assignment modal
+                }}
+              />
+            </div>
+          ) : editingDocument ? (
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+              <DocxEditor
+                templatePath={
+                  editingDocument.template?.name || editingDocument.filename
+                }
+                templateName={
+                  editingDocument.template?.name || editingDocument.title
+                }
+                documentId={editingDocument.id}
+                isOpen={true}
+                onClose={() => {
+                  setEditingDocument(null);
+                  setActiveTab("documents");
+                  window.scrollTo(0, 0);
+                }}
+                onSave={() => {
+                  // Save document changes and refresh
+                  setEditingDocument(null);
+                  setRefreshDocuments((prev) => prev + 1);
+                  setActiveTab("documents");
+                }}
+              />
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+              <div className="p-6">
               {activeTab === "search" && <SearchInterface />}
               {activeTab === "upload" && <DocumentUpload />}
               {activeTab === "suppliers" && !selectedSupplierName && (
@@ -485,6 +413,61 @@ export default function Dashboard() {
                   <p className="text-gray-600">
                     Product shelf-life monitoring and expiration tracking coming
                     soon.
+                  </p>
+                </div>
+              )}
+              {activeTab === "testing" && (
+                <div className="p-8 text-center">
+                  <div className="text-6xl mb-4">🔬</div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Testing
+                  </h2>
+                  <p className="text-gray-600">
+                    Laboratory testing and analysis system coming soon.
+                  </p>
+                </div>
+              )}
+              {activeTab === "sops" && (
+                <div className="p-8 text-center">
+                  <div className="text-6xl mb-4">📖</div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    SOPs
+                  </h2>
+                  <p className="text-gray-600">
+                    Standard Operating Procedures management coming soon.
+                  </p>
+                </div>
+              )}
+              {activeTab === "new-products" && (
+                <div className="p-8 text-center">
+                  <div className="text-6xl mb-4">✨</div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    New Products
+                  </h2>
+                  <p className="text-gray-600">
+                    New product development and launch system coming soon.
+                  </p>
+                </div>
+              )}
+              {activeTab === "customer-complaints" && (
+                <div className="p-8 text-center">
+                  <div className="text-6xl mb-4">📞</div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Customer Complaints
+                  </h2>
+                  <p className="text-gray-600">
+                    Customer feedback and complaint management system coming soon.
+                  </p>
+                </div>
+              )}
+              {activeTab === "regulatory" && (
+                <div className="p-8 text-center">
+                  <div className="text-6xl mb-4">⚖️</div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Regulatory
+                  </h2>
+                  <p className="text-gray-600">
+                    Regulatory compliance and documentation system coming soon.
                   </p>
                 </div>
               )}
