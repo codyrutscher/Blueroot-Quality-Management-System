@@ -88,7 +88,7 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">🏭</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Products
               </h3>
               <p className="text-gray-600">
@@ -101,7 +101,7 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">🏢</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Suppliers & Co-Men
               </h3>
               <p className="text-gray-600">
@@ -114,7 +114,7 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">🧪</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Raw Materials
               </h3>
               <p className="text-gray-600">
@@ -127,7 +127,7 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">📋</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Templates
               </h3>
               <p className="text-gray-600">
@@ -140,7 +140,7 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">📄</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
                 BRH Documents
               </h3>
               <p className="text-gray-600">
@@ -153,10 +153,10 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">📤</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Document Upload
               </h3>
-              <p className="text-gray-600">Upload documents for suppliers</p>
+              <p className="text-gray-600">Upload documents</p>
             </button>
 
             <button
@@ -164,7 +164,7 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">🏷️</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Labels</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Labels</h3>
               <p className="text-gray-600">
                 Manage product labels and specifications
               </p>
@@ -175,7 +175,7 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">⚠️</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Allergens
               </h3>
               <p className="text-gray-600">
@@ -188,7 +188,7 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">📊</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">CCRs</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">CCRs</h3>
               <p className="text-gray-600">
                 Critical Control Records management
               </p>
@@ -199,7 +199,7 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">📅</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Shelf-Life Program
               </h3>
               <p className="text-gray-600">
@@ -272,7 +272,7 @@ export default function Dashboard() {
           <nav className="flex space-x-1 bg-white rounded-2xl p-2 shadow-md border border-slate-200">
             <button
               onClick={() => setActiveTab("products")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
                 activeTab === "products"
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
                   : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
@@ -282,7 +282,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setActiveTab("suppliers")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
                 activeTab === "suppliers"
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
                   : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
@@ -292,7 +292,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setActiveTab("raw-materials")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
                 activeTab === "raw-materials"
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
                   : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
@@ -302,7 +302,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setActiveTab("templates")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
                 activeTab === "templates"
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
                   : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
@@ -312,7 +312,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setActiveTab("documents")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
                 activeTab === "documents"
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
                   : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
@@ -322,7 +322,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setActiveTab("document-upload")}
-              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
                 activeTab === "document-upload"
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
                   : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
