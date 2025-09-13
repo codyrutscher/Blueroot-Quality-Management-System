@@ -183,7 +183,7 @@ export default function Labels() {
               : "No labels have been uploaded yet."}
           </p>
           <p className="text-sm text-blue-600">
-            Upload label files through the Document Upload section and select "Labels" as the destination.
+            Upload label files through the Document Upload section and select "Labels&quot; as the destination.
           </p>
         </div>
       )}

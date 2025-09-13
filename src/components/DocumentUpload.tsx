@@ -11,11 +11,19 @@ export default function DocumentUpload() {
     message: string
   }>({ type: null, message: '' })
   const [documentType, setDocumentType] = useState('')
-  const [destination, setDestination] = useState('')
-  const [selectedProduct, setSelectedProduct] = useState('')
-  const [selectedSupplier, setSelectedSupplier] = useState('')
+  const [selectedDestinations, setSelectedDestinations] = useState<string[]>([])
+  const [associations, setAssociations] = useState<{
+    products: string[]
+    suppliers: string[]
+    rawMaterials: string[]
+  }>({
+    products: [],
+    suppliers: [],
+    rawMaterials: []
+  })
   const [products, setProducts] = useState([])
   const [suppliers, setSuppliers] = useState([])
+  const [rawMaterials, setRawMaterials] = useState([])
 
   const documentTypes = [
     'Label Printer Proofs',
@@ -32,12 +40,49 @@ export default function DocumentUpload() {
   ]
 
   const destinations = [
-    'Products',
-    'Supplier and Co-Men',
-    'Raw Materials',
-    'Labels',
-    'Shelf-Life Program'
+    { id: 'products', name: 'Products', requiresAssociation: true },
+    { id: 'suppliers', name: 'Supplier and Co-Men', requiresAssociation: true },
+    { id: 'rawMaterials', name: 'Raw Materials', requiresAssociation: true },
+    { id: 'labels', name: 'Labels', requiresAssociation: false },
+    { id: 'shelfLife', name: 'Shelf-Life Program', requiresAssociation: false }
   ]
+
+  const handleDestinationToggle = (destinationId: string) => {
+    setSelectedDestinations(prev => 
+      prev.includes(destinationId)
+        ? prev.filter(id => id !== destinationId)
+        : [...prev, destinationId]
+    )
+  }
+
+  const handleAssociationChange = (type: 'products' | 'suppliers' | 'rawMaterials', value: string) => {
+    setAssociations(prev => ({
+      ...prev,
+      [type]: value ? [value] : []
+    }))
+  }
+
+  const validateUpload = () => {
+    if (!documentType) return 'Please select a document type.'
+    if (selectedDestinations.length === 0) return 'Please select at least one destination.'
+    
+    // Check if destinations requiring associations have them
+    const requiresProducts = selectedDestinations.includes('products')
+    const requiresSuppliers = selectedDestinations.includes('suppliers')
+    const requiresRawMaterials = selectedDestinations.includes('rawMaterials')
+    
+    if (requiresProducts && associations.products.length === 0) {
+      return 'Please select a product for the Products destination.'
+    }
+    if (requiresSuppliers && associations.suppliers.length === 0) {
+      return 'Please select a supplier/co-man for the Supplier and Co-Men destination.'
+    }
+    if (requiresRawMaterials && associations.rawMaterials.length === 0) {
+      return 'Please select a raw material for the Raw Materials destination.'
+    }
+    
+    return null
+  }
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -68,10 +113,11 @@ export default function DocumentUpload() {
   }
 
   const handleFiles = async (files: File[]) => {
-    if (!documentType || !destination) {
+    const validationError = validateUpload()
+    if (validationError) {
       setUploadStatus({
         type: 'error',
-        message: 'Please select both document type and destination before uploading.'
+        message: validationError
       })
       return
     }
@@ -100,9 +146,8 @@ export default function DocumentUpload() {
         const formData = new FormData()
         formData.append('file', file)
         formData.append('documentType', documentType)
-        formData.append('destination', destination)
-        if (selectedProduct) formData.append('productId', selectedProduct)
-        if (selectedSupplier) formData.append('supplierId', selectedSupplier)
+        formData.append('destinations', JSON.stringify(selectedDestinations))
+        formData.append('associations', JSON.stringify(associations))
 
         const response = await fetch('/api/documents/upload', {
           method: 'POST',
@@ -118,9 +163,13 @@ export default function DocumentUpload() {
 
       await Promise.all(uploadPromises)
       
+      const destinationNames = selectedDestinations.map(id => 
+        destinations.find(d => d.id === id)?.name
+      ).join(', ')
+      
       setUploadStatus({
         type: 'success',
-        message: `Successfully uploaded ${validFiles.length} file(s) as ${documentType} to ${destination}. Processing may take a few moments.`
+        message: `Successfully uploaded ${validFiles.length} file(s) as ${documentType} to ${destinationNames}. Processing may take a few moments.`
       })
     } catch (error) {
       console.error('Upload error:', error)
@@ -151,73 +200,117 @@ export default function DocumentUpload() {
           </div>
         </div>
 
-        {/* Document Classification */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Document Type *
-            </label>
-            <select
-              value={documentType}
-              onChange={(e) => setDocumentType(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="">Select document type...</option>
-              {documentTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-          </div>
+        {/* Document Type Selection */}
+        <div className="mb-8">
+          <label className="block text-sm font-medium text-slate-700 mb-3">
+            Document Type *
+          </label>
+          <select
+            value={documentType}
+            onChange={(e) => setDocumentType(e.target.value)}
+            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          >
+            <option value="">Select document type...</option>
+            {documentTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Destination *
-            </label>
-            <select
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="">Select destination...</option>
-              {destinations.map(dest => (
-                <option key={dest} value={dest}>{dest}</option>
-              ))}
-            </select>
+        {/* Destinations Selection */}
+        <div className="mb-8">
+          <label className="block text-sm font-medium text-slate-700 mb-3">
+            Destinations * (Select one or more)
+          </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {destinations.map(dest => (
+              <div key={dest.id} className="relative">
+                <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                  selectedDestinations.includes(dest.id)
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={selectedDestinations.includes(dest.id)}
+                    onChange={() => handleDestinationToggle(dest.id)}
+                    className="sr-only"
+                  />
+                  <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center ${
+                    selectedDestinations.includes(dest.id)
+                      ? 'border-blue-500 bg-blue-500'
+                      : 'border-slate-300'
+                  }`}>
+                    {selectedDestinations.includes(dest.id) && (
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
+                  <div>
+                    <div className="font-medium text-slate-900">{dest.name}</div>
+                    {dest.requiresAssociation && (
+                      <div className="text-xs text-slate-500">Requires specific association</div>
+                    )}
+                  </div>
+                </label>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Optional Association Fields */}
-        {(destination === 'Products' || destination === 'Supplier and Co-Men') && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {destination === 'Products' && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Associate with Product (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={selectedProduct}
-                  onChange={(e) => setSelectedProduct(e.target.value)}
-                  placeholder="Enter product SKU or name..."
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            )}
-            
-            {destination === 'Supplier and Co-Men' && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Associate with Supplier/Co-Man (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={selectedSupplier}
-                  onChange={(e) => setSelectedSupplier(e.target.value)}
-                  placeholder="Enter supplier/co-man name..."
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            )}
+        {/* Association Fields */}
+        {(selectedDestinations.includes('products') || 
+          selectedDestinations.includes('suppliers') || 
+          selectedDestinations.includes('rawMaterials')) && (
+          <div className="mb-8">
+            <h3 className="text-lg font-medium text-slate-900 mb-4">Required Associations</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {selectedDestinations.includes('products') && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Select Product *
+                  </label>
+                  <input
+                    type="text"
+                    value={associations.products[0] || ''}
+                    onChange={(e) => handleAssociationChange('products', e.target.value)}
+                    placeholder="Enter product SKU or name..."
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              )}
+              
+              {selectedDestinations.includes('suppliers') && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Select Supplier/Co-Man *
+                  </label>
+                  <input
+                    type="text"
+                    value={associations.suppliers[0] || ''}
+                    onChange={(e) => handleAssociationChange('suppliers', e.target.value)}
+                    placeholder="Enter supplier/co-man name..."
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              )}
+
+              {selectedDestinations.includes('rawMaterials') && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Select Raw Material *
+                  </label>
+                  <input
+                    type="text"
+                    value={associations.rawMaterials[0] || ''}
+                    onChange={(e) => handleAssociationChange('rawMaterials', e.target.value)}
+                    placeholder="Enter raw material name..."
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -226,10 +319,10 @@ export default function DocumentUpload() {
         className={`relative border-3 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${
           dragActive
             ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 scale-[1.02]'
-            : !documentType || !destination
+            : validateUpload()
             ? 'border-slate-200 bg-slate-50 opacity-50'
             : 'border-slate-300 hover:border-blue-400 hover:bg-slate-50'
-        } ${uploading || !documentType || !destination ? 'pointer-events-none' : ''}`}
+        } ${uploading || validateUpload() ? 'pointer-events-none' : ''}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -241,7 +334,7 @@ export default function DocumentUpload() {
           accept=".pdf,.docx,.txt"
           onChange={handleFileSelect}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          disabled={uploading || !documentType || !destination}
+          disabled={uploading || !!validateUpload()}
         />
         
         <div className="space-y-6">
@@ -270,14 +363,14 @@ export default function DocumentUpload() {
             <div className="space-y-4">
               <div>
                 <p className="text-xl font-bold text-slate-900 mb-2">
-                  {!documentType || !destination 
-                    ? 'Select document type and destination first'
+                  {validateUpload()
+                    ? 'Complete required fields first'
                     : 'Drop files here or click to browse'
                   }
                 </p>
                 <p className="text-slate-600 leading-relaxed">
-                  {!documentType || !destination 
-                    ? 'Please complete the required fields above before uploading files'
+                  {validateUpload()
+                    ? validateUpload()
                     : 'Upload PDF, DOCX, and TXT files up to 10MB each\nMultiple files supported - drag and drop for faster uploads'
                   }
                 </p>
