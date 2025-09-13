@@ -10,11 +10,34 @@ export default function DocumentUpload() {
     type: 'success' | 'error' | null
     message: string
   }>({ type: null, message: '' })
-  const [uploadTarget, setUploadTarget] = useState<'product' | 'supplier'>('product')
+  const [documentType, setDocumentType] = useState('')
+  const [destination, setDestination] = useState('')
   const [selectedProduct, setSelectedProduct] = useState('')
   const [selectedSupplier, setSelectedSupplier] = useState('')
   const [products, setProducts] = useState([])
   const [suppliers, setSuppliers] = useState([])
+
+  const documentTypes = [
+    'Label Printer Proofs',
+    'Supplier Quality Agreement',
+    'Co-Man Quality Agreement',
+    'Supplier Questionnaire',
+    'Co-Man Questionnaire',
+    'Supplier Certifications',
+    'Co-Man Certifications',
+    'COAs',
+    'COCs',
+    'SOPs',
+    'Test Results'
+  ]
+
+  const destinations = [
+    'Products',
+    'Supplier and Co-Men',
+    'Raw Materials',
+    'Labels',
+    'Shelf-Life Program'
+  ]
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -45,6 +68,14 @@ export default function DocumentUpload() {
   }
 
   const handleFiles = async (files: File[]) => {
+    if (!documentType || !destination) {
+      setUploadStatus({
+        type: 'error',
+        message: 'Please select both document type and destination before uploading.'
+      })
+      return
+    }
+
     const acceptedTypes = [
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -68,6 +99,10 @@ export default function DocumentUpload() {
       const uploadPromises = validFiles.map(async (file) => {
         const formData = new FormData()
         formData.append('file', file)
+        formData.append('documentType', documentType)
+        formData.append('destination', destination)
+        if (selectedProduct) formData.append('productId', selectedProduct)
+        if (selectedSupplier) formData.append('supplierId', selectedSupplier)
 
         const response = await fetch('/api/documents/upload', {
           method: 'POST',
@@ -85,7 +120,7 @@ export default function DocumentUpload() {
       
       setUploadStatus({
         type: 'success',
-        message: `Successfully uploaded ${validFiles.length} file(s). Processing may take a few moments.`
+        message: `Successfully uploaded ${validFiles.length} file(s) as ${documentType} to ${destination}. Processing may take a few moments.`
       })
     } catch (error) {
       console.error('Upload error:', error)
@@ -105,7 +140,7 @@ export default function DocumentUpload() {
           <div>
             <h2 className="text-2xl font-bold text-slate-900">Document Upload</h2>
             <p className="text-slate-600 mt-1">
-              Upload documents and associate them with products or suppliers
+              Upload documents and categorize them by type and destination
             </p>
           </div>
           <div className="flex items-center space-x-2 text-sm text-slate-500">
@@ -115,14 +150,86 @@ export default function DocumentUpload() {
             <span>Secure & Encrypted</span>
           </div>
         </div>
+
+        {/* Document Classification */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Document Type *
+            </label>
+            <select
+              value={documentType}
+              onChange={(e) => setDocumentType(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            >
+              <option value="">Select document type...</option>
+              {documentTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Destination *
+            </label>
+            <select
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            >
+              <option value="">Select destination...</option>
+              {destinations.map(dest => (
+                <option key={dest} value={dest}>{dest}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Optional Association Fields */}
+        {(destination === 'Products' || destination === 'Supplier and Co-Men') && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {destination === 'Products' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Associate with Product (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={selectedProduct}
+                  onChange={(e) => setSelectedProduct(e.target.value)}
+                  placeholder="Enter product SKU or name..."
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            )}
+            
+            {destination === 'Supplier and Co-Men' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Associate with Supplier/Co-Man (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={selectedSupplier}
+                  onChange={(e) => setSelectedSupplier(e.target.value)}
+                  placeholder="Enter supplier/co-man name..."
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div
         className={`relative border-3 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${
           dragActive
             ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 scale-[1.02]'
+            : !documentType || !destination
+            ? 'border-slate-200 bg-slate-50 opacity-50'
             : 'border-slate-300 hover:border-blue-400 hover:bg-slate-50'
-        } ${uploading ? 'pointer-events-none' : ''}`}
+        } ${uploading || !documentType || !destination ? 'pointer-events-none' : ''}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -134,7 +241,7 @@ export default function DocumentUpload() {
           accept=".pdf,.docx,.txt"
           onChange={handleFileSelect}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          disabled={uploading}
+          disabled={uploading || !documentType || !destination}
         />
         
         <div className="space-y-6">
@@ -163,11 +270,16 @@ export default function DocumentUpload() {
             <div className="space-y-4">
               <div>
                 <p className="text-xl font-bold text-slate-900 mb-2">
-                  Drop files here or click to browse
+                  {!documentType || !destination 
+                    ? 'Select document type and destination first'
+                    : 'Drop files here or click to browse'
+                  }
                 </p>
                 <p className="text-slate-600 leading-relaxed">
-                  Upload PDF, DOCX, and TXT files up to 10MB each<br />
-                  Multiple files supported - drag and drop for faster uploads
+                  {!documentType || !destination 
+                    ? 'Please complete the required fields above before uploading files'
+                    : 'Upload PDF, DOCX, and TXT files up to 10MB each\nMultiple files supported - drag and drop for faster uploads'
+                  }
                 </p>
               </div>
               <div className="inline-flex items-center space-x-4 text-sm text-slate-500">
