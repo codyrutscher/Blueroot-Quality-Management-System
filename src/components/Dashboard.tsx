@@ -29,27 +29,69 @@ export default function Dashboard() {
   const [selectedSupplierName, setSelectedSupplierName] = useState(null);
   const [showDashboardLanding, setShowDashboardLanding] = useState(true);
 
-  // Define categories and their associated pages
+  // Define all 15 categories as individual sections
   const categories = {
-    "quality-management": {
-      name: "Quality Management",
-      icon: "🏭",
+    "products": {
+      name: "Products",
+      icon: "📦",
       description: "Manage product catalog and documentation",
       pages: [
-        { id: "products", name: "Products", icon: "📦" },
-        { id: "suppliers", name: "Suppliers & Co-Men", icon: "🏢" },
-        { id: "raw-materials", name: "Raw Materials", icon: "🧪" },
-        { id: "templates", name: "Templates", icon: "📋" },
-        { id: "documents", name: "BRH Documents", icon: "📄" },
+        { id: "products", name: "Products", icon: "📦" }
+      ]
+    },
+    "suppliers": {
+      name: "Suppliers & Co-Men",
+      icon: "🏢",
+      description: "View suppliers and co-men and uploaded documents",
+      pages: [
+        { id: "suppliers", name: "Suppliers & Co-Men", icon: "🏢" }
+      ]
+    },
+    "raw-materials": {
+      name: "Raw Materials",
+      icon: "🧪",
+      description: "Browse ingredient inventory and specs",
+      pages: [
+        { id: "raw-materials", name: "Raw Materials", icon: "🧪" }
+      ]
+    },
+    "templates": {
+      name: "Templates",
+      icon: "📋",
+      description: "Create documents from quality templates",
+      pages: [
+        { id: "templates", name: "Templates", icon: "📋" }
+      ]
+    },
+    "documents": {
+      name: "BRH Documents",
+      icon: "📄",
+      description: "Access and manage company documents",
+      pages: [
+        { id: "documents", name: "BRH Documents", icon: "📄" }
+      ]
+    },
+    "document-upload": {
+      name: "Document Upload",
+      icon: "📤",
+      description: "Upload documents to the system",
+      pages: [
         { id: "document-upload", name: "Document Upload", icon: "📤" }
       ]
     },
-    "labels-allergens": {
-      name: "Labels & Allergens",
+    "labels": {
+      name: "Labels",
       icon: "🏷️",
-      description: "Track and manage labels and allergen information",
+      description: "Manage product labels and specifications",
       pages: [
-        { id: "labels", name: "Labels", icon: "🏷️" },
+        { id: "labels", name: "Labels", icon: "🏷️" }
+      ]
+    },
+    "allergens": {
+      name: "Allergens",
+      icon: "⚠️",
+      description: "Track and manage allergen information",
+      pages: [
         { id: "allergens", name: "Allergens", icon: "⚠️" }
       ]
     },
@@ -182,7 +224,7 @@ export default function Dashboard() {
       <div className="bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center py-12">
         <div className="w-full text-center px-4">
           {/* Large Navigation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 w-full max-w-7xl mx-auto">
             {Object.entries(categories).map(([categoryId, category]) => (
               <button
                 key={categoryId}
@@ -564,7 +606,7 @@ function AssignmentModal({
   onClose,
   onSave,
 }: {
-  template: any;
+  template: unknown;
   isOpen: boolean;
   onClose: () => void;
   onSave: (
