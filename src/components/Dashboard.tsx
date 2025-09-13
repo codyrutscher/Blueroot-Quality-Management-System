@@ -82,7 +82,7 @@ export default function Dashboard() {
       <div className="bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center py-12">
         <div className="w-full text-center px-4">
           {/* Large Navigation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 w-full">
             <button
               onClick={() => handleTabSelection("products")}
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
@@ -157,6 +157,54 @@ export default function Dashboard() {
                 Document Upload
               </h3>
               <p className="text-gray-600">Upload documents for suppliers</p>
+            </button>
+
+            <button
+              onClick={() => handleTabSelection("labels")}
+              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+            >
+              <div className="text-6xl mb-4">🏷️</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Labels</h3>
+              <p className="text-gray-600">
+                Manage product labels and specifications
+              </p>
+            </button>
+
+            <button
+              onClick={() => handleTabSelection("allergens")}
+              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+            >
+              <div className="text-6xl mb-4">⚠️</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                Allergens
+              </h3>
+              <p className="text-gray-600">
+                Track and manage allergen information
+              </p>
+            </button>
+
+            <button
+              onClick={() => handleTabSelection("ccrs")}
+              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+            >
+              <div className="text-6xl mb-4">📊</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">CCRs</h3>
+              <p className="text-gray-600">
+                Critical Control Records management
+              </p>
+            </button>
+
+            <button
+              onClick={() => handleTabSelection("shelf-life")}
+              className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+            >
+              <div className="text-6xl mb-4">📅</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                Shelf-Life Program
+              </h3>
+              <p className="text-gray-600">
+                Monitor product shelf-life and expiration
+              </p>
             </button>
           </div>
         </div>
@@ -362,6 +410,51 @@ export default function Dashboard() {
                   onEditDocument={setEditingDocument}
                   onNavigateToDocuments={() => setActiveTab("documents")}
                 />
+              )}
+              {activeTab === "labels" && (
+                <div className="p-8 text-center">
+                  <div className="text-6xl mb-4">🏷️</div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Labels Management
+                  </h2>
+                  <p className="text-gray-600">
+                    Product labels and specifications management coming soon.
+                  </p>
+                </div>
+              )}
+              {activeTab === "allergens" && (
+                <div className="p-8 text-center">
+                  <div className="text-6xl mb-4">⚠️</div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Allergens Management
+                  </h2>
+                  <p className="text-gray-600">
+                    Allergen tracking and management system coming soon.
+                  </p>
+                </div>
+              )}
+              {activeTab === "ccrs" && (
+                <div className="p-8 text-center">
+                  <div className="text-6xl mb-4">📊</div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    CCRs Management
+                  </h2>
+                  <p className="text-gray-600">
+                    Critical Control Records management system coming soon.
+                  </p>
+                </div>
+              )}
+              {activeTab === "shelf-life" && (
+                <div className="p-8 text-center">
+                  <div className="text-6xl mb-4">📅</div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Shelf-Life Program
+                  </h2>
+                  <p className="text-gray-600">
+                    Product shelf-life monitoring and expiration tracking coming
+                    soon.
+                  </p>
+                </div>
               )}
             </div>
           </div>
