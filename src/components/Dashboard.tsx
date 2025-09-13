@@ -102,10 +102,10 @@ export default function Dashboard() {
             >
               <div className="text-6xl mb-4">🏢</div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                Suppliers
+                Suppliers & Co-Men
               </h3>
               <p className="text-gray-600">
-                View suppliers and upload documents
+                View suppliers and co-men and uploaded documents
               </p>
             </button>
 
@@ -240,7 +240,7 @@ export default function Dashboard() {
                   : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
               }`}
             >
-              🏢 Suppliers
+              🏢 Suppliers & Co-Men
             </button>
             <button
               onClick={() => setActiveTab("raw-materials")}
