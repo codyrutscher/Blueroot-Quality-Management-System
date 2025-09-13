@@ -1,114 +1,145 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { MagnifyingGlassIcon, DocumentIcon, BeakerIcon } from '@heroicons/react/24/outline'
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import {
+  MagnifyingGlassIcon,
+  DocumentIcon,
+  BeakerIcon,
+} from "@heroicons/react/24/outline";
 
 interface Product {
-  id: string
-  brand: string
-  sku: string
-  productName: string
-  healthCategory?: string
-  therapeuticPlatform?: string
-  nutrientType?: string
-  format?: string
-  unitCount: number
-  manufacturer?: string
-  containsIron: boolean
-  documents: any[]
+  id: string;
+  brand: string;
+  sku: string;
+  productName: string;
+  healthCategory?: string;
+  therapeuticPlatform?: string;
+  nutrientType?: string;
+  format?: string;
+  unitCount: number;
+  manufacturer?: string;
+  containsIron: boolean;
+  documents: any[];
 }
 
 interface ProductIndexProps {
-  onProductSelect: (sku: string) => void
+  onProductSelect: (sku: string) => void;
 }
 
 export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
-  const { data: session } = useSession()
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
+  const { data: session } = useSession();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
-    healthCategory: '',
-    brand: '',
-    nutrientType: '',
-    therapeuticPlatform: '',
-    format: '',
-    manufacturer: '',
-    containsIron: ''
-  })
-  const [sortBy, setSortBy] = useState('productName')
+    healthCategory: "",
+    brand: "",
+    nutrientType: "",
+    therapeuticPlatform: "",
+    format: "",
+    manufacturer: "",
+    containsIron: "",
+  });
+  const [sortBy, setSortBy] = useState("productName");
 
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     try {
       // Try debug endpoint first, then fall back to regular API
-      let response = await fetch('/api/debug/products')
+      let response = await fetch("/api/debug/products");
       if (!response.ok) {
-        response = await fetch('/api/products')
+        response = await fetch("/api/products");
       }
-      const data = await response.json()
-      console.log('Products data:', data) // Debug log
-      setProducts(data.products || [])
+      const data = await response.json();
+      console.log("Products data:", data); // Debug log
+      setProducts(data.products || []);
     } catch (error) {
-      console.error('Error fetching products:', error)
+      console.error("Error fetching products:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const filteredAndSortedProducts = () => {
-    let filtered = products.filter(product => {
+    let filtered = products.filter((product) => {
       // Search filter
-      const matchesSearch = product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.brand.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      // Multi-filters
-      const matchesHealthCategory = !filters.healthCategory || product.healthCategory === filters.healthCategory
-      const matchesBrand = !filters.brand || product.brand === filters.brand
-      const matchesNutrientType = !filters.nutrientType || product.nutrientType === filters.nutrientType
-      const matchesTherapeuticPlatform = !filters.therapeuticPlatform || product.therapeuticPlatform === filters.therapeuticPlatform
-      const matchesFormat = !filters.format || product.format === filters.format
-      const matchesManufacturer = !filters.manufacturer || product.manufacturer === filters.manufacturer
-      const matchesIron = !filters.containsIron || 
-        (filters.containsIron === 'yes' ? product.containsIron : !product.containsIron)
+      const matchesSearch =
+        product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.brand.toLowerCase().includes(searchTerm.toLowerCase());
 
-      return matchesSearch && matchesHealthCategory && matchesBrand && matchesNutrientType && 
-             matchesTherapeuticPlatform && matchesFormat && matchesManufacturer && matchesIron
-    })
+      // Multi-filters
+      const matchesHealthCategory =
+        !filters.healthCategory ||
+        product.healthCategory === filters.healthCategory;
+      const matchesBrand = !filters.brand || product.brand === filters.brand;
+      const matchesNutrientType =
+        !filters.nutrientType || product.nutrientType === filters.nutrientType;
+      const matchesTherapeuticPlatform =
+        !filters.therapeuticPlatform ||
+        product.therapeuticPlatform === filters.therapeuticPlatform;
+      const matchesFormat =
+        !filters.format || product.format === filters.format;
+      const matchesManufacturer =
+        !filters.manufacturer || product.manufacturer === filters.manufacturer;
+      const matchesIron =
+        !filters.containsIron ||
+        (filters.containsIron === "yes"
+          ? product.containsIron
+          : !product.containsIron);
+
+      return (
+        matchesSearch &&
+        matchesHealthCategory &&
+        matchesBrand &&
+        matchesNutrientType &&
+        matchesTherapeuticPlatform &&
+        matchesFormat &&
+        matchesManufacturer &&
+        matchesIron
+      );
+    });
 
     // Sorting
     filtered.sort((a, b) => {
-      const aValue = a[sortBy as keyof Product] || ''
-      const bValue = b[sortBy as keyof Product] || ''
-      
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return aValue.localeCompare(bValue)
-      }
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        return aValue - bValue
-      }
-      return 0
-    })
+      const aValue = a[sortBy as keyof Product] || "";
+      const bValue = b[sortBy as keyof Product] || "";
 
-    return filtered
-  }
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return aValue.localeCompare(bValue);
+      }
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return aValue - bValue;
+      }
+      return 0;
+    });
+
+    return filtered;
+  };
 
   // Get unique values for filter dropdowns
   const filterOptions = {
-    healthCategory: [...new Set(products.map(p => p.healthCategory).filter(Boolean))],
-    brand: [...new Set(products.map(p => p.brand).filter(Boolean))],
-    nutrientType: [...new Set(products.map(p => p.nutrientType).filter(Boolean))],
-    therapeuticPlatform: [...new Set(products.map(p => p.therapeuticPlatform).filter(Boolean))],
-    format: [...new Set(products.map(p => p.format).filter(Boolean))],
-    manufacturer: [...new Set(products.map(p => p.manufacturer).filter(Boolean))]
-  }
+    healthCategory: [
+      ...new Set(products.map((p) => p.healthCategory).filter(Boolean)),
+    ],
+    brand: [...new Set(products.map((p) => p.brand).filter(Boolean))],
+    nutrientType: [
+      ...new Set(products.map((p) => p.nutrientType).filter(Boolean)),
+    ],
+    therapeuticPlatform: [
+      ...new Set(products.map((p) => p.therapeuticPlatform).filter(Boolean)),
+    ],
+    format: [...new Set(products.map((p) => p.format).filter(Boolean))],
+    manufacturer: [
+      ...new Set(products.map((p) => p.manufacturer).filter(Boolean)),
+    ],
+  };
 
-  const filteredProducts = filteredAndSortedProducts()
+  const filteredProducts = filteredAndSortedProducts();
 
   if (loading) {
     return (
@@ -118,15 +149,19 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
           <p className="mt-2 text-gray-600">Loading products...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
       {/* Header Section */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Product Directory</h2>
-        <p className="text-gray-600">Manage quality documentation for all products</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Product Directory
+        </h2>
+        <p className="text-gray-600">
+          Manage quality documentation for all products
+        </p>
       </div>
 
       {/* Search and Filter Controls */}
@@ -160,50 +195,59 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
           {/* Brand Filter */}
           <select
             value={filters.brand}
-            onChange={(e) => setFilters({...filters, brand: e.target.value})}
+            onChange={(e) => setFilters({ ...filters, brand: e.target.value })}
             className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
           >
             <option value="">All Brands</option>
-            {filterOptions.brand.map(brand => (
-              <option key={brand} value={brand}>{brand}</option>
+            {filterOptions.brand.map((brand) => (
+              <option key={brand} value={brand}>
+                {brand}
+              </option>
             ))}
           </select>
 
           {/* Format Filter */}
           <select
             value={filters.format}
-            onChange={(e) => setFilters({...filters, format: e.target.value})}
+            onChange={(e) => setFilters({ ...filters, format: e.target.value })}
             className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
           >
             <option value="">All Formats</option>
-            {filterOptions.format.map(format => (
-              <option key={format} value={format}>{format}</option>
+            {filterOptions.format.map((format) => (
+              <option key={format} value={format}>
+                {format}
+              </option>
             ))}
           </select>
 
           {/* Manufacturer Filter */}
           <select
             value={filters.manufacturer}
-            onChange={(e) => setFilters({...filters, manufacturer: e.target.value})}
+            onChange={(e) =>
+              setFilters({ ...filters, manufacturer: e.target.value })
+            }
             className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
           >
             <option value="">All Manufacturers</option>
-            {filterOptions.manufacturer.map(manufacturer => (
-              <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
+            {filterOptions.manufacturer.map((manufacturer) => (
+              <option key={manufacturer} value={manufacturer}>
+                {manufacturer}
+              </option>
             ))}
           </select>
 
           {/* Contains Iron Filter */}
           <select
             value={filters.containsIron}
-            onChange={(e) => setFilters({...filters, containsIron: e.target.value})}
+            onChange={(e) =>
+              setFilters({ ...filters, containsIron: e.target.value })
+            }
             className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
           >
             <option value="">Iron - Any</option>
             <option value="yes">Contains Iron</option>
             <option value="no">No Iron</option>
           </select>
-
         </div>
 
         {/* Advanced Filters (Second Row) */}
@@ -211,44 +255,60 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
           {/* Health Category Filter */}
           <select
             value={filters.healthCategory}
-            onChange={(e) => setFilters({...filters, healthCategory: e.target.value})}
+            onChange={(e) =>
+              setFilters({ ...filters, healthCategory: e.target.value })
+            }
             className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
           >
             <option value="">All Categories</option>
-            {filterOptions.healthCategory.map(category => (
-              <option key={category} value={category}>{category}</option>
+            {filterOptions.healthCategory.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
             ))}
           </select>
 
           {/* Nutrient Type Filter */}
           <select
             value={filters.nutrientType}
-            onChange={(e) => setFilters({...filters, nutrientType: e.target.value})}
+            onChange={(e) =>
+              setFilters({ ...filters, nutrientType: e.target.value })
+            }
             className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
           >
             <option value="">All Nutrient Types</option>
-            {filterOptions.nutrientType.map(nutrientType => (
-              <option key={nutrientType} value={nutrientType}>{nutrientType}</option>
+            {filterOptions.nutrientType.map((nutrientType) => (
+              <option key={nutrientType} value={nutrientType}>
+                {nutrientType}
+              </option>
             ))}
           </select>
 
           {/* Therapeutic Platform Filter */}
           <select
             value={filters.therapeuticPlatform}
-            onChange={(e) => setFilters({...filters, therapeuticPlatform: e.target.value})}
+            onChange={(e) =>
+              setFilters({ ...filters, therapeuticPlatform: e.target.value })
+            }
             className="px-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
           >
             <option value="">All Therapeutic Platforms</option>
-            {filterOptions.therapeuticPlatform.map(platform => (
-              <option key={platform} value={platform}>{platform}</option>
+            {filterOptions.therapeuticPlatform.map((platform) => (
+              <option key={platform} value={platform}>
+                {platform}
+              </option>
             ))}
           </select>
 
           {/* Active Filters Count */}
-          {Object.values(filters).some(filter => filter !== '') && (
+          {Object.values(filters).some((filter) => filter !== "") && (
             <div className="flex items-center px-3 py-2 bg-blue-100 text-blue-800 rounded-lg text-sm">
               <span className="font-medium">
-                {Object.values(filters).filter(filter => filter !== '').length} active filters
+                {
+                  Object.values(filters).filter((filter) => filter !== "")
+                    .length
+                }{" "}
+                active filters
               </span>
             </div>
           )}
@@ -257,15 +317,15 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
           <button
             onClick={() => {
               setFilters({
-                healthCategory: '',
-                brand: '',
-                nutrientType: '',
-                therapeuticPlatform: '',
-                format: '',
-                manufacturer: '',
-                containsIron: ''
-              })
-              setSearchTerm('')
+                healthCategory: "",
+                brand: "",
+                nutrientType: "",
+                therapeuticPlatform: "",
+                format: "",
+                manufacturer: "",
+                containsIron: "",
+              });
+              setSearchTerm("");
             }}
             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
           >
@@ -289,7 +349,9 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
                   <h3 className="font-semibold text-gray-900 text-sm line-clamp-2">
                     {product.productName}
                   </h3>
-                  <p className="text-xs text-gray-600 font-mono">{product.sku}</p>
+                  <p className="text-xs text-gray-600 font-mono">
+                    {product.sku}
+                  </p>
                 </div>
               </div>
               {product.containsIron && (
@@ -310,12 +372,16 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Count:</span>
-                <span className="font-medium text-black">{product.unitCount}</span>
+                <span className="font-medium text-black">
+                  {product.unitCount}
+                </span>
               </div>
               {product.healthCategory && (
                 <div className="flex justify-between text-xs">
                   <span className="text-gray-500">Category:</span>
-                  <span className="font-medium text-black text-xs">{product.healthCategory}</span>
+                  <span className="font-medium text-black text-xs">
+                    {product.healthCategory}
+                  </span>
                 </div>
               )}
             </div>
@@ -325,7 +391,9 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
                 <DocumentIcon className="h-4 w-4 mr-1" />
                 {product.documents.length} documents
               </div>
-              <span className="text-xs text-blue-600 font-medium">View Details →</span>
+              <span className="text-xs text-blue-600 font-medium">
+                View Details →
+              </span>
             </div>
           </button>
         ))}
@@ -334,8 +402,12 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
       {filteredProducts.length === 0 && (
         <div className="text-center py-12">
           <BeakerIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-          <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No products found
+          </h3>
+          <p className="text-gray-600">
+            Try adjusting your search or filter criteria.
+          </p>
         </div>
       )}
 
@@ -343,5 +415,5 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
         Showing {filteredProducts.length} of {products.length} products
       </div>
     </div>
-  )
+  );
 }

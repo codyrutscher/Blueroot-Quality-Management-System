@@ -496,7 +496,7 @@ export default function DocumentUpload() {
         </div>
       )}
 
-      <div className="mt-12">
+      <div className="bg-white rounded-lg shadow-lg p-6">
         <h3 className="text-xl font-bold text-slate-900 mb-6">Supported Document Types</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[

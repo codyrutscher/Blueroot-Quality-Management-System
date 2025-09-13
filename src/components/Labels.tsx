@@ -188,7 +188,7 @@ export default function Labels() {
               : "Ready to start fresh! No labels have been uploaded yet."}
           </p>
           <p className="text-sm text-blue-600 mb-2">
-            Upload label files through the Document Upload section and select "Labels" as the destination.
+            Upload label files through the Document Upload section and select "Labels&quot; as the destination.
           </p>
           <p className="text-xs text-gray-400">
             Labels will be organized and searchable once uploaded.
