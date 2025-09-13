@@ -693,7 +693,7 @@ function AssignmentModal({
       fetchProducts();
       setCoworkers(actualCoworkers);
     }
-  }, [isOpen]);
+  }, [actualCoworkers, isOpen]);
 
   // Filter products based on search
   const filteredProducts = products.filter(
