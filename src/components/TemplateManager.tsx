@@ -128,54 +128,60 @@ export default function TemplateManager({ onEditTemplate }: { onEditTemplate?: (
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">Document Templates</h2>
-          <p className="text-gray-600 mt-1">
-            Create documents from pre-built templates
-          </p>
+    <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Document Templates</h2>
+            <p className="text-gray-600">
+              Create documents from pre-built templates
+            </p>
+          </div>
         </div>
       </div>
 
-      {templates.length === 0 ? (
-        <div className="text-center py-12">
-          <DocumentDuplicateIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No templates available</h3>
-          <p className="text-gray-600">Create your first template to get started.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {templates.map((template) => (
-            <div key={template.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">{template.name}</h3>
-                  <p className="text-sm text-gray-600">{template.description}</p>
+      {/* Templates Grid */}
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        {templates.length === 0 ? (
+          <div className="text-center py-12">
+            <DocumentDuplicateIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No templates available</h3>
+            <p className="text-gray-600">Create your first template to get started.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {templates.map((template) => (
+              <div key={template.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">{template.name}</h3>
+                    <p className="text-sm text-gray-600">{template.description}</p>
+                  </div>
+                  <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                    {template.type.replace('_', ' ').toLowerCase()}
+                  </span>
                 </div>
-                <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                  {template.type.replace('_', ' ').toLowerCase()}
-                </span>
-              </div>
 
-              <div className="text-sm text-gray-600 mb-4">
-                <p>Created by {template.creator.name}</p>
-                <p>{new Date(template.createdAt).toLocaleDateString()}</p>
-              </div>
+                <div className="text-sm text-gray-600 mb-4">
+                  <p>Created by {template.creator.name}</p>
+                  <p>{new Date(template.createdAt).toLocaleDateString()}</p>
+                </div>
 
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => createDocumentFromTemplate(template)}
-                  className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-                >
-                  <DocumentDuplicateIcon className="h-4 w-4 mr-2" />
-                  Use Template
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => createDocumentFromTemplate(template)}
+                    className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                  >
+                    <DocumentDuplicateIcon className="h-4 w-4 mr-2" />
+                    Use Template
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Template Preview Modal */}
       {selectedTemplate && (

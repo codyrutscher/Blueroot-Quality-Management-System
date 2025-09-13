@@ -111,7 +111,9 @@ export default function DocumentUpload() {
     'COAs',
     'COCs',
     'SOPs',
-    'Test Results'
+    'Test Results',
+    'BRH Documents',
+    'Templates'
   ]
 
   const destinations = [
@@ -288,12 +290,25 @@ export default function DocumentUpload() {
             <select
               value={documentType}
               onChange={(e) => setDocumentType(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                ['BRH Documents', 'Templates'].includes(documentType)
+                  ? 'border-blue-300 bg-blue-50 text-blue-900'
+                  : 'border-slate-300 bg-white'
+              }`}
             >
               <option value="">Select document type...</option>
-              {documentTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
+              {documentTypes.map(type => {
+                const isBlueType = ['BRH Documents', 'Templates'].includes(type)
+                return (
+                  <option 
+                    key={type} 
+                    value={type}
+                    className={isBlueType ? 'bg-blue-50 text-blue-900' : ''}
+                  >
+                    {type}
+                  </option>
+                )
+              })}
             </select>
           </div>
 
@@ -303,39 +318,52 @@ export default function DocumentUpload() {
               Destinations * (Select one or more)
             </label>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {destinations.map(dest => (
-                <div key={dest.id} className="relative">
-                  <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    selectedDestinations.includes(dest.id)
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}>
-                    <input
-                      type="checkbox"
-                      checked={selectedDestinations.includes(dest.id)}
-                      onChange={() => handleDestinationToggle(dest.id)}
-                      className="sr-only"
-                    />
-                    <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center ${
+              {destinations.map(dest => {
+                // Add blue background for suppliers, raw materials, and templates
+                const hasBlueBackground = ['suppliers', 'rawMaterials'].includes(dest.id)
+                
+                return (
+                  <div key={dest.id} className="relative">
+                    <label className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
                       selectedDestinations.includes(dest.id)
-                        ? 'border-blue-500 bg-blue-500'
-                        : 'border-slate-300'
+                        ? 'border-blue-500 bg-blue-50'
+                        : hasBlueBackground
+                        ? 'border-blue-200 bg-blue-50 hover:border-blue-300 hover:bg-blue-100'
+                        : 'border-slate-200 hover:border-slate-300'
                     }`}>
-                      {selectedDestinations.includes(dest.id) && (
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-medium text-slate-900">{dest.name}</div>
-                      {dest.requiresAssociation && (
-                        <div className="text-xs text-slate-500">Requires specific association</div>
-                      )}
-                    </div>
-                  </label>
-                </div>
-              ))}
+                      <input
+                        type="checkbox"
+                        checked={selectedDestinations.includes(dest.id)}
+                        onChange={() => handleDestinationToggle(dest.id)}
+                        className="sr-only"
+                      />
+                      <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center ${
+                        selectedDestinations.includes(dest.id)
+                          ? 'border-blue-500 bg-blue-500'
+                          : hasBlueBackground
+                          ? 'border-blue-400'
+                          : 'border-slate-300'
+                      }`}>
+                        {selectedDestinations.includes(dest.id) && (
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
+                      <div>
+                        <div className={`font-medium ${hasBlueBackground ? 'text-blue-900' : 'text-slate-900'}`}>
+                          {dest.name}
+                        </div>
+                        {dest.requiresAssociation && (
+                          <div className={`text-xs ${hasBlueBackground ? 'text-blue-600' : 'text-slate-500'}`}>
+                            Requires specific association
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
