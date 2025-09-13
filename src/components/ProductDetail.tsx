@@ -79,9 +79,12 @@ export default function ProductDetail({ sku, onBack, onNavigateToDocuments }: Pr
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [showApprovalModal, setShowApprovalModal] = useState(false)
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
+  const [labels, setLabels] = useState<any[]>([])
+  const [labelsLoading, setLabelsLoading] = useState(false)
 
   useEffect(() => {
     fetchProduct()
+    fetchProductLabels()
   }, [sku])
 
   const fetchProduct = async () => {
@@ -93,6 +96,21 @@ export default function ProductDetail({ sku, onBack, onNavigateToDocuments }: Pr
       console.error('Error fetching product:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchProductLabels = async () => {
+    try {
+      setLabelsLoading(true)
+      const response = await fetch(`/api/products/${sku}/labels`)
+      if (response.ok) {
+        const data = await response.json()
+        setLabels(data.labels || [])
+      }
+    } catch (error) {
+      console.error('Error fetching product labels:', error)
+    } finally {
+      setLabelsLoading(false)
     }
   }
 
@@ -327,7 +345,7 @@ export default function ProductDetail({ sku, onBack, onNavigateToDocuments }: Pr
       {/* Tabs */}
       <div className="border-b border-gray-200 mb-6">
         <nav className="flex space-x-8">
-          {['overview', 'documents', 'quality'].map((tab) => (
+          {['overview', 'documents', 'labels', 'quality'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -548,6 +566,69 @@ export default function ProductDetail({ sku, onBack, onNavigateToDocuments }: Pr
               <p className="text-gray-600">Use the "Assign Document" button above to associate existing documents with this product.</p>
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'labels' && (
+        <div className="space-y-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Product Labels</h3>
+              <span className="text-sm text-gray-600">
+                {labels.length} label{labels.length !== 1 ? 's' : ''} found
+              </span>
+            </div>
+            
+            {labelsLoading ? (
+              <div className="text-center py-8">
+                <div className="text-gray-600">Loading labels...</div>
+              </div>
+            ) : labels.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {labels.map((label, index) => (
+                  <div key={label.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-semibold text-gray-900 truncate" title={label.filename}>
+                          {label.filename}
+                        </h4>
+                        <p className="text-xs text-blue-600 font-medium mt-1">{label.company}</p>
+                        {index === 0 && (
+                          <span className="inline-block mt-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                            Most Recent
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-400">
+                        {new Date(label.uploadDate).toLocaleDateString()}
+                      </span>
+                      <button
+                        onClick={() => {
+                          // Download label
+                          const link = document.createElement('a')
+                          link.href = `/api/labels/download?path=${encodeURIComponent(label.filePath)}`
+                          link.download = label.filename
+                          link.click()
+                        }}
+                        className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                      >
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">🏷️</div>
+                <h4 className="text-lg font-medium text-gray-900 mb-2">No labels found</h4>
+                <p className="text-gray-500">No labels have been uploaded for this product yet.</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

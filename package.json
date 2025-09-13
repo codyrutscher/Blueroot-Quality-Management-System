@@ -7,7 +7,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "index-content": "node scripts/index-content-supabase.js"
+    "index-content": "node scripts/index-content-supabase.js",
+    "upload-labels": "node scripts/upload-labels-to-supabase.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

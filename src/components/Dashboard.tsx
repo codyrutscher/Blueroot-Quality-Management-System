@@ -14,6 +14,7 @@ import SupplierDocumentUpload from "./SupplierDocumentUpload";
 import RawMaterials from "./RawMaterials";
 import NotificationCenter from "./NotificationCenter";
 import DocxEditor from "./DocxEditor";
+import Labels from "./Labels";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -29,6 +30,9 @@ export default function Dashboard() {
   const handleTabSelection = (tabName: string) => {
     setActiveTab(tabName);
     setShowDashboardLanding(false);
+    // Reset selections when switching tabs
+    setSelectedProductSku(null);
+    setSelectedSupplierName(null);
   };
 
   // Dashboard Landing Component
@@ -328,6 +332,46 @@ export default function Dashboard() {
             >
               📤 Document Upload
             </button>
+            <button
+              onClick={() => setActiveTab("labels")}
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
+                activeTab === "labels"
+                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
+                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
+              }`}
+            >
+              🏷️ Labels
+            </button>
+            <button
+              onClick={() => setActiveTab("allergens")}
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
+                activeTab === "allergens"
+                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
+                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
+              }`}
+            >
+              ⚠️ Allergens
+            </button>
+            <button
+              onClick={() => setActiveTab("ccrs")}
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
+                activeTab === "ccrs"
+                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
+                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
+              }`}
+            >
+              📊 CCRs
+            </button>
+            <button
+              onClick={() => setActiveTab("shelf-life")}
+              className={`flex-1 py-3 px-6 rounded-xl font-semibold text-xs transition-all duration-200 ${
+                activeTab === "shelf-life"
+                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 transform scale-[1.02]"
+                  : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
+              }`}
+            >
+              📅 Shelf-Life Program
+            </button>
           </nav>
         </div>
 
@@ -409,17 +453,7 @@ export default function Dashboard() {
                   onNavigateToDocuments={() => setActiveTab("documents")}
                 />
               )}
-              {activeTab === "labels" && (
-                <div className="p-8 text-center">
-                  <div className="text-6xl mb-4">🏷️</div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    Labels Management
-                  </h2>
-                  <p className="text-gray-600">
-                    Product labels and specifications management coming soon.
-                  </p>
-                </div>
-              )}
+              {activeTab === "labels" && <Labels />}
               {activeTab === "allergens" && (
                 <div className="p-8 text-center">
                   <div className="text-6xl mb-4">⚠️</div>
