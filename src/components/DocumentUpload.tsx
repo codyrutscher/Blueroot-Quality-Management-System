@@ -517,7 +517,7 @@ export default function DocumentUpload() {
               icon: '📋', 
               description: 'Plain Text File',
               details: 'Simple text files, logs, and unformatted data'
-            },
+            }
           ].map((item) => (
             <div key={item.type} className="flex flex-col p-6 border-2 border-slate-200 rounded-2xl hover:border-blue-300 transition-all duration-200 card bg-white">
               <div className="flex items-center space-x-4 mb-4">
@@ -535,5 +535,5 @@ export default function DocumentUpload() {
         </div>
       </div>
     </div>
-  )
+  );
 }
