@@ -180,10 +180,11 @@ export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) 
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="text-center py-8">
+      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="text-6xl mb-4">🏢</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Loading Suppliers...</h2>
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600">Loading suppliers...</p>
         </div>
       </div>
     )
@@ -191,12 +192,14 @@ export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) 
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-      <div className="mb-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Supplier Directory</h2>
         <p className="text-gray-600">Manage approved suppliers and co-manufacturers</p>
       </div>
 
-      <div className="mb-6 space-y-4">
+      {/* Search and Filter Controls */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6 space-y-4">
         <div className="relative">
           <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
@@ -306,14 +309,14 @@ export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) 
       </div>
 
       {filteredSuppliers.length === 0 && (
-        <div className="text-center py-12">
+        <div className="bg-white rounded-lg shadow-lg p-12 text-center">
           <BuildingOfficeIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No suppliers found</h3>
           <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
         </div>
       )}
 
-      <div className="mt-6 text-sm text-gray-600 text-center">
+      <div className="mt-6 bg-white rounded-lg shadow-lg p-4 text-sm text-gray-600 text-center">
         Showing {filteredSuppliers.length} of {suppliers.length} suppliers
       </div>
     </div>
