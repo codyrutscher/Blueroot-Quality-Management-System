@@ -88,9 +88,7 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-6xl mb-4">🏭</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Products
-              </h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Products</h3>
               <p className="text-gray-600">
                 Manage product catalog and documentation
               </p>
