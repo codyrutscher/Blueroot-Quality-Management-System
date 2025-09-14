@@ -156,7 +156,7 @@ export default function ProductIndex({ onProductSelect }: ProductIndexProps) {
     <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
       {/* Header Section */}
       <div className="mb-6">
-        <p className="text-gray-600">
+        <p className="text-white">
           Manage quality documentation for all products
         </p>
       </div>

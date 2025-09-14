@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import * as XLSX from 'xlsx';
 
 interface AllergenData {
   Brand: string;
@@ -18,6 +19,10 @@ interface AllergenData {
   "Free From Sesame": string;
   "Free From Fish": string;
   NOTES: string;
+  // Color information for cells
+  colors?: {
+    [key: string]: string;
+  };
 }
 
 export default function AllergensTable() {
@@ -33,13 +38,28 @@ export default function AllergensTable() {
   const loadAllergenData = async () => {
     try {
       console.log('Loading allergen data...');
-      const response = await fetch('/Allergens - Sheet1.csv');
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Try to load Excel file first (with color information)
+      try {
+        const excelResponse = await fetch('/Allergens.xlsx');
+        if (excelResponse.ok) {
+          const arrayBuffer = await excelResponse.arrayBuffer();
+          const parsedData = parseExcel(arrayBuffer);
+          console.log('Excel loaded with', parsedData.length, 'rows');
+          setData(parsedData);
+          return;
+        }
+      } catch (excelError) {
+        console.log('Excel file not found, trying CSV...');
       }
       
-      const csvText = await response.text();
+      // Fallback to CSV file
+      const csvResponse = await fetch('/Allergens - Sheet1.csv');
+      if (!csvResponse.ok) {
+        throw new Error(`HTTP error! status: ${csvResponse.status}`);
+      }
+      
+      const csvText = await csvResponse.text();
       console.log('CSV loaded, length:', csvText.length);
       
       const parsedData = parseCSV(csvText);
@@ -52,6 +72,119 @@ export default function AllergensTable() {
       setData([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const parseExcel = (arrayBuffer: ArrayBuffer): AllergenData[] => {
+    try {
+      const workbook = XLSX.read(arrayBuffer, { 
+        type: 'array', 
+        cellStyles: true,
+        cellHTML: false,
+        cellFormula: false,
+        cellDates: true
+      });
+      
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      // Get the range of the worksheet
+      const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+      
+      // Extract headers from first row
+      const headers: string[] = [];
+      for (let col = range.s.c; col <= range.e.c; col++) {
+        const cellRef = XLSX.utils.encode_cell({ r: range.s.r, c: col });
+        const cell = worksheet[cellRef];
+        headers.push(cell ? String(cell.v || '') : '');
+      }
+      
+      console.log('Excel headers:', headers);
+      
+      // Extract data rows
+      const rows: AllergenData[] = [];
+      for (let row = range.s.r + 1; row <= range.e.r; row++) {
+        const rowData: any = {};
+        const colors: any = {};
+        let hasData = false;
+        
+        for (let col = range.s.c; col <= range.e.c; col++) {
+          const cellRef = XLSX.utils.encode_cell({ r: row, c: col });
+          const cell = worksheet[cellRef];
+          const header = headers[col - range.s.c];
+          
+          // Get cell value
+          const cellValue = cell ? String(cell.v || '') : '';
+          rowData[header] = cellValue;
+          
+          if (cellValue && cellValue.trim()) {
+            hasData = true;
+          }
+          
+          // Extract formatting information
+          if (cell && cell.s) {
+            const style = cell.s;
+            
+            // Background color
+            if (style.fill && style.fill.bgColor) {
+              const bgColor = style.fill.bgColor;
+              if (bgColor.rgb) {
+                colors[`${header}_bg`] = `#${bgColor.rgb}`;
+              } else if (bgColor.indexed !== undefined) {
+                // Handle indexed colors - common Excel color palette
+                const indexedColors: { [key: number]: string } = {
+                  2: '#FFFFFF', // White
+                  3: '#FF0000', // Red  
+                  4: '#00FF00', // Green
+                  5: '#0000FF', // Blue
+                  6: '#FFFF00', // Yellow
+                  7: '#FF00FF', // Magenta
+                  8: '#00FFFF', // Cyan
+                  9: '#800000', // Maroon
+                  10: '#008000', // Dark Green
+                  11: '#000080', // Navy
+                  12: '#808000', // Olive
+                  13: '#800080', // Purple
+                  14: '#008080', // Teal
+                  15: '#C0C0C0', // Silver
+                  16: '#808080', // Gray
+                  17: '#9999FF', // Light Blue
+                  18: '#993366', // Dark Pink
+                  19: '#FFFFCC', // Light Yellow
+                  20: '#CCFFFF', // Light Cyan
+                  21: '#660066', // Dark Purple
+                  22: '#FF8080', // Light Red
+                  23: '#0066CC', // Medium Blue
+                  24: '#CCCCFF', // Very Light Blue
+                };
+                colors[`${header}_bg`] = indexedColors[bgColor.indexed] || '#FFFFFF';
+              }
+            }
+            
+            // Font color
+            if (style.font && style.font.color) {
+              const fontColor = style.font.color;
+              if (fontColor.rgb) {
+                colors[`${header}_font`] = `#${fontColor.rgb}`;
+              }
+            }
+          }
+        }
+        
+        // Only add rows that have data in Brand and SKU columns
+        if (hasData && rowData[headers[0]] && rowData[headers[1]]) {
+          rowData.colors = colors;
+          rows.push(rowData as AllergenData);
+        }
+      }
+      
+      console.log('Parsed Excel data:', rows.length, 'rows');
+      console.log('Sample row with colors:', rows[0]);
+      
+      return rows;
+    } catch (error) {
+      console.error('Error parsing Excel file:', error);
+      return [];
     }
   };
 
@@ -106,6 +239,46 @@ export default function AllergensTable() {
 
   const handleCellBlur = () => {
     setEditingCell(null);
+  };
+
+  const getCellStyle = (row: AllergenData, column: string) => {
+    const colors = row.colors;
+    const cellValue = (row as any)[column];
+    
+    // If we have Excel color information, use it
+    if (colors) {
+      const bgColor = colors[`${column}_bg`];
+      const fontColor = colors[`${column}_font`];
+      
+      if (bgColor || fontColor) {
+        return {
+          backgroundColor: bgColor || 'transparent',
+          color: fontColor || 'inherit',
+        };
+      }
+    }
+    
+    // Fallback to default color coding
+    return {};
+  };
+
+  const getCellClassName = (row: AllergenData, column: string) => {
+    const colors = row.colors;
+    const cellValue = (row as any)[column];
+    
+    // If we have Excel colors, use minimal classes
+    if (colors && (colors[`${column}_bg`] || colors[`${column}_font`])) {
+      return 'cursor-pointer px-2 py-1 rounded text-center font-medium';
+    }
+    
+    // Fallback to default color classes
+    if (cellValue === 'Y') {
+      return 'cursor-pointer px-2 py-1 rounded text-center font-medium bg-green-100 text-green-800';
+    } else if (cellValue === 'N') {
+      return 'cursor-pointer px-2 py-1 rounded text-center font-medium bg-red-100 text-red-800';
+    } else {
+      return 'cursor-pointer px-2 py-1 rounded text-center font-medium bg-gray-100 text-gray-500';
+    }
   };
 
   const filteredData = data.filter(row => 
@@ -286,13 +459,8 @@ export default function AllergensTable() {
                       ) : (
                         <div
                           onClick={() => handleCellClick(rowIndex, column)}
-                          className={`cursor-pointer px-2 py-1 rounded text-center font-medium ${
-                            (row as any)[column] === 'Y' 
-                              ? 'bg-green-100 text-green-800' 
-                              : (row as any)[column] === 'N'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-gray-100 text-gray-500'
-                          }`}
+                          className={getCellClassName(row, column)}
+                          style={getCellStyle(row, column)}
                         >
                           {(row as any)[column] || '-'}
                         </div>
