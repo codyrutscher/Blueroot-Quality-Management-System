@@ -13,6 +13,7 @@ import SupplierDetail from "./SupplierDetail";
 import SupplierDocumentUpload from "./SupplierDocumentUpload";
 import RawMaterials from "./RawMaterials";
 import NotificationCenter from "./NotificationCenter";
+import Tasks from "./Tasks";
 import DocxEditor from "./DocxEditor";
 import Labels from "./Labels";
 import AllergensTable from "./AllergensTable";
@@ -109,6 +110,11 @@ export default function Dashboard() {
       name: "Document Upload",
       icon: "📤",
       pages: [{ id: "document-upload", name: "Document Upload", icon: "📤" }],
+    },
+    tasks: {
+      name: "Tasks",
+      icon: "✅",
+      pages: [{ id: "tasks", name: "Tasks", icon: "✅" }],
     },
   };
 
@@ -376,6 +382,7 @@ export default function Dashboard() {
                       <TemplateManager onEditTemplate={setEditingTemplate} />
                     )}
                     {activeTab === "document-upload" && <DocumentUpload />}
+                    {activeTab === "tasks" && <Tasks />}
                     {activeTab === "documents" && (
                       <DocumentList
                         key={refreshDocuments}

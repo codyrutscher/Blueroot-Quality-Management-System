@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
             const productResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/debug/products`)
             if (productResponse.ok) {
               const productData = await productResponse.json()
-              const product = productData.products?.find((p: any) => p.sku === productSku)
+              const product = productData.products?.find((p: unknown) => p.sku === productSku)
               if (product?.brand) {
                 company = product.brand
                 console.log('🏷️ Found brand for label:', company)
@@ -421,6 +421,12 @@ export async function POST(request: NextRequest) {
     }
     if (destinations.includes('rawMaterials') && associations.rawMaterials?.length > 0) {
       associationsCreated += associations.rawMaterials.length
+    }
+    if (destinations.includes('labels')) {
+      associationsCreated += 1 // Destination-only association
+    }
+    if (destinations.includes('shelfLife')) {
+      associationsCreated += 1 // Destination-only association
     }
     
     // Collect debug information
