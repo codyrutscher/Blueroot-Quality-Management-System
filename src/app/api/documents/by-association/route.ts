@@ -102,6 +102,71 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Also check for documents uploaded to this destination without specific associations
+    try {
+      console.log(`📁 Checking for general ${associationType} documents...`)
+      
+      // Map association types to destination names used in upload
+      const destinationMap: { [key: string]: string } = {
+        'product': 'products',
+        'supplier': 'suppliers', 
+        'raw_material': 'rawMaterials',
+        'label': 'labels',
+        'shelf_life': 'shelfLife'
+      }
+      
+      const destinationName = destinationMap[associationType]
+      
+      if (destinationName) {
+        // List all metadata files to find documents uploaded to this destination
+        const { data: metadataFiles, error: metadataError } = await supabase.storage
+          .from('documents')
+          .list('metadata')
+
+        if (!metadataError && metadataFiles?.length > 0) {
+          console.log(`🔍 Found ${metadataFiles.length} metadata files to check`)
+          
+          for (const metadataFile of metadataFiles) {
+            try {
+              // Download and parse each metadata file
+              const { data: fileData, error: downloadError } = await supabase.storage
+                .from('documents')
+                .download(`metadata/${metadataFile.name}`)
+
+              if (!downloadError && fileData) {
+                const text = await fileData.text()
+                const metadata = JSON.parse(text)
+                
+                // Check if this document was uploaded to the matching destination
+                if (metadata.destinations?.includes(destinationName)) {
+                  // Add if not already in documents list
+                  const alreadyExists = documents.some(doc => doc.id === metadata.id)
+                  if (!alreadyExists) {
+                    documents.push({
+                      id: metadata.id,
+                      filename: metadata.filename,
+                      file_type: metadata.file_type,
+                      file_size: metadata.file_size,
+                      storage_path: metadata.storage_path,
+                      document_type: metadata.document_type,
+                      uploaded_at: metadata.uploaded_at,
+                      association_type: 'destination',
+                      source: 'destination_upload'
+                    })
+                    console.log(`✅ Added ${destinationName} document: ${metadata.filename}`)
+                  }
+                }
+              }
+            } catch (parseError) {
+              console.warn('⚠️ Could not parse metadata file:', metadataFile.name)
+            }
+          }
+        }
+      }
+    } catch (generalError) {
+      console.warn('⚠️ General document search failed:', generalError)
+    }
+
     console.log('📊 Total documents found:', documents.length)
 
     return NextResponse.json({ 

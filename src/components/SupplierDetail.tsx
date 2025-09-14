@@ -114,30 +114,49 @@ export default function SupplierDetail({ supplierName, onBack }: SupplierDetailP
         if (supplier) {
           console.log(`📥 Fetching documents for supplier: ${supplierName} (ID: ${supplier.id})`)
           
-          const { data: supabaseDocuments, error } = await supabase
-            .from('supplier_documents')
-            .select('*')
-            .eq('supplier_id', supplier.id)
-            .order('uploaded_at', { ascending: false })
-
-          if (error) {
-            console.warn('⚠️ Supabase document fetch failed:', error.message)
-          } else {
-            // Transform Supabase documents to match interface
-            documents = supabaseDocuments.map(doc => ({
+          // First try to get supplier-specific documents
+          const supplierResponse = await fetch(`/api/documents/by-association?type=supplier&id=${supplier.id}`)
+          
+          if (supplierResponse.ok) {
+            const supplierData = await supplierResponse.json()
+            documents.push(...supplierData.documents.map((doc: any) => ({
               id: doc.id,
-              title: doc.title,
-              description: doc.description,
-              fileName: doc.file_name,
+              title: doc.filename,
+              description: doc.document_type,
+              fileName: doc.filename,
               fileSize: doc.file_size,
-              uploadDate: doc.uploaded_at.split('T')[0], // Convert to YYYY-MM-DD
-              uploader: doc.uploaded_by,
+              uploadDate: doc.uploaded_at ? doc.uploaded_at.split('T')[0] : new Date().toISOString().split('T')[0],
+              uploader: 'System',
               fileType: doc.file_type,
-              fileData: undefined, // Supabase documents don't have base64 data
-              filePath: doc.file_path // Add file path for Supabase downloads
-            }))
-            console.log(`✅ Found ${documents.length} documents in Supabase for ${supplierName}`)
+              fileData: undefined,
+              filePath: doc.storage_path
+            })))
           }
+          
+          // Then get all documents uploaded to the suppliers destination
+          const generalResponse = await fetch(`/api/documents/by-association?type=supplier&id=general`)
+          
+          if (generalResponse.ok) {
+            const generalData = await generalResponse.json()
+            // Add general supplier documents that aren't already included
+            const newDocs = generalData.documents.filter((doc: any) => 
+              !documents.some(existing => existing.id === doc.id)
+            ).map((doc: any) => ({
+              id: doc.id,
+              title: doc.filename,
+              description: doc.document_type,
+              fileName: doc.filename,
+              fileSize: doc.file_size,
+              uploadDate: doc.uploaded_at ? doc.uploaded_at.split('T')[0] : new Date().toISOString().split('T')[0],
+              uploader: 'System',
+              fileType: doc.file_type,
+              fileData: undefined,
+              filePath: doc.storage_path
+            }))
+            documents.push(...newDocs)
+          }
+          
+          console.log(`✅ Found ${documents.length} documents for ${supplierName}`)
         }
       } catch (supabaseError) {
         console.warn('⚠️ Supabase fetch failed, checking localStorage:', supabaseError)
