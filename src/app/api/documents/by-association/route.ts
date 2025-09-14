@@ -27,19 +27,26 @@ export async function GET(request: NextRequest) {
     try {
       console.log('📁 Fetching from storage associations...')
       
-      // List association files for this type and ID
-      const associationPrefix = `associations/${associationType}_${associationId}_`
+      // List ALL association files to search through them
+      console.log('🔍 Searching for association files with pattern:', `${associationType}_${associationId}_`)
       
       const { data: files, error: listError } = await supabase.storage
         .from('documents')
-        .list('associations', {
-          search: `${associationType}_${associationId}_`
-        })
+        .list('associations')
+      
+      console.log('📁 Found files in associations folder:', files?.map(f => f.name) || [])
+      
+      // Filter files that match our association type and ID
+      const matchingFiles = files?.filter(file => 
+        file.name.startsWith(`${associationType}_${associationId}_`)
+      ) || []
+      
+      console.log('🎯 Matching files for', `${associationType}_${associationId}:`, matchingFiles.map(f => f.name))
 
-      if (!listError && files?.length > 0) {
-        console.log('📄 Found association files:', files.length)
+      if (!listError && matchingFiles?.length > 0) {
+        console.log('📄 Found matching association files:', matchingFiles.length)
         
-        for (const file of files) {
+        for (const file of matchingFiles) {
           try {
             // Download and parse each association file
             const { data: fileData, error: downloadError } = await supabase.storage

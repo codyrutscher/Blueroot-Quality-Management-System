@@ -56,18 +56,24 @@ export async function POST(request: NextRequest) {
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
     const uniqueFilename = `${timestamp}_${sanitizedFilename}`
 
-    // Determine storage path based on primary destination
+    // Determine storage path based on document type and destinations
     let storagePath = ''
-    if (destinations.includes('labels')) {
+    
+    // Prioritize based on document type for better organization
+    if (documentType.includes('Supplier') || documentType.includes('Co-Man')) {
+      storagePath = `suppliers/${uniqueFilename}`
+    } else if (documentType.includes('Label')) {
+      storagePath = `labels/${uniqueFilename}`
+    } else if (destinations.includes('suppliers')) {
+      storagePath = `suppliers/${uniqueFilename}`
+    } else if (destinations.includes('products')) {
+      storagePath = `products/${uniqueFilename}`
+    } else if (destinations.includes('rawMaterials')) {
+      storagePath = `raw-materials/${uniqueFilename}`
+    } else if (destinations.includes('labels')) {
       storagePath = `labels/${uniqueFilename}`
     } else if (destinations.includes('shelfLife')) {
       storagePath = `shelf-life/${uniqueFilename}`
-    } else if (destinations.includes('products')) {
-      storagePath = `products/${uniqueFilename}`
-    } else if (destinations.includes('suppliers')) {
-      storagePath = `suppliers/${uniqueFilename}`
-    } else if (destinations.includes('rawMaterials')) {
-      storagePath = `raw-materials/${uniqueFilename}`
     } else {
       storagePath = `general/${uniqueFilename}`
     }
@@ -222,8 +228,10 @@ export async function POST(request: NextRequest) {
     // Handle suppliers destination
     if (destinations.includes('suppliers') && associations.suppliers?.length > 0) {
       console.log('🏢 Creating supplier associations...')
+      console.log('🏢 Supplier IDs from associations:', associations.suppliers)
       
       for (const supplierId of associations.suppliers) {
+        console.log('🏢 Creating association for supplier ID:', supplierId)
         try {
           const associationRecord = {
             document_id: docData.id,

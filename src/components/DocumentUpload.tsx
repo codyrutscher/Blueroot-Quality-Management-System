@@ -421,7 +421,7 @@ export default function DocumentUpload() {
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-white">
+            <p className="text-black">
               Upload documents and categorize them by type and destination
             </p>
           </div>
