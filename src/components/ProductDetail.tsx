@@ -446,6 +446,27 @@ export default function ProductDetail({
     return acc;
   }, {} as Record<string, Document[]>);
 
+  // Add uploaded documents as a separate type if they exist
+  if (uploadedDocuments.length > 0) {
+    documentsByType["UPLOADED_DOCUMENTS"] = uploadedDocuments.map((doc: any) => ({
+      id: doc.id,
+      title: doc.title || doc.filename || "Untitled Document",
+      filename: doc.filename || doc.fileName,
+      workflowStatus: "UPLOADED", // Custom status for uploaded docs
+      createdAt: doc.uploaded_at || doc.createdAt,
+      updatedAt: doc.uploaded_at || doc.createdAt,
+      version: 1,
+      user: { name: "System" },
+      template: { type: "UPLOADED_DOCUMENTS", name: "Uploaded Document" },
+      approvals: [],
+      // Add properties needed for display
+      document_type: doc.document_type,
+      file_type: doc.file_type,
+      file_size: doc.file_size,
+      storage_path: doc.storage_path || doc.filePath
+    })) as Document[];
+  }
+
   return (
     <div className="bg-white p-6">
       <div className="max-w-full">
@@ -580,7 +601,7 @@ export default function ProductDetail({
                       Total Documents
                     </span>
                     <span className="text-sm font-medium">
-                      {product.documents.length}
+                      {product.documents.length + uploadedDocuments.length}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -788,8 +809,8 @@ export default function ProductDetail({
               </div>
             )}
 
-            {/* Uploaded Documents Section */}
-            {uploadedDocuments.length > 0 && (
+            {/* Uploaded Documents Section - Now integrated into main documents view */}
+            {false && uploadedDocuments.length > 0 && (
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   Uploaded Documents ({uploadedDocuments.length})
