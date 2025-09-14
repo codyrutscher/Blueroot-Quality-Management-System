@@ -346,9 +346,43 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Handle destination-only uploads (Labels and Shelf Life Program)
-    if (destinations.includes('labels')) {
-      console.log('🏷️ Creating labels destination association...')
+    // Handle labels destination with brand associations
+    if (destinations.includes('labels') && associations.labels?.length > 0) {
+      console.log('🏷️ Creating label brand associations...')
+      
+      for (const brandId of associations.labels) {
+        try {
+          const labelRecord = {
+            document_id: docData.id,
+            document_filename: file.name,
+            document_title: documentTitle.trim(),
+            document_path: storagePath,
+            document_type: documentType,
+            association_type: 'label_brand',
+            association_id: brandId,
+            file_size: file.size,
+            file_type: file.type
+          }
+
+          console.log('💾 About to insert label brand association:', JSON.stringify(labelRecord, null, 2))
+          
+          const { data: insertResult, error: insertError } = await supabase
+            .from('document_associations')
+            .insert(labelRecord)
+            .select()
+
+          if (insertError) {
+            console.error('❌ Failed to create label brand association:', insertError)
+          } else {
+            console.log('✅ Created label brand association:', insertResult)
+            actualAssociationsAttempted++
+          }
+        } catch (error) {
+          console.error('❌ Error creating label brand association:', error)
+        }
+      }
+    } else if (destinations.includes('labels')) {
+      console.log('🏷️ Creating general labels destination association...')
       try {
         const destinationRecord = {
           document_id: docData.id,

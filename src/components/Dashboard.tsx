@@ -169,7 +169,7 @@ export default function Dashboard() {
     <div className="bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center py-12">
       <div className="w-full text-center px-4">
         {/* Large Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 w-full max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6 w-full max-w-7xl mx-auto">
           {Object.entries(categories).map(([categoryId, category]) => (
             <button
               key={categoryId}
