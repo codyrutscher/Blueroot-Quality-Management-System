@@ -111,7 +111,7 @@ export default function Dashboard() {
     },
     "customer-complaints": {
       name: "Customer Complaints",
-      icon: "�",,
+      icon: "�",
       pages: [
         { id: "customer-complaints", name: "Customer Complaints", icon: "📞" }
       ]
