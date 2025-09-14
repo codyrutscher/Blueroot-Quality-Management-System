@@ -53,8 +53,8 @@ CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
 CREATE INDEX IF NOT EXISTS idx_task_comments_task_id ON task_comments(task_id);
 
--- Enable RLS (Row Level Security)
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+-- Enable RLS (Row Level Security) - but not for users table initially
+-- ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE task_comments ENABLE ROW LEVEL SECURITY;
 
@@ -88,6 +88,6 @@ FOR INSERT WITH CHECK (
   )
 );
 
--- Create policies for users (allow reading for task assignment)
-CREATE POLICY "Allow reading users for task assignment" ON users
-FOR SELECT USING (true);
+-- Users table policies (commented out since RLS is disabled for users)
+-- CREATE POLICY "Allow reading users for task assignment" ON users
+-- FOR SELECT USING (true);
