@@ -263,6 +263,9 @@ export async function POST(request: NextRequest) {
           const associationPath = `associations/supplier_${supplierId}_${docData.id}.json`
           const associationBuffer = Buffer.from(JSON.stringify(associationRecord, null, 2))
           
+          console.log('📤 Attempting to upload association file:', associationPath)
+          console.log('📤 Association data:', associationRecord)
+          
           const { data: uploadResult, error: uploadError } = await supabase.storage
             .from('documents')
             .upload(associationPath, associationBuffer, {
@@ -272,12 +275,22 @@ export async function POST(request: NextRequest) {
 
           if (uploadError) {
             console.error('❌ Failed to create supplier association:', uploadError)
+            console.error('❌ Upload error details:', {
+              message: uploadError.message,
+              path: associationPath,
+              bucketName: 'documents'
+            })
           } else {
             console.log('✅ Created supplier association:', associationPath)
             console.log('✅ Association upload result:', uploadResult)
           }
         } catch (assocError) {
-          console.warn('⚠️ Could not create supplier association:', assocError)
+          console.error('❌ Could not create supplier association:', assocError)
+          console.error('❌ Association error details:', {
+            supplierId,
+            associationPath,
+            error: assocError instanceof Error ? assocError.message : assocError
+          })
         }
       }
     } else {
