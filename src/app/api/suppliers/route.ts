@@ -16,16 +16,16 @@ export async function GET(request: NextRequest) {
       .select('count')
       .limit(1)
 
-    if (testError) {
-      console.log('Supabase connection error:', testError)
-      console.log('⚠️ Supabase connection failed, trying to fetch actual data anyway...')
-    }
-
-    // Try to fetch actual data from Supabase
+    // Always try to fetch actual data from Supabase, regardless of test result
     const { data: suppliers, error } = await supabase
       .from('suppliers')
       .select('*')
       .order('name')
+
+    if (!error && suppliers && suppliers.length > 0) {
+      console.log('✅ Successfully fetched suppliers from Supabase:', suppliers.length)
+      return NextResponse.json({ suppliers })
+    }
 
     if (error) {
       console.error('Error fetching suppliers from Supabase:', error)
