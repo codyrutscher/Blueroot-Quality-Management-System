@@ -29,7 +29,7 @@ export default function Dashboard() {
   const [selectedSupplierName, setSelectedSupplierName] = useState(null);
   const [showDashboardLanding, setShowDashboardLanding] = useState(true);
 
-  // Define all 15 categories as individual sections
+  // Define all 15 categories in the specified order
   const categories = {
     "products": {
       name: "Products",
@@ -39,10 +39,10 @@ export default function Dashboard() {
       ]
     },
     "suppliers": {
-      name: "Suppliers & Co-Men",
+      name: "Suppliers & Co-men",
       icon: "🏢",
       pages: [
-        { id: "suppliers", name: "Suppliers & Co-Men", icon: "🏢" }
+        { id: "suppliers", name: "Suppliers & Co-men", icon: "🏢" }
       ]
     },
     "raw-materials": {
@@ -52,25 +52,11 @@ export default function Dashboard() {
         { id: "raw-materials", name: "Raw Materials", icon: "🧪" }
       ]
     },
-    "templates": {
-      name: "Templates",
-      icon: "📋",
+    "allergens": {
+      name: "Allergens",
+      icon: "⚠️",
       pages: [
-        { id: "templates", name: "Templates", icon: "📋" }
-      ]
-    },
-    "documents": {
-      name: "BRH Documents",
-      icon: "📄",
-      pages: [
-        { id: "documents", name: "BRH Documents", icon: "📄" }
-      ]
-    },
-    "document-upload": {
-      name: "Document Upload",
-      icon: "📤",
-      pages: [
-        { id: "document-upload", name: "Document Upload", icon: "📤" }
+        { id: "allergens", name: "Allergens", icon: "⚠️" }
       ]
     },
     "labels": {
@@ -80,11 +66,18 @@ export default function Dashboard() {
         { id: "labels", name: "Labels", icon: "🏷️" }
       ]
     },
-    "allergens": {
-      name: "Allergens",
-      icon: "⚠️",
+    "new-products": {
+      name: "New Products",
+      icon: "✨",
       pages: [
-        { id: "allergens", name: "Allergens", icon: "⚠️" }
+        { id: "new-products", name: "New Products", icon: "✨" }
+      ]
+    },
+    "testing": {
+      name: "Testing",
+      icon: "🔬",
+      pages: [
+        { id: "testing", name: "Testing", icon: "🔬" }
       ]
     },
     "ccrs": {
@@ -96,37 +89,16 @@ export default function Dashboard() {
     },
     "shelf-life": {
       name: "Shelf-Life Program",
-      icon: "📅",
+      icon: "�",
       pages: [
         { id: "shelf-life", name: "Shelf-Life Program", icon: "📅" }
       ]
     },
-    "testing": {
-      name: "Testing",
-      icon: "🔬",
-      pages: [
-        { id: "testing", name: "Testing", icon: "🔬" }
-      ]
-    },
     "sops": {
       name: "SOPs",
-      icon: "📖",
+      icon: "�",
       pages: [
-        { id: "sops", name: "SOPs", icon: "📖" }
-      ]
-    },
-    "new-products": {
-      name: "New Products",
-      icon: "✨",
-      pages: [
-        { id: "new-products", name: "New Products", icon: "✨" }
-      ]
-    },
-    "customer-complaints": {
-      name: "Customer Complaints",
-      icon: "📞",
-      pages: [
-        { id: "customer-complaints", name: "Customer Complaints", icon: "📞" }
+        { id: "sops", name: "SOPs", icon: "�" }
       ]
     },
     "regulatory": {
@@ -134,6 +106,34 @@ export default function Dashboard() {
       icon: "⚖️",
       pages: [
         { id: "regulatory", name: "Regulatory", icon: "⚖️" }
+      ]
+    },
+    "customer-complaints": {
+      name: "Customer Complaints",
+      icon: "�",,
+      pages: [
+        { id: "customer-complaints", name: "Customer Complaints", icon: "📞" }
+      ]
+    },
+    "documents": {
+      name: "BRH Documents",
+      icon: "📄",
+      pages: [
+        { id: "documents", name: "BRH Documents", icon: "📄" }
+      ]
+    },
+    "templates": {
+      name: "Templates",
+      icon: "�",
+      pages: [
+        { id: "templates", name: "Templates", icon: "📋" }
+      ]
+    },
+    "document-upload": {
+      name: "Document Upload",
+      icon: "📤",
+      pages: [
+        { id: "document-upload", name: "Document Upload", icon: "📤" }
       ]
     }
   };
