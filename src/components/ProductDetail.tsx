@@ -95,7 +95,7 @@ export default function ProductDetail({
     fetchProduct();
     fetchProductLabels();
     fetchUploadedDocuments();
-  }, [sku]);
+  }, [fetchProduct, fetchProductLabels, fetchUploadedDocuments, sku]);
 
   const fetchUploadedDocuments = async () => {
     try {
@@ -188,31 +188,37 @@ export default function ProductDetail({
   const fetchProductLabels = async () => {
     try {
       setLabelsLoading(true);
-      console.log('🏷️ Fetching labels for product:', sku);
-      
+      console.log("🏷️ Fetching labels for product:", sku);
+
       // Try the specific product labels API first
       const response = await fetch(`/api/products/${sku}/labels`);
       if (response.ok) {
         const data = await response.json();
-        console.log('🏷️ Labels from product API:', data);
+        console.log("🏷️ Labels from product API:", data);
         setLabels(data.labels || []);
       } else {
-        console.log('⚠️ Product labels API failed, trying by-association API...');
-        
+        console.log(
+          "⚠️ Product labels API failed, trying by-association API..."
+        );
+
         // Fallback to by-association API which now includes labels
-        const assocResponse = await fetch(`/api/documents/by-association?type=product&id=${sku}`);
+        const assocResponse = await fetch(
+          `/api/documents/by-association?type=product&id=${sku}`
+        );
         if (assocResponse.ok) {
           const assocData = await assocResponse.json();
-          console.log('🏷️ Documents from association API:', assocData);
-          
+          console.log("🏷️ Documents from association API:", assocData);
+
           // Filter for labels
-          const labelDocs = assocData.documents?.filter((doc: any) => 
-            doc.association_type === 'label' || 
-            doc.document_type === 'Label' ||
-            doc.file_type === 'label'
-          ) || [];
-          
-          console.log('🏷️ Filtered labels:', labelDocs);
+          const labelDocs =
+            assocData.documents?.filter(
+              (doc: any) =>
+                doc.association_type === "label" ||
+                doc.document_type === "Label" ||
+                doc.file_type === "label"
+            ) || [];
+
+          console.log("🏷️ Filtered labels:", labelDocs);
           setLabels(labelDocs);
         }
       }

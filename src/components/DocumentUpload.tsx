@@ -443,7 +443,7 @@ export default function DocumentUpload() {
             <select
               value={documentType}
               onChange={(e) => setDocumentType(e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              className={`w-full px-4 py-3 border text-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                 ['BRH Documents', 'Templates'].includes(documentType)
                   ? 'border-blue-300 bg-blue-50 text-blue-900'
                   : 'border-slate-300 bg-white'
@@ -475,7 +475,7 @@ export default function DocumentUpload() {
               value={documentTitle}
               onChange={(e) => setDocumentTitle(e.target.value)}
               placeholder="Enter a descriptive title for this document..."
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border text-black border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <p className="text-sm text-slate-500 mt-2">
               This will be the display name for your document (e.g., "ANS Quality Agreement", "Product Label Proof")
