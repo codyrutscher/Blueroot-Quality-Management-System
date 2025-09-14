@@ -16,6 +16,9 @@ import NotificationCenter from "./NotificationCenter";
 import DocxEditor from "./DocxEditor";
 import Labels from "./Labels";
 import AllergensTable from "./AllergensTable";
+import PageTester from "./PageTester";
+import Testing from "./Testing";
+import NewProducts from "./NewProducts";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -28,6 +31,7 @@ export default function Dashboard() {
   const [selectedProductSku, setSelectedProductSku] = useState(null);
   const [selectedSupplierName, setSelectedSupplierName] = useState(null);
   const [showDashboardLanding, setShowDashboardLanding] = useState(true);
+  const [showPageTester, setShowPageTester] = useState(false);
 
   // Define all 15 categories in the specified order
   const categories = {
@@ -213,6 +217,13 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-6">
+              <button
+                onClick={() => setShowPageTester(true)}
+                className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                title="Test all pages for loading issues"
+              >
+                🧪 Test Pages
+              </button>
               <NotificationCenter />
               <div className="flex items-center space-x-3">
                 <span className="text-base text-slate-700 font-medium">
@@ -434,19 +445,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                     )}
-                    {activeTab === "testing" && (
-                      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                          <div className="text-6xl mb-4">🔬</div>
-                          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                            Testing
-                          </h2>
-                          <p className="text-gray-600">
-                            Laboratory testing and analysis system coming soon.
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                    {activeTab === "testing" && <Testing />}
                     {activeTab === "sops" && (
                       <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
                         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
@@ -460,19 +459,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                     )}
-                    {activeTab === "new-products" && (
-                      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                          <div className="text-6xl mb-4">✨</div>
-                          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                            New Products
-                          </h2>
-                          <p className="text-gray-600">
-                            New product development and launch system coming soon.
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                    {activeTab === "new-products" && <NewProducts />}
                     {activeTab === "customer-complaints" && (
                       <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
                         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
@@ -821,6 +808,19 @@ function AssignmentModal({
           </div>
         </div>
       </div>
+
+      {/* Page Tester Modal */}
+      {showPageTester && (
+        <PageTester
+          onPageTest={(pageId) => {
+            // Navigate to the page being tested
+            setActiveCategory(pageId);
+            setActiveTab(pageId);
+            setShowDashboardLanding(false);
+          }}
+          onClose={() => setShowPageTester(false)}
+        />
+      )}
     </div>
   );
 }
