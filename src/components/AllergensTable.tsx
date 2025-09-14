@@ -28,7 +28,7 @@ export default function AllergensTable() {
 
   useEffect(() => {
     loadAllergenData();
-  }, []);
+  }, [loadAllergenData]);
 
   const loadAllergenData = async () => {
     try {
@@ -141,12 +141,9 @@ export default function AllergensTable() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Actions */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Allergen Management</h2>
-          <p className="text-gray-600">Manage allergen information for all products</p>
-        </div>
+        <p className="text-gray-600">Manage allergen information for all products</p>
         <button
           onClick={saveData}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

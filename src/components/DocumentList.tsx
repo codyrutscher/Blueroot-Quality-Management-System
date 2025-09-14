@@ -223,8 +223,7 @@ export default function DocumentList({ onEditDocument, onNavigateToDocuments }: 
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Documents</h2>
-        <p className="text-gray-600 mt-1">
+        <p className="text-gray-600">
           View and manage saved documents and collaborative work
         </p>
       </div>

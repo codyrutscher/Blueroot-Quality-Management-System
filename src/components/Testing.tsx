@@ -7,13 +7,10 @@ export default function Testing() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Description */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Testing Management</h2>
-          <p className="text-gray-600">Laboratory testing and analysis system</p>
-        </div>
-        <div className="text-4xl">🔬</div>
+        <p className="text-gray-600">Laboratory testing and analysis system</p>
+        <div className="text-2xl">🔬</div>
       </div>
 
       {/* Navigation Tabs */}

@@ -7,13 +7,10 @@ export default function NewProducts() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Description */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">New Product Development</h2>
-          <p className="text-gray-600">Product development pipeline and launch management</p>
-        </div>
-        <div className="text-4xl">✨</div>
+        <p className="text-gray-600">Product development pipeline and launch management</p>
+        <div className="text-2xl">✨</div>
       </div>
 
       {/* Navigation Tabs */}
