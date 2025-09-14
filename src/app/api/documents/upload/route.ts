@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const documentType = formData.get('documentType') as string
+    const documentTitle = formData.get('documentTitle') as string
     const destinations = JSON.parse(formData.get('destinations') as string || '[]')
     const associations = JSON.parse(formData.get('associations') as string || '{}')
 
@@ -21,6 +22,7 @@ export async function POST(request: NextRequest) {
       fileSize: file?.size,
       fileType: file?.type,
       documentType,
+      documentTitle,
       destinations,
       associations
     })
@@ -33,6 +35,11 @@ export async function POST(request: NextRequest) {
     if (!documentType) {
       console.error('❌ Document type is required')
       return NextResponse.json({ error: 'Document type is required' }, { status: 400 })
+    }
+
+    if (!documentTitle || !documentTitle.trim()) {
+      console.error('❌ Document title is required')
+      return NextResponse.json({ error: 'Document title is required' }, { status: 400 })
     }
 
     if (!destinations || destinations.length === 0) {
@@ -89,6 +96,7 @@ export async function POST(request: NextRequest) {
     const docData = {
       id: `upload_${timestamp}`,
       filename: file.name,
+      document_title: documentTitle.trim(),
       storage_path: storagePath,
       document_type: documentType,
       destinations: destinations,
@@ -183,6 +191,7 @@ export async function POST(request: NextRequest) {
           const associationRecord = {
             document_id: docData.id,
             document_filename: file.name,
+            document_title: documentTitle.trim(),
             document_path: storagePath,
             document_type: documentType,
             product_sku: productSku,
@@ -219,6 +228,7 @@ export async function POST(request: NextRequest) {
           const associationRecord = {
             document_id: docData.id,
             document_filename: file.name,
+            document_title: documentTitle.trim(),
             document_path: storagePath,
             document_type: documentType,
             supplier_id: supplierId,
@@ -254,6 +264,7 @@ export async function POST(request: NextRequest) {
           const associationRecord = {
             document_id: docData.id,
             document_filename: file.name,
+            document_title: documentTitle.trim(),
             document_path: storagePath,
             document_type: documentType,
             material_id: materialId,

@@ -143,7 +143,7 @@ export default function SupplierDetail({ supplierName, onBack }: SupplierDetailP
               !documents.some(existing => existing.id === doc.id)
             ).map((doc: any) => ({
               id: doc.id,
-              title: doc.filename,
+              title: doc.document_title || doc.filename,
               description: doc.document_type,
               fileName: doc.filename,
               fileSize: doc.file_size,
@@ -159,39 +159,7 @@ export default function SupplierDetail({ supplierName, onBack }: SupplierDetailP
           console.log(`✅ Found ${documents.length} documents for ${supplierName}`)
         }
       } catch (supabaseError) {
-        console.warn('⚠️ Supabase fetch failed, checking localStorage:', supabaseError)
-      }
-      
-      // Also check localStorage for fallback documents
-      try {
-        const allSupplierDocs = localStorage.getItem('supplierDocuments')
-        const supplierDocs = allSupplierDocs ? JSON.parse(allSupplierDocs) : {}
-        const localDocuments = supplierDocs[supplierName] || []
-        
-        if (localDocuments.length > 0) {
-          console.log(`📦 Found ${localDocuments.length} documents in localStorage for ${supplierName}`)
-          
-          // Transform localStorage documents to match interface
-          const transformedLocalDocs = localDocuments.map((doc: any) => ({
-            id: doc.id,
-            title: doc.title,
-            description: doc.description,
-            fileName: doc.fileName,
-            fileSize: doc.fileSize,
-            uploadDate: doc.uploadDate,
-            uploader: doc.uploader,
-            fileType: doc.fileType,
-            fileData: doc.fileData, // localStorage documents have base64 data
-            filePath: undefined // localStorage documents don't have file paths
-          }))
-          
-          // Combine with Supabase documents (avoid duplicates by ID)
-          const existingIds = new Set(documents.map(d => d.id))
-          const newLocalDocs = transformedLocalDocs.filter((doc: any) => !existingIds.has(doc.id))
-          documents = [...documents, ...newLocalDocs]
-        }
-      } catch (localError) {
-        console.warn('⚠️ localStorage fetch failed:', localError)
+        console.warn('⚠️ Storage-based document fetch failed:', supabaseError)
       }
       
       setDocuments(documents)

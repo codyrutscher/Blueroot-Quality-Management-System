@@ -12,6 +12,7 @@ export default function DocumentUpload() {
     message: string
   }>({ type: null, message: '' })
   const [documentType, setDocumentType] = useState('')
+  const [documentTitle, setDocumentTitle] = useState('')
   const [selectedDestinations, setSelectedDestinations] = useState<string[]>([])
   const [associations, setAssociations] = useState<{
     products: string[]
@@ -250,6 +251,7 @@ export default function DocumentUpload() {
 
   const validateUpload = () => {
     if (!documentType) return 'Please select a document type.'
+    if (!documentTitle.trim()) return 'Please enter a document title.'
     if (selectedDestinations.length === 0) return 'Please select at least one destination.'
     
     // Check if destinations requiring associations have them
@@ -340,6 +342,7 @@ export default function DocumentUpload() {
         const formData = new FormData()
         formData.append('file', file)
         formData.append('documentType', documentType)
+        formData.append('documentTitle', documentTitle.trim())
         formData.append('destinations', JSON.stringify(selectedDestinations))
         formData.append('associations', JSON.stringify(associations))
 
@@ -389,6 +392,7 @@ export default function DocumentUpload() {
       
       // Reset form after successful upload
       setDocumentType('')
+      setDocumentTitle('')
       setSelectedDestinations([])
       setAssociations({ products: [], suppliers: [], rawMaterials: [] })
       
@@ -459,6 +463,23 @@ export default function DocumentUpload() {
                 )
               })}
             </select>
+          </div>
+
+          {/* Document Title */}
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-slate-700 mb-3">
+              Document Title *
+            </label>
+            <input
+              type="text"
+              value={documentTitle}
+              onChange={(e) => setDocumentTitle(e.target.value)}
+              placeholder="Enter a descriptive title for this document..."
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <p className="text-sm text-slate-500 mt-2">
+              This will be the display name for your document (e.g., "ANS Quality Agreement", "Product Label Proof")
+            </p>
           </div>
 
           {/* Destinations Selection */}
