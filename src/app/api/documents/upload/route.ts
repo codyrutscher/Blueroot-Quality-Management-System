@@ -192,8 +192,9 @@ export async function POST(request: NextRequest) {
           document_type: documentType
         }
 
-        await supabase.from('labels').insert(labelRecord)
-        console.log('✅ Added to labels table successfully:', labelRecord)
+        // Temporarily disabled labels table insert - using destination associations instead
+        // await supabase.from('labels').insert(labelRecord)
+        console.log('🏷️ Skipping labels table insert, using destination association instead')
       } catch (labelError) {
         console.warn('⚠️ Could not add to labels table:', labelError)
       }
