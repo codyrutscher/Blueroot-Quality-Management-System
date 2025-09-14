@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
     console.log('  - associations.suppliers?.length:', associations.suppliers?.length)
     console.log('  - Will create supplier associations:', destinations.includes('suppliers') && associations.suppliers?.length > 0)
 
+    // Initialize association counter
+    let actualAssociationsAttempted = 0
+
     if (!file) {
       console.error('❌ No file provided')
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
@@ -322,7 +325,6 @@ export async function POST(request: NextRequest) {
     
     // Count associations created (this is just a calculation, not actual creation)
     let associationsCreated = 0
-    let actualAssociationsAttempted = 0
     
     if (destinations.includes('suppliers') && associations.suppliers?.length > 0) {
       associationsCreated += associations.suppliers.length
