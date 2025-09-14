@@ -266,12 +266,43 @@ export async function POST(request: NextRequest) {
           console.log('📤 Attempting to upload association file:', associationPath)
           console.log('📤 Association data:', associationRecord)
           
-          const { data: uploadResult, error: uploadError } = await supabase.storage
+          // Try to upload the association file
+          let uploadResult, uploadError
+          
+          // First attempt
+          const firstAttempt = await supabase.storage
             .from('documents')
             .upload(associationPath, associationBuffer, {
               contentType: 'text/plain',
               upsert: true
             })
+          
+          uploadResult = firstAttempt.data
+          uploadError = firstAttempt.error
+          
+          // If it fails, try creating a simple test file first to ensure the folder exists
+          if (uploadError && uploadError.message.includes('folder')) {
+            console.log('📁 Folder might not exist, creating it...')
+            
+            const testPath = 'associations/.keep'
+            await supabase.storage
+              .from('documents')
+              .upload(testPath, 'folder created', {
+                contentType: 'text/plain',
+                upsert: true
+              })
+            
+            // Try the association upload again
+            const secondAttempt = await supabase.storage
+              .from('documents')
+              .upload(associationPath, associationBuffer, {
+                contentType: 'text/plain',
+                upsert: true
+              })
+            
+            uploadResult = secondAttempt.data
+            uploadError = secondAttempt.error
+          }
 
           if (uploadError) {
             console.error('❌ Failed to create supplier association:', uploadError)
