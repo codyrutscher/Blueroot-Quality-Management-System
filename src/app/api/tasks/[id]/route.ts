@@ -18,13 +18,13 @@ export async function GET(
       .from('tasks')
       .select(`
         *,
-        assigned_to_user:users!tasks_assigned_to_fkey(id, username, email, full_name),
-        assigned_by_user:users!tasks_assigned_by_fkey(id, username, email, full_name),
+        assigned_to_user:task_users!tasks_assigned_to_fkey(id, username, email, full_name),
+        assigned_by_user:task_users!tasks_assigned_by_fkey(id, username, email, full_name),
         comments:task_comments(
           id,
           comment,
           created_at,
-          user:users(id, username, full_name)
+          user:task_users(id, username, full_name)
         )
       `)
       .eq('id', taskId)
@@ -75,8 +75,8 @@ export async function PUT(
       .eq('id', taskId)
       .select(`
         *,
-        assigned_to_user:users!tasks_assigned_to_fkey(id, username, email, full_name),
-        assigned_by_user:users!tasks_assigned_by_fkey(id, username, email, full_name)
+        assigned_to_user:task_users!tasks_assigned_to_fkey(id, username, email, full_name),
+        assigned_by_user:task_users!tasks_assigned_by_fkey(id, username, email, full_name)
       `)
       .single()
 

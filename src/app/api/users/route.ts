@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     console.log('👥 Fetching users for task assignment...')
 
     const { data: users, error } = await supabase
-      .from('users')
+      .from('task_users')
       .select('id, username, email, full_name')
       .order('full_name')
 

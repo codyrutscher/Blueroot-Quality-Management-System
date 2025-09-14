@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
       .from('tasks')
       .select(`
         *,
-        assigned_to_user:users!tasks_assigned_to_fkey(id, username, email, full_name),
-        assigned_by_user:users!tasks_assigned_by_fkey(id, username, email, full_name)
+        assigned_to_user:task_users!tasks_assigned_to_fkey(id, username, email, full_name),
+        assigned_by_user:task_users!tasks_assigned_by_fkey(id, username, email, full_name)
       `)
       .order('created_at', { ascending: false })
 
@@ -76,8 +76,8 @@ export async function POST(request: NextRequest) {
       .insert(taskData)
       .select(`
         *,
-        assigned_to_user:users!tasks_assigned_to_fkey(id, username, email, full_name),
-        assigned_by_user:users!tasks_assigned_by_fkey(id, username, email, full_name)
+        assigned_to_user:task_users!tasks_assigned_to_fkey(id, username, email, full_name),
+        assigned_by_user:task_users!tasks_assigned_by_fkey(id, username, email, full_name)
       `)
       .single()
 

@@ -28,7 +28,7 @@ export async function POST(
       .insert(commentData)
       .select(`
         *,
-        user:users(id, username, full_name)
+        user:task_users(id, username, full_name)
       `)
       .single()
 
