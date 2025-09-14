@@ -16,7 +16,6 @@ import NotificationCenter from "./NotificationCenter";
 import DocxEditor from "./DocxEditor";
 import Labels from "./Labels";
 import AllergensTable from "./AllergensTable";
-import PageTester from "./PageTester";
 import Testing from "./Testing";
 import NewProducts from "./NewProducts";
 
@@ -31,115 +30,86 @@ export default function Dashboard() {
   const [selectedProductSku, setSelectedProductSku] = useState(null);
   const [selectedSupplierName, setSelectedSupplierName] = useState(null);
   const [showDashboardLanding, setShowDashboardLanding] = useState(true);
-  const [showPageTester, setShowPageTester] = useState(false);
 
   // Define all 15 categories in the specified order
   const categories = {
-    "products": {
+    products: {
       name: "Products",
       icon: "📦",
-      pages: [
-        { id: "products", name: "Products", icon: "📦" }
-      ]
+      pages: [{ id: "products", name: "Products", icon: "📦" }],
     },
-    "suppliers": {
+    suppliers: {
       name: "Suppliers & Co-men",
       icon: "🏢",
-      pages: [
-        { id: "suppliers", name: "Suppliers & Co-men", icon: "🏢" }
-      ]
+      pages: [{ id: "suppliers", name: "Suppliers & Co-men", icon: "🏢" }],
     },
     "raw-materials": {
       name: "Raw Materials",
       icon: "🧪",
-      pages: [
-        { id: "raw-materials", name: "Raw Materials", icon: "🧪" }
-      ]
+      pages: [{ id: "raw-materials", name: "Raw Materials", icon: "🧪" }],
     },
-    "allergens": {
+    allergens: {
       name: "Allergens",
       icon: "⚠️",
-      pages: [
-        { id: "allergens", name: "Allergens", icon: "⚠️" }
-      ]
+      pages: [{ id: "allergens", name: "Allergens", icon: "⚠️" }],
     },
-    "labels": {
+    labels: {
       name: "Labels",
       icon: "🏷️",
-      pages: [
-        { id: "labels", name: "Labels", icon: "🏷️" }
-      ]
+      pages: [{ id: "labels", name: "Labels", icon: "🏷️" }],
     },
     "new-products": {
       name: "New Products",
       icon: "✨",
-      pages: [
-        { id: "new-products", name: "New Products", icon: "✨" }
-      ]
+      pages: [{ id: "new-products", name: "New Products", icon: "✨" }],
     },
-    "testing": {
+    testing: {
       name: "Testing",
       icon: "🔬",
-      pages: [
-        { id: "testing", name: "Testing", icon: "🔬" }
-      ]
+      pages: [{ id: "testing", name: "Testing", icon: "🔬" }],
     },
-    "ccrs": {
+    ccrs: {
       name: "CCRs",
       icon: "📊",
-      pages: [
-        { id: "ccrs", name: "CCRs", icon: "📊" }
-      ]
+      pages: [{ id: "ccrs", name: "CCRs", icon: "📊" }],
     },
     "shelf-life": {
       name: "Shelf-Life Program",
       icon: "📅",
-      pages: [
-        { id: "shelf-life", name: "Shelf-Life Program", icon: "📅" }
-      ]
+      pages: [{ id: "shelf-life", name: "Shelf-Life Program", icon: "📅" }],
     },
-    "sops": {
+    sops: {
       name: "SOPs",
       icon: "📋",
-      pages: [
-        { id: "sops", name: "SOPs", icon: "📋" }
-      ]
+      pages: [{ id: "sops", name: "SOPs", icon: "📋" }],
     },
-    "regulatory": {
+    regulatory: {
       name: "Regulatory",
       icon: "⚖️",
-      pages: [
-        { id: "regulatory", name: "Regulatory", icon: "⚖️" }
-      ]
+      pages: [{ id: "regulatory", name: "Regulatory", icon: "⚖️" }],
     },
     "customer-complaints": {
       name: "Customer Complaints",
       icon: "📞",
       pages: [
-        { id: "customer-complaints", name: "Customer Complaints", icon: "📞" }
-      ]
+        { id: "customer-complaints", name: "Customer Complaints", icon: "📞" },
+      ],
     },
-    "documents": {
+    documents: {
       name: "BRH Documents",
       icon: "📄",
-      pages: [
-        { id: "documents", name: "BRH Documents", icon: "📄" }
-      ]
+      pages: [{ id: "documents", name: "BRH Documents", icon: "📄" }],
     },
-    "templates": {
+    templates: {
       name: "Templates",
       icon: "📋",
-      pages: [
-        { id: "templates", name: "Templates", icon: "📋" }
-      ]
+      pages: [{ id: "templates", name: "Templates", icon: "📋" }],
     },
     "document-upload": {
       name: "Document Upload",
       icon: "📤",
-      pages: [
-        { id: "document-upload", name: "Document Upload", icon: "📤" }
-      ]
-    }
+      pages: [{ id: "document-upload", name: "Document Upload", icon: "📤" }],
+    },
   };
 
   const handleCategorySelection = (categoryId: string) => {
@@ -185,7 +155,9 @@ export default function Dashboard() {
               className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
               <div className="text-4xl mb-3">{category.icon}</div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{category.name}</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                {category.name}
+              </h3>
               <p className="text-sm text-gray-600">{category.description}</p>
             </button>
           ))}
@@ -217,13 +189,6 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-6">
-              <button
-                onClick={() => setShowPageTester(true)}
-                className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
-                title="Test all pages for loading issues"
-              >
-                🧪 Test Pages
-              </button>
               <NotificationCenter />
               <div className="flex items-center space-x-3">
                 <span className="text-base text-slate-700 font-medium">
@@ -285,8 +250,8 @@ export default function Dashboard() {
                     }}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                       activeTab === category.pages[0].id
-                        ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                        : 'text-slate-700 hover:bg-slate-100'
+                        ? "bg-blue-100 text-blue-700 border border-blue-200"
+                        : "text-slate-700 hover:bg-slate-100"
                     }`}
                   >
                     <span className="text-xl">{category.icon}</span>
@@ -330,7 +295,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <h1 className="text-2xl font-bold text-slate-900">
-                      {currentCategory?.name || 'Dashboard'}
+                      {currentCategory?.name || "Dashboard"}
                     </h1>
                   </div>
                 </div>
@@ -386,7 +351,9 @@ export default function Dashboard() {
                     {activeTab === "search" && <SearchInterface />}
                     {activeTab === "upload" && <DocumentUpload />}
                     {activeTab === "suppliers" && !selectedSupplierName && (
-                      <SupplierIndex onSupplierSelect={setSelectedSupplierName} />
+                      <SupplierIndex
+                        onSupplierSelect={setSelectedSupplierName}
+                      />
                     )}
                     {activeTab === "suppliers" && selectedSupplierName && (
                       <SupplierDetail
@@ -426,7 +393,8 @@ export default function Dashboard() {
                             CCRs Management
                           </h2>
                           <p className="text-gray-600">
-                            Critical Control Records management system coming soon.
+                            Critical Control Records management system coming
+                            soon.
                           </p>
                         </div>
                       </div>
@@ -439,8 +407,8 @@ export default function Dashboard() {
                             Shelf-Life Program
                           </h2>
                           <p className="text-gray-600">
-                            Product shelf-life monitoring and expiration tracking coming
-                            soon.
+                            Product shelf-life monitoring and expiration
+                            tracking coming soon.
                           </p>
                         </div>
                       </div>
@@ -454,7 +422,8 @@ export default function Dashboard() {
                             SOPs
                           </h2>
                           <p className="text-gray-600">
-                            Standard Operating Procedures management coming soon.
+                            Standard Operating Procedures management coming
+                            soon.
                           </p>
                         </div>
                       </div>
@@ -468,7 +437,8 @@ export default function Dashboard() {
                             Customer Complaints
                           </h2>
                           <p className="text-gray-600">
-                            Customer feedback and complaint management system coming soon.
+                            Customer feedback and complaint management system
+                            coming soon.
                           </p>
                         </div>
                       </div>
@@ -481,7 +451,8 @@ export default function Dashboard() {
                             Regulatory
                           </h2>
                           <p className="text-gray-600">
-                            Regulatory compliance and documentation system coming soon.
+                            Regulatory compliance and documentation system
+                            coming soon.
                           </p>
                         </div>
                       </div>
@@ -530,7 +501,10 @@ export default function Dashboard() {
 
                         // Now assign users to the document if any were selected
                         if (assignedUsers.length > 0) {
-                          console.log("Assigning users to document:", assignedUsers);
+                          console.log(
+                            "Assigning users to document:",
+                            assignedUsers
+                          );
                           const assignResponse = await fetch(
                             `/api/documents/${documentId}/assign`,
                             {
@@ -547,13 +521,18 @@ export default function Dashboard() {
                           console.log("Assignment response:", assignData);
                         }
 
-                        console.log("Document created and assigned successfully");
+                        console.log(
+                          "Document created and assigned successfully"
+                        );
                         setShowAssignmentModal(false);
                         setEditingTemplate(null);
                         setRefreshDocuments((prev) => prev + 1);
                         setActiveTab("documents");
                       } else {
-                        console.error("Failed to create document:", responseData);
+                        console.error(
+                          "Failed to create document:",
+                          responseData
+                        );
                         alert(
                           "Failed to create document: " +
                             (responseData.error || "Unknown error")
@@ -809,18 +788,7 @@ function AssignmentModal({
         </div>
       </div>
 
-      {/* Page Tester Modal */}
-      {showPageTester && (
-        <PageTester
-          onPageTest={(pageId) => {
-            // Navigate to the page being tested
-            setActiveCategory(pageId);
-            setActiveTab(pageId);
-            setShowDashboardLanding(false);
-          }}
-          onClose={() => setShowPageTester(false)}
-        />
-      )}
+
     </div>
   );
 }

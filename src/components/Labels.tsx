@@ -78,31 +78,19 @@ export default function Labels() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <div className="text-6xl mb-4">🏷️</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Loading Labels...
-          </h2>
-        </div>
+      <div className="flex items-center justify-center p-8">
+        <div className="text-lg text-gray-600">Loading labels...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-      {/* Header Section */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="text-4xl">🏷️</div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Label Management
-            </h1>
-          </div>
-          <div className="text-sm text-gray-600">
-            {filteredLabels.length} labels found
-          </div>
+    <div className="space-y-6">
+      {/* Summary */}
+      <div className="flex items-center justify-between">
+        <p className="text-gray-600">Manage and download product labels</p>
+        <div className="text-sm text-gray-500">
+          {filteredLabels.length} labels found
         </div>
       </div>
 

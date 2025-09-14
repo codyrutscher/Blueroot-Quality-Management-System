@@ -28,13 +28,13 @@ export default function AllergensTable() {
 
   useEffect(() => {
     loadAllergenData();
-  }, [loadAllergenData]);
+  }, []);
 
   const loadAllergenData = async () => {
     try {
       // In a real app, this would be an API call
       // For now, we'll parse the CSV data directly
-      const response = await fetch('/templates/Allergens - Sheet1.csv');
+      const response = await fetch('/Allergens - Sheet1.csv');
       const csvText = await response.text();
       const parsedData = parseCSV(csvText);
       setData(parsedData);
