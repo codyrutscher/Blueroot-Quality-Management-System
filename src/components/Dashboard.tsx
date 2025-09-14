@@ -15,6 +15,7 @@ import RawMaterials from "./RawMaterials";
 import NotificationCenter from "./NotificationCenter";
 import DocxEditor from "./DocxEditor";
 import Labels from "./Labels";
+import AllergensTable from "./AllergensTable";
 import { error } from "console";
 
 export default function Dashboard() {
@@ -170,8 +171,31 @@ export default function Dashboard() {
 
   // Dashboard Landing Component
   const DashboardLanding = () => (
+    <div className="bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center py-12">
+      <div className="w-full text-center px-4">
+        {/* Large Navigation Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 w-full max-w-7xl mx-auto">
+          {Object.entries(categories).map(([categoryId, category]) => (
+            <button
+              key={categoryId}
+              onClick={() => handleCategorySelection(categoryId)}
+              className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
+            >
+              <div className="text-4xl mb-3">{category.icon}</div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{category.name}</h3>
+              <p className="text-sm text-gray-600">{category.description}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const currentCategory = categories[activeCategory];
+
+  return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
+      {/* Main Header - Always visible when logged in */}
       <header className="bg-white shadow-lg border-b border-slate-200">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
@@ -215,38 +239,12 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Landing Content */}
-      <div className="bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center py-12">
-        <div className="w-full text-center px-4">
-          {/* Large Navigation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 w-full max-w-7xl mx-auto">
-            {Object.entries(categories).map(([categoryId, category]) => (
-              <button
-                key={categoryId}
-                onClick={() => handleCategorySelection(categoryId)}
-                className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-blue-200"
-              >
-                <div className="text-4xl mb-3">{category.icon}</div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{category.name}</h3>
-                <p className="text-sm text-gray-600">{category.description}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (showDashboardLanding) {
-    return <DashboardLanding />;
-  }
-
-  const currentCategory = categories[activeCategory];
-
-  return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar */}
-      <div className="w-72 bg-white shadow-lg border-r border-slate-200 flex flex-col">
+      {showDashboardLanding ? (
+        <DashboardLanding />
+      ) : (
+        <div className="flex">
+          {/* Sidebar */}
+          <div className="w-72 bg-white shadow-lg border-r border-slate-200 flex flex-col">
         {/* Sidebar Header */}
         <div className="p-6 border-b border-slate-200">
           <button
@@ -316,7 +314,7 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Top Header */}
+        {/* Page Header */}
         <header className="bg-white shadow-sm border-b border-slate-200">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
@@ -325,7 +323,6 @@ export default function Dashboard() {
                   {currentCategory?.name || 'Dashboard'}
                 </h1>
               </div>
-              <NotificationCenter />
             </div>
           </div>
         </header>
@@ -410,19 +407,7 @@ export default function Dashboard() {
                 />
               )}
               {activeTab === "labels" && <Labels />}
-              {activeTab === "allergens" && (
-                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                    <div className="text-6xl mb-4">⚠️</div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      Allergens Management
-                    </h2>
-                    <p className="text-gray-600">
-                      Allergen tracking and management system coming soon.
-                    </p>
-                  </div>
-                </div>
-              )}
+              {activeTab === "allergens" && <AllergensTable />}
               {activeTab === "ccrs" && (
                 <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
                   <div className="bg-white rounded-lg shadow-lg p-8 text-center">
@@ -597,6 +582,7 @@ export default function Dashboard() {
         )}
         </div>
       </div>
+        )}
     </div>
   );
 }
