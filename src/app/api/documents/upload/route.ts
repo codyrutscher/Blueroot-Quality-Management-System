@@ -246,6 +246,7 @@ export async function POST(request: NextRequest) {
       
       for (const supplierId of associations.suppliers) {
         console.log('🏢 Creating association for supplier ID:', supplierId)
+        actualAssociationsAttempted++
         try {
           const associationRecord = {
             document_id: docData.id,
@@ -368,8 +369,10 @@ export async function POST(request: NextRequest) {
 
     console.log('🎉 Upload completed successfully!')
     
-    // Count associations created
+    // Count associations created (this is just a calculation, not actual creation)
     let associationsCreated = 0
+    let actualAssociationsAttempted = 0
+    
     if (destinations.includes('suppliers') && associations.suppliers?.length > 0) {
       associationsCreated += associations.suppliers.length
     }
@@ -380,16 +383,26 @@ export async function POST(request: NextRequest) {
       associationsCreated += associations.rawMaterials.length
     }
     
+    // Collect debug information
+    const debugInfo = {
+      associationsCreated,
+      destinations,
+      supplierIds: associations.suppliers || [],
+      storagePath,
+      conditionsCheck: {
+        destinationsIncludesSuppliers: destinations.includes('suppliers'),
+        suppliersExist: !!associations.suppliers,
+        suppliersLength: associations.suppliers?.length || 0,
+        conditionsMet: destinations.includes('suppliers') && associations.suppliers?.length > 0,
+        actualAssociationsAttempted
+      }
+    }
+    
     return NextResponse.json({
       success: true,
       document: docData,
       message: 'Document uploaded successfully',
-      debug: {
-        associationsCreated,
-        destinations,
-        supplierIds: associations.suppliers || [],
-        storagePath
-      }
+      debug: debugInfo
     })
 
   } catch (error) {
