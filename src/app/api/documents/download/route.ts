@@ -18,19 +18,20 @@ export async function GET(request: NextRequest) {
 
     let finalStoragePath = storagePath
 
-    // If document ID is provided, get the storage path from database
+    // If document ID is provided, get the storage path from associations table
     if (documentId && !storagePath) {
       const { data: document, error: docError } = await supabase
-        .from('documents')
-        .select('storage_path, filename')
-        .eq('id', documentId)
+        .from('document_associations')
+        .select('document_path, document_filename')
+        .eq('document_id', documentId)
+        .limit(1)
         .single()
 
       if (docError || !document) {
         return NextResponse.json({ error: 'Document not found' }, { status: 404 })
       }
 
-      finalStoragePath = document.storage_path
+      finalStoragePath = document.document_path
     }
 
     if (!finalStoragePath) {

@@ -345,6 +345,69 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Handle destination-only uploads (Labels and Shelf Life Program)
+    if (destinations.includes('labels')) {
+      console.log('🏷️ Creating labels destination association...')
+      try {
+        const destinationRecord = {
+          document_id: docData.id,
+          document_filename: file.name,
+          document_title: documentTitle.trim(),
+          document_path: storagePath,
+          document_type: documentType,
+          association_type: 'destination',
+          association_id: 'labels',
+          file_size: file.size,
+          file_type: file.type
+        }
+
+        const { data: insertResult, error: insertError } = await supabase
+          .from('document_associations')
+          .insert(destinationRecord)
+          .select()
+
+        if (insertError) {
+          console.error('❌ Failed to create labels destination association:', insertError)
+        } else {
+          console.log('✅ Created labels destination association:', insertResult)
+          actualAssociationsAttempted++
+        }
+      } catch (error) {
+        console.error('❌ Error creating labels destination association:', error)
+      }
+    }
+
+    if (destinations.includes('shelfLife')) {
+      console.log('📅 Creating shelf life destination association...')
+      try {
+        const destinationRecord = {
+          document_id: docData.id,
+          document_filename: file.name,
+          document_title: documentTitle.trim(),
+          document_path: storagePath,
+          document_type: documentType,
+          association_type: 'destination',
+          association_id: 'shelfLife',
+          file_size: file.size,
+          file_type: file.type
+        }
+
+        const { data: insertResult, error: insertError } = await supabase
+          .from('document_associations')
+          .insert(destinationRecord)
+          .select()
+
+        if (insertError) {
+          console.error('❌ Failed to create shelf life destination association:', insertError)
+        } else {
+          console.log('✅ Created shelf life destination association:', insertResult)
+          actualAssociationsAttempted++
+        }
+      } catch (error) {
+        console.error('❌ Error creating shelf life destination association:', error)
+      }
+    }
+
     console.log('🎉 Upload completed successfully!')
     
     // Count associations created (this is just a calculation, not actual creation)

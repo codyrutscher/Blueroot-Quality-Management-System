@@ -42,9 +42,14 @@ export async function GET(request: NextRequest) {
             documents.push({
               id: assoc.document_id,
               filename: assoc.document_filename,
+              fileName: assoc.document_filename, // Add camelCase version
+              title: assoc.document_title, // Add title field
+              document_title: assoc.document_title, // Keep snake_case version too
               file_type: assoc.file_type,
               file_size: assoc.file_size,
+              fileSize: assoc.file_size, // Add camelCase version
               storage_path: assoc.document_path,
+              filePath: assoc.document_path, // Add camelCase version for download
               document_type: assoc.document_type,
               uploaded_at: assoc.created_at,
               association_type: associationType,

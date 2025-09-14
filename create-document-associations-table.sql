@@ -1,5 +1,7 @@
--- Create document_associations table for more reliable association tracking
-CREATE TABLE IF NOT EXISTS document_associations (
+-- Drop and recreate document_associations table to ensure proper structure
+DROP TABLE IF EXISTS document_associations;
+
+CREATE TABLE document_associations (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   document_id TEXT NOT NULL,
   document_filename TEXT NOT NULL,
