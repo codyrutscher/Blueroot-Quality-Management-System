@@ -61,15 +61,71 @@ export default function DocumentUpload() {
       }))
       setSuppliers(supplierOptions)
     } catch (error) {
-      console.error('Error fetching suppliers:', error)
-      // Mock data for now
-      setSuppliers([
-        { id: 'bariatric-fusion', name: 'Bariatric Fusion' },
-        { id: 'fairhaven-health', name: 'Fairhaven Health' },
-        { id: 'vital-nutrients', name: 'Vital Nutrients' },
-        { id: 'hyperbiotics', name: 'Hyperbiotics' },
-        { id: 'unjury', name: 'Unjury' }
-      ])
+      console.error('Error fetching suppliers API, trying CSV fallback:', error)
+      // Fallback to CSV data
+      try {
+        const csvResponse = await fetch('/suppliers - Sheet1.csv')
+        const csvText = await csvResponse.text()
+        const lines = csvText.trim().split('\n')
+        
+        const supplierOptions = lines.map((line, index) => {
+          const columns = []
+          let current = ''
+          let inQuotes = false
+          
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i]
+            if (char === '"') {
+              inQuotes = !inQuotes
+            } else if (char === ',' && !inQuotes) {
+              columns.push(current.trim())
+              current = ''
+            } else {
+              current += char
+            }
+          }
+          columns.push(current.trim())
+          
+          const name = columns[0] ? columns[0].replace(/^"|"$/g, '') : `Supplier ${index + 1}`
+          const type = columns[1] ? columns[1].replace(/^"|"$/g, '') : 'unknown'
+          const status = columns[2] ? columns[2].replace(/^"|"$/g, '') : 'unknown'
+          
+          return {
+            id: `csv-${index}`,
+            name: name,
+            type: type,
+            status: status
+          }
+        }).filter(supplier => supplier.name && supplier.name !== 'Supplier 1') // Filter out empty/header rows
+        
+        console.log('Loaded suppliers from CSV:', supplierOptions.length)
+        setSuppliers(supplierOptions)
+      } catch (csvError) {
+        console.error('Error fetching suppliers from CSV:', csvError)
+        // Final fallback with actual supplier names
+        setSuppliers([
+          { id: 'ans', name: 'ANS' },
+          { id: 'food-pharma', name: 'Food Pharma' },
+          { id: 'inw', name: 'INW' },
+          { id: 'mill-haven', name: 'Mill Haven Foods' },
+          { id: 'multipack', name: 'MultiPack' },
+          { id: 'nutrastar', name: 'Nutrastar' },
+          { id: 'probi', name: 'Probi' },
+          { id: 'spice-hut', name: 'Spice Hut' },
+          { id: 'steuart', name: 'Steuart Packaging' },
+          { id: 'vitaquest', name: 'Vitaquest' },
+          { id: 'aidp', name: 'AIDP, Inc.' },
+          { id: 'ajinomoto', name: 'Ajinomoto Health and Nutrition North America, Inc' },
+          { id: 'anderson', name: 'Anderson Advanced Ingredients' },
+          { id: 'bd-nutritional', name: 'B&D Nutritional Products' },
+          { id: 'catherych', name: 'Catherych (PharmaCap)' },
+          { id: 'centian', name: 'Centian LLC' },
+          { id: 'draco', name: 'Draco Natural Products' },
+          { id: 'euromed', name: 'Euromed USA' },
+          { id: 'fci-flavors', name: 'FCI Flavors' },
+          { id: 'fifth-nutrisupply', name: 'Fifth Nutrisupply, Inc' }
+        ])
+      }
     }
   }
 
