@@ -33,7 +33,7 @@ export default function AllergensTable() {
 
   useEffect(() => {
     loadAllergenData();
-  }, []);
+  }, [loadAllergenData]);
 
   const loadAllergenData = async () => {
     try {
@@ -144,64 +144,93 @@ export default function AllergensTable() {
           
           // Extract formatting information
           if (cell && cell.s) {
-            const style = cell.s;
+            const cellStyle = cell.s;
             
-            // Background color - try multiple approaches
-            if (style.fill) {
-              console.log(`Fill info for ${cellRef}:`, style.fill);
+            // Check if there's a style object with pattern and colors
+            if (cellStyle.style) {
+              const style = cellStyle.style;
+              console.log(`Style info for ${cellRef}:`, style);
               
-              if (style.fill.bgColor) {
-                const bgColor = style.fill.bgColor;
-                if (bgColor.rgb) {
-                  colors[`${header}_bg`] = `#${bgColor.rgb}`;
-                  console.log(`RGB color for ${cellRef}: #${bgColor.rgb}`);
-                } else if (bgColor.indexed !== undefined) {
-                  // Handle indexed colors - common Excel color palette
-                  const indexedColors: { [key: number]: string } = {
-                    2: '#FFFFFF', // White
-                    3: '#FF0000', // Red  
-                    4: '#00FF00', // Green
-                    5: '#0000FF', // Blue
-                    6: '#FFFF00', // Yellow
-                    7: '#FF00FF', // Magenta
-                    8: '#00FFFF', // Cyan
-                    9: '#800000', // Maroon
-                    10: '#008000', // Dark Green
-                    11: '#000080', // Navy
-                    12: '#808000', // Olive
-                    13: '#800080', // Purple
-                    14: '#008080', // Teal
-                    15: '#C0C0C0', // Silver
-                    16: '#808080', // Gray
-                    17: '#9999FF', // Light Blue
-                    18: '#993366', // Dark Pink
-                    19: '#FFFFCC', // Light Yellow
-                    20: '#CCFFFF', // Light Cyan
-                    21: '#660066', // Dark Purple
-                    22: '#FF8080', // Light Red
-                    23: '#0066CC', // Medium Blue
-                    24: '#CCCCFF', // Very Light Blue
-                  };
-                  colors[`${header}_bg`] = indexedColors[bgColor.indexed] || '#FFFFFF';
-                  console.log(`Indexed color for ${cellRef}: ${bgColor.indexed} -> ${indexedColors[bgColor.indexed]}`);
-                } else if (bgColor.theme !== undefined) {
-                  console.log(`Theme color for ${cellRef}:`, bgColor.theme);
+              if (style.patternType === 'solid') {
+                // Handle background color from fgColor (Excel stores solid fill color in fgColor)
+                if (style.fgColor) {
+                  const fgColor = style.fgColor;
+                  if (fgColor.rgb) {
+                    colors[`${header}_bg`] = `#${fgColor.rgb}`;
+                    console.log(`Excel fgColor RGB for ${cellRef}: #${fgColor.rgb}`);
+                  } else if (fgColor.indexed !== undefined) {
+                    const indexedColors: { [key: number]: string } = {
+                      2: '#FFFFFF', // White
+                      3: '#FF0000', // Red  
+                      4: '#00FF00', // Green
+                      5: '#0000FF', // Blue
+                      6: '#FFFF00', // Yellow
+                      7: '#FF00FF', // Magenta
+                      8: '#00FFFF', // Cyan
+                      9: '#800000', // Maroon
+                      10: '#008000', // Dark Green
+                      11: '#000080', // Navy
+                      12: '#808000', // Olive
+                      13: '#800080', // Purple
+                      14: '#008080', // Teal
+                      15: '#C0C0C0', // Silver
+                      16: '#808080', // Gray
+                      17: '#9999FF', // Light Blue
+                      18: '#993366', // Dark Pink
+                      19: '#FFFFCC', // Light Yellow
+                      20: '#CCFFFF', // Light Cyan
+                      21: '#660066', // Dark Purple
+                      22: '#FF8080', // Light Red
+                      23: '#0066CC', // Medium Blue
+                      24: '#CCCCFF', // Very Light Blue
+                    };
+                    colors[`${header}_bg`] = indexedColors[fgColor.indexed] || '#FFFFFF';
+                    console.log(`Excel indexed fgColor for ${cellRef}: ${fgColor.indexed} -> ${indexedColors[fgColor.indexed]}`);
+                  } else if (fgColor.theme !== undefined) {
+                    // Handle theme colors
+                    const themeColors: { [key: number]: string } = {
+                      0: '#FFFFFF', // White
+                      1: '#000000', // Black
+                      2: '#E7E6E6', // Light Gray
+                      3: '#44546A', // Dark Blue
+                      4: '#5B9BD5', // Blue
+                      5: '#70AD47', // Green
+                      6: '#FFC000', // Orange
+                      7: '#C55A11', // Dark Orange
+                      8: '#264478', // Dark Blue
+                      9: '#636363', // Gray
+                    };
+                    colors[`${header}_bg`] = themeColors[fgColor.theme] || '#FFFFFF';
+                    console.log(`Excel theme fgColor for ${cellRef}: ${fgColor.theme} -> ${themeColors[fgColor.theme]}`);
+                  }
+                }
+                
+                // Also check bgColor
+                if (style.bgColor) {
+                  const bgColor = style.bgColor;
+                  if (bgColor.rgb) {
+                    console.log(`Excel bgColor RGB for ${cellRef}: #${bgColor.rgb}`);
+                  }
                 }
               }
+            }
+            
+            // Also try the standard fill approach
+            if (cellStyle.fill) {
+              console.log(`Standard fill info for ${cellRef}:`, cellStyle.fill);
               
-              // Try fgColor as well
-              if (style.fill.fgColor) {
-                const fgColor = style.fill.fgColor;
-                if (fgColor.rgb) {
-                  colors[`${header}_bg`] = `#${fgColor.rgb}`;
-                  console.log(`FG RGB color for ${cellRef}: #${fgColor.rgb}`);
+              if (cellStyle.fill.bgColor) {
+                const bgColor = cellStyle.fill.bgColor;
+                if (bgColor.rgb) {
+                  colors[`${header}_bg`] = `#${bgColor.rgb}`;
+                  console.log(`Standard RGB color for ${cellRef}: #${bgColor.rgb}`);
                 }
               }
             }
             
             // Font color
-            if (style.font && style.font.color) {
-              const fontColor = style.font.color;
+            if (cellStyle.font && cellStyle.font.color) {
+              const fontColor = cellStyle.font.color;
               if (fontColor.rgb) {
                 colors[`${header}_font`] = `#${fontColor.rgb}`;
                 console.log(`Font color for ${cellRef}: #${fontColor.rgb}`);
