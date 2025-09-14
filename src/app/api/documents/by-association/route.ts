@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
     const associationId = searchParams.get('id')
     
     console.log('🔍 Fetching documents for:', { associationType, associationId })
+    console.log('🔍 Full request URL:', request.url)
     
     if (!associationType || !associationId) {
       return NextResponse.json({ error: 'Association type and ID are required' }, { status: 400 })
@@ -159,10 +160,21 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('📊 Total documents found:', documents.length)
+    console.log('📊 Documents being returned:', documents.map(d => ({ 
+      id: d.id, 
+      filename: d.filename, 
+      title: d.title,
+      association_type: d.association_type 
+    })))
 
     return NextResponse.json({ 
       documents,
-      count: documents.length
+      count: documents.length,
+      debug: {
+        associationType,
+        associationId,
+        searchPerformed: true
+      }
     })
 
   } catch (error) {
