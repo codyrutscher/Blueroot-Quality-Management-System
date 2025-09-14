@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     console.log('📁 Creating associations folder...')
     
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('documents')
       .upload(testPath, testBuffer, {
-        contentType: 'application/json',
+        contentType: 'text/plain',
         upsert: true
       })
 

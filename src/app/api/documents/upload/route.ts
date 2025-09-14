@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       await supabase.storage
         .from('documents')
         .upload(metadataPath, metadataBuffer, {
-          contentType: 'application/json',
+          contentType: 'text/plain',
           upsert: true
         })
 
@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
           await supabase.storage
             .from('documents')
             .upload(associationPath, associationBuffer, {
-              contentType: 'application/json',
+              contentType: 'text/plain',
               upsert: true
             })
 
@@ -269,7 +269,7 @@ export async function POST(request: NextRequest) {
           const { data: uploadResult, error: uploadError } = await supabase.storage
             .from('documents')
             .upload(associationPath, associationBuffer, {
-              contentType: 'application/json',
+              contentType: 'text/plain',
               upsert: true
             })
 
@@ -324,7 +324,7 @@ export async function POST(request: NextRequest) {
           await supabase.storage
             .from('documents')
             .upload(associationPath, associationBuffer, {
-              contentType: 'application/json',
+              contentType: 'text/plain',
               upsert: true
             })
 
