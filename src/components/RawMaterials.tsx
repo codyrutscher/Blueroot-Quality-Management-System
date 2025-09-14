@@ -113,7 +113,7 @@ export default function RawMaterials() {
     <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
       {/* Description */}
       <div className="mb-6">
-        <p className="text-gray-600">Manage quality documentation for raw materials and ingredients</p>
+        <p className="text-white">Manage quality documentation for raw materials and ingredients</p>
       </div>
 
       {/* Search and Filter Controls */}

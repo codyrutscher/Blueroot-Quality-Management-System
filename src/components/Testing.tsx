@@ -9,7 +9,7 @@ export default function Testing() {
     <div className="space-y-6">
       {/* Description */}
       <div className="flex items-center justify-between">
-        <p className="text-gray-600">Laboratory testing and analysis system</p>
+        <p className="text-white">Laboratory testing and analysis system</p>
         <div className="text-2xl">🔬</div>
       </div>
 

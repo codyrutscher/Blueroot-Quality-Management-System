@@ -194,7 +194,7 @@ export default function SupplierIndex({ onSupplierSelect }: SupplierIndexProps) 
     <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
       {/* Description */}
       <div className="mb-6">
-        <p className="text-gray-600">Manage approved suppliers and co-manufacturers</p>
+        <p className="text-white">Manage approved suppliers and co-manufacturers</p>
       </div>
 
       {/* Search and Filter Controls */}

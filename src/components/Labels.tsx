@@ -88,7 +88,7 @@ export default function Labels() {
     <div className="space-y-6">
       {/* Summary */}
       <div className="flex items-center justify-between">
-        <p className="text-gray-600">Manage and download product labels</p>
+        <p className="text-white">Manage and download product labels</p>
         <div className="text-sm text-gray-500">
           {filteredLabels.length} labels found
         </div>

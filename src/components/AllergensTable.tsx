@@ -28,15 +28,23 @@ export default function AllergensTable() {
 
   useEffect(() => {
     loadAllergenData();
-  }, [loadAllergenData]);
+  }, []);
 
   const loadAllergenData = async () => {
     try {
-      // In a real app, this would be an API call
-      // For now, we'll parse the CSV data directly
+      console.log('Loading allergen data...');
       const response = await fetch('/Allergens - Sheet1.csv');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const csvText = await response.text();
+      console.log('CSV loaded, length:', csvText.length);
+      
       const parsedData = parseCSV(csvText);
+      console.log('Parsed data:', parsedData.length, 'rows');
+      
       setData(parsedData);
     } catch (error) {
       console.error('Error loading allergen data:', error);
@@ -143,7 +151,7 @@ export default function AllergensTable() {
     <div className="space-y-6">
       {/* Actions */}
       <div className="flex items-center justify-between">
-        <p className="text-gray-600">Manage allergen information for all products</p>
+        <p className="text-white">Manage allergen information for all products</p>
         <button
           onClick={saveData}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

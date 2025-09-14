@@ -9,7 +9,7 @@ export default function NewProducts() {
     <div className="space-y-6">
       {/* Description */}
       <div className="flex items-center justify-between">
-        <p className="text-gray-600">Product development pipeline and launch management</p>
+        <p className="text-white">Product development pipeline and launch management</p>
         <div className="text-2xl">✨</div>
       </div>
 

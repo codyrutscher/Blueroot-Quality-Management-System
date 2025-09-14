@@ -133,7 +133,7 @@ export default function TemplateManager({ onEditTemplate }: { onEditTemplate?: (
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <div className="flex justify-between items-center">
           <div>
-            <p className="text-gray-600">
+            <p className="text-white">
               Create documents from pre-built templates
             </p>
           </div>
