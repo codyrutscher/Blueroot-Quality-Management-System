@@ -37,61 +37,73 @@ export default function Dashboard() {
     products: {
       name: "Products",
       icon: "📦",
+      description: "Manage product information and specifications.",
       pages: [{ id: "products", name: "Products", icon: "📦" }],
     },
     suppliers: {
       name: "Suppliers & Co-men",
       icon: "🏢",
+      description: "Manage supplier relationships and documentation.",
       pages: [{ id: "suppliers", name: "Suppliers & Co-men", icon: "🏢" }],
     },
     "raw-materials": {
       name: "Raw Materials",
       icon: "🧪",
+      description: "Track and manage raw material inventory.",
       pages: [{ id: "raw-materials", name: "Raw Materials", icon: "🧪" }],
     },
     allergens: {
       name: "Allergens",
       icon: "⚠️",
+      description: "Monitor and manage allergen information.",
       pages: [{ id: "allergens", name: "Allergens", icon: "⚠️" }],
     },
     labels: {
       name: "Labels",
       icon: "🏷️",
+      description: "Manage and download product labels.",
       pages: [{ id: "labels", name: "Labels", icon: "🏷️" }],
     },
     "new-products": {
       name: "New Products",
       icon: "✨",
+      description: "Develop and launch new product lines.",
       pages: [{ id: "new-products", name: "New Products", icon: "✨" }],
     },
     testing: {
       name: "Testing",
       icon: "🔬",
+      description: "Quality testing and laboratory results.",
       pages: [{ id: "testing", name: "Testing", icon: "🔬" }],
     },
     ccrs: {
       name: "CCRs",
       icon: "📊",
+      description: "Critical Control Records management.",
       pages: [{ id: "ccrs", name: "CCRs", icon: "📊" }],
     },
     "shelf-life": {
       name: "Shelf-Life Program",
       icon: "📅",
+      description: "Product shelf-life monitoring and tracking.",
       pages: [{ id: "shelf-life", name: "Shelf-Life Program", icon: "📅" }],
     },
     sops: {
       name: "SOPs",
       icon: "📋",
+      description: "Standard Operating Procedures management.",
       pages: [{ id: "sops", name: "SOPs", icon: "📋" }],
     },
     regulatory: {
       name: "Regulatory",
       icon: "⚖️",
+      description: "Regulatory compliance and documentation.",
       pages: [{ id: "regulatory", name: "Regulatory", icon: "⚖️" }],
     },
     "customer-complaints": {
       name: "Customer Complaints",
       icon: "📞",
+      description: "Customer feedback and complaint management.",
       pages: [
         { id: "customer-complaints", name: "Customer Complaints", icon: "📞" },
       ],
@@ -99,21 +111,25 @@ export default function Dashboard() {
     documents: {
       name: "BRH Documents",
       icon: "📄",
+      description: "BlueRoot Health internal documents.",
       pages: [{ id: "documents", name: "BRH Documents", icon: "📄" }],
     },
     templates: {
       name: "Templates",
       icon: "📋",
+      description: "Document templates and forms.",
       pages: [{ id: "templates", name: "Templates", icon: "📋" }],
     },
     "document-upload": {
       name: "Document Upload",
       icon: "📤",
+      description: "Upload and organize documents by category.",
       pages: [{ id: "document-upload", name: "Document Upload", icon: "📤" }],
     },
     tasks: {
       name: "Tasks",
       icon: "✅",
+      description: "Assign and track team tasks.",
       pages: [{ id: "tasks", name: "Tasks", icon: "✅" }],
     },
   };
@@ -164,7 +180,7 @@ export default function Dashboard() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">
                 {category.name}
               </h3>
-              <p className="text-sm text-gray-600">{category.description}</p>
+              <p className="text-sm text-black">{category.description}</p>
             </button>
           ))}
         </div>
@@ -399,7 +415,7 @@ export default function Dashboard() {
                           <h2 className="text-2xl font-bold text-gray-900 mb-4">
                             CCRs Management
                           </h2>
-                          <p className="text-gray-600">
+                          <p className="text-black">
                             Critical Control Records management system coming
                             soon.
                           </p>
@@ -413,7 +429,7 @@ export default function Dashboard() {
                           <h2 className="text-2xl font-bold text-gray-900 mb-4">
                             Shelf-Life Program
                           </h2>
-                          <p className="text-gray-600">
+                          <p className="text-black">
                             Product shelf-life monitoring and expiration
                             tracking coming soon.
                           </p>
@@ -428,7 +444,7 @@ export default function Dashboard() {
                           <h2 className="text-2xl font-bold text-gray-900 mb-4">
                             SOPs
                           </h2>
-                          <p className="text-gray-600">
+                          <p className="text-black">
                             Standard Operating Procedures management coming
                             soon.
                           </p>
@@ -443,7 +459,7 @@ export default function Dashboard() {
                           <h2 className="text-2xl font-bold text-gray-900 mb-4">
                             Customer Complaints
                           </h2>
-                          <p className="text-gray-600">
+                          <p className="text-black">
                             Customer feedback and complaint management system
                             coming soon.
                           </p>
@@ -457,7 +473,7 @@ export default function Dashboard() {
                           <h2 className="text-2xl font-bold text-gray-900 mb-4">
                             Regulatory
                           </h2>
-                          <p className="text-gray-600">
+                          <p className="text-black">
                             Regulatory compliance and documentation system
                             coming soon.
                           </p>

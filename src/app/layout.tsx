@@ -16,6 +16,22 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Blueroot Health",
   description: "Quality Management System",
+  icons: {
+    icon: [
+      {
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+        sizes: '32x32',
+      },
+      {
+        url: '/favicon-16x16.svg',
+        type: 'image/svg+xml',
+        sizes: '16x16',
+      },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
