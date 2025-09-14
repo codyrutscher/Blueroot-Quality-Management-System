@@ -450,6 +450,7 @@ export default function DocumentUpload() {
                   ? 'border-blue-300 bg-blue-50 text-blue-900'
                   : 'border-slate-300 bg-white'
               }`}
+              style={{ color: documentType ? undefined : '#000000' }}
             >
               <option className="text-black" value="">Select document type...</option>
               {documentTypes.map(type => {
@@ -477,7 +478,7 @@ export default function DocumentUpload() {
               value={documentTitle}
               onChange={(e) => setDocumentTitle(e.target.value)}
               placeholder="Enter a descriptive title for this document..."
-              className="w-full px-4 py-3 border text-black border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border text-black border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-black"
             />
             <p className="text-sm text-slate-500 mt-2">
               This will be the display name for your document (e.g., "ANS Quality Agreement", "Product Label Proof")
