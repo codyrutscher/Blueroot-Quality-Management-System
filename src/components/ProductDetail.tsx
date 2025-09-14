@@ -99,15 +99,25 @@ export default function ProductDetail({
 
   const fetchUploadedDocuments = async () => {
     try {
+      console.log('📄 Fetching uploaded documents for product:', sku);
+      
       const response = await fetch(
         `/api/documents/by-association?type=product&id=${sku}`
       );
+      
+      console.log('📄 Documents API response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('📄 Uploaded documents data:', data);
         setUploadedDocuments(data.documents || []);
+      } else {
+        console.log('⚠️ Documents API failed, no uploaded documents found');
+        setUploadedDocuments([]);
       }
     } catch (error) {
-      console.error("Error fetching uploaded documents:", error);
+      console.error("❌ Error fetching uploaded documents:", error);
+      setUploadedDocuments([]);
     }
   };
 
@@ -135,11 +145,39 @@ export default function ProductDetail({
 
   const fetchProduct = async () => {
     try {
+      console.log('🔍 Fetching product details for SKU:', sku);
+      
+      // Try the API first
       const response = await fetch(`/api/products/${sku}`);
-      const data = await response.json();
-      setProduct(data.product);
+      console.log('📡 API response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Product data from API:', data);
+        setProduct(data.product);
+      } else {
+        console.log('⚠️ API failed, trying fallback approach...');
+        
+        // Fallback: get product from the products list API
+        const fallbackResponse = await fetch('/api/debug/products');
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json();
+          const foundProduct = fallbackData.products?.find((p: any) => p.sku === sku);
+          
+          if (foundProduct) {
+            console.log('✅ Found product in fallback data:', foundProduct);
+            // Add empty documents array if not present
+            foundProduct.documents = foundProduct.documents || [];
+            setProduct(foundProduct);
+          } else {
+            console.error('❌ Product not found in fallback data');
+          }
+        } else {
+          console.error('❌ Fallback API also failed');
+        }
+      }
     } catch (error) {
-      console.error("Error fetching product:", error);
+      console.error("❌ Error fetching product:", error);
     } finally {
       setLoading(false);
     }
@@ -716,6 +754,65 @@ export default function ProductDetail({
                   Use the "Assign Document" button above to associate existing
                   documents with this product.
                 </p>
+              </div>
+            )}
+
+            {/* Uploaded Documents Section */}
+            {uploadedDocuments.length > 0 && (
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Uploaded Documents ({uploadedDocuments.length})
+                </h3>
+                <div className="space-y-4">
+                  {uploadedDocuments.map((doc, index) => (
+                    <div
+                      key={doc.id || index}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start space-x-3">
+                          <DocumentIcon className="h-6 w-6 text-gray-400 mt-1" />
+                          <div>
+                            <h4 className="font-semibold text-gray-900">
+                              {doc.filename || doc.title || 'Untitled Document'}
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {doc.document_type || doc.documentType || 'Document'}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Uploaded: {new Date(doc.uploaded_at || doc.createdAt || Date.now()).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
+                            {doc.file_type || doc.fileType || 'File'}
+                          </span>
+                          {doc.file_size && (
+                            <span className="text-xs text-gray-500">
+                              {(doc.file_size / 1024 / 1024).toFixed(1)} MB
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-gray-600">
+                          {doc.destinations && Array.isArray(doc.destinations) && (
+                            <span>Destinations: {doc.destinations.join(', ')}</span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleDownloadDocument(doc.id, doc.filename)}
+                          className="flex items-center px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                          <EyeIcon className="h-3 w-3 mr-1" />
+                          Download
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

@@ -787,8 +787,6 @@ function AssignmentModal({
           </div>
         </div>
       </div>
-
-
     </div>
   );
 }
