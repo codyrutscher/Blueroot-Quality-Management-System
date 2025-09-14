@@ -30,10 +30,24 @@ export default function AllergensTable() {
   const [editingCell, setEditingCell] = useState<{row: number, col: string} | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [allergenFilters, setAllergenFilters] = useState<{[key: string]: string}>({});
+  const [visibleColumns, setVisibleColumns] = useState<{[key: string]: boolean}>({});
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     loadAllergenData();
-  }, [loadAllergenData]);
+  }, []);
+
+  // Initialize visible columns when data loads
+  useEffect(() => {
+    if (data.length > 0 && Object.keys(visibleColumns).length === 0) {
+      const initialVisible: {[key: string]: boolean} = {};
+      allergenColumns.forEach(column => {
+        initialVisible[column] = true;
+      });
+      setVisibleColumns(initialVisible);
+    }
+  }, [data, visibleColumns]);
 
   const loadAllergenData = async () => {
     try {
@@ -374,11 +388,21 @@ export default function AllergensTable() {
     }
   };
 
-  const filteredData = data.filter(row => 
-    Object.values(row).some(value => 
-      value.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+  const filteredData = data.filter(row => {
+    // Text search filter
+    const matchesSearch = !searchTerm || Object.values(row).some(value => 
+      String(value).toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    // Allergen filters
+    const matchesAllergenFilters = Object.entries(allergenFilters).every(([column, filterValue]) => {
+      if (!filterValue) return true; // No filter applied
+      const cellValue = (row as any)[column];
+      return cellValue === filterValue;
+    });
+    
+    return matchesSearch && matchesAllergenFilters;
+  });
 
   const allergenColumns = [
     "Free From Gluten (Wheat/Rye/Barley)",
@@ -480,20 +504,141 @@ export default function AllergensTable() {
       </div>
       */}
 
-      {/* Search */}
-      <div className="flex items-center space-x-4">
-        <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Search products, brands, or SKUs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+      {/* Search and Filter Controls */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search products, brands, or SKUs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`px-4 py-2 rounded-lg border transition-colors ${
+              showFilters 
+                ? 'bg-blue-600 text-white border-blue-600' 
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            🔍 Allergen Filters
+          </button>
+          <div className="text-sm text-gray-500">
+            {filteredData.length} of {data.length} products
+          </div>
         </div>
-        <div className="text-sm text-gray-500">
-          {filteredData.length} of {data.length} products
-        </div>
+
+        {/* Advanced Filters */}
+        {showFilters && (
+          <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium text-gray-900">Filter by Allergen Status</h3>
+              <button
+                onClick={() => {
+                  setAllergenFilters({});
+                  const allVisible: {[key: string]: boolean} = {};
+                  allergenColumns.forEach(column => {
+                    allVisible[column] = true;
+                  });
+                  setVisibleColumns(allVisible);
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Clear All Filters
+              </button>
+            </div>
+            
+            {/* Column Visibility Controls */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Show/Hide Columns:</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                {allergenColumns.map((column) => (
+                  <label key={column} className="flex items-center space-x-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={visibleColumns[column] !== false}
+                      onChange={(e) => setVisibleColumns(prev => ({
+                        ...prev,
+                        [column]: e.target.checked
+                      }))}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="truncate" title={column}>
+                      {column.replace('Free From ', '')}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Allergen Status Filters */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Filter by Status:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {allergenColumns.map((column) => (
+                  <div key={column} className="flex items-center space-x-2">
+                    <label className="text-sm font-medium text-gray-600 min-w-0 flex-1 truncate" title={column}>
+                      {column.replace('Free From ', '')}:
+                    </label>
+                    <select
+                      value={allergenFilters[column] || ''}
+                      onChange={(e) => setAllergenFilters(prev => ({
+                        ...prev,
+                        [column]: e.target.value
+                      }))}
+                      className="text-sm border border-gray-300 rounded px-2 py-1"
+                    >
+                      <option value="">All</option>
+                      <option value="Y">Free From (Y)</option>
+                      <option value="N">Contains (N)</option>
+                      <option value="">Not Specified</option>
+                    </select>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Filter Buttons */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Quick Filters:</h4>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    const filters: {[key: string]: string} = {};
+                    allergenColumns.forEach(column => {
+                      filters[column] = 'Y';
+                    });
+                    setAllergenFilters(filters);
+                  }}
+                  className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-lg hover:bg-green-200"
+                >
+                  All Allergen-Free
+                </button>
+                <button
+                  onClick={() => setAllergenFilters({'Free From Gluten (Wheat/Rye/Barley)': 'Y'})}
+                  className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200"
+                >
+                  Gluten-Free Only
+                </button>
+                <button
+                  onClick={() => setAllergenFilters({'Free From Milk (Casein)': 'Y', 'Free From Dairy (Whey)': 'Y'})}
+                  className="px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-lg hover:bg-purple-200"
+                >
+                  Dairy-Free Only
+                </button>
+                <button
+                  onClick={() => setAllergenFilters({'Free From Soy': 'Y'})}
+                  className="px-3 py-1 text-sm bg-orange-100 text-orange-800 rounded-lg hover:bg-orange-200"
+                >
+                  Soy-Free Only
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Table */}
@@ -511,7 +656,9 @@ export default function AllergensTable() {
                 <th className="sticky left-40 bg-gray-50 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
                   Product Name
                 </th>
-                {allergenColumns.map((column) => (
+                {allergenColumns
+                  .filter(column => visibleColumns[column] !== false)
+                  .map((column) => (
                   <th key={column} className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 min-w-24">
                     {column.replace('Free From ', '')}
                   </th>
@@ -535,7 +682,9 @@ export default function AllergensTable() {
                       {row["Product Name"]}
                     </div>
                   </td>
-                  {allergenColumns.map((column) => (
+                  {allergenColumns
+                    .filter(column => visibleColumns[column] !== false)
+                    .map((column) => (
                     <td key={column} className="px-3 py-3 text-center border-r border-gray-200">
                       {editingCell?.row === rowIndex && editingCell?.col === column ? (
                         <select
@@ -555,7 +704,7 @@ export default function AllergensTable() {
                           className={getCellClassName(row, column)}
                           style={getCellStyle(row, column)}
                         >
-                          {(row as any)[column] || '-'}
+                          {(row as unknown)[column] || '-'}
                         </div>
                       )}
                     </td>
