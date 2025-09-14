@@ -82,7 +82,15 @@ export default function AllergensTable() {
         cellStyles: true,
         cellHTML: false,
         cellFormula: false,
-        cellDates: true
+        cellDates: true,
+        bookVBA: false,
+        password: ""
+      });
+      
+      console.log('Workbook info:', {
+        SheetNames: workbook.SheetNames,
+        Props: workbook.Props,
+        Custprops: workbook.Custprops
       });
       
       const sheetName = workbook.SheetNames[0];
@@ -100,6 +108,8 @@ export default function AllergensTable() {
       }
       
       console.log('Excel headers:', headers);
+      console.log('Worksheet range:', range);
+      console.log('Full worksheet object keys:', Object.keys(worksheet));
       
       // Extract data rows
       const rows: AllergenData[] = [];
@@ -121,43 +131,71 @@ export default function AllergensTable() {
             hasData = true;
           }
           
+          // Debug: Log cell information for first few rows
+          if (row <= range.s.r + 3) {
+            console.log(`Cell ${cellRef} (${header}):`, {
+              value: cellValue,
+              cell: cell,
+              style: cell?.s,
+              fill: cell?.s?.fill,
+              font: cell?.s?.font
+            });
+          }
+          
           // Extract formatting information
           if (cell && cell.s) {
             const style = cell.s;
             
-            // Background color
-            if (style.fill && style.fill.bgColor) {
-              const bgColor = style.fill.bgColor;
-              if (bgColor.rgb) {
-                colors[`${header}_bg`] = `#${bgColor.rgb}`;
-              } else if (bgColor.indexed !== undefined) {
-                // Handle indexed colors - common Excel color palette
-                const indexedColors: { [key: number]: string } = {
-                  2: '#FFFFFF', // White
-                  3: '#FF0000', // Red  
-                  4: '#00FF00', // Green
-                  5: '#0000FF', // Blue
-                  6: '#FFFF00', // Yellow
-                  7: '#FF00FF', // Magenta
-                  8: '#00FFFF', // Cyan
-                  9: '#800000', // Maroon
-                  10: '#008000', // Dark Green
-                  11: '#000080', // Navy
-                  12: '#808000', // Olive
-                  13: '#800080', // Purple
-                  14: '#008080', // Teal
-                  15: '#C0C0C0', // Silver
-                  16: '#808080', // Gray
-                  17: '#9999FF', // Light Blue
-                  18: '#993366', // Dark Pink
-                  19: '#FFFFCC', // Light Yellow
-                  20: '#CCFFFF', // Light Cyan
-                  21: '#660066', // Dark Purple
-                  22: '#FF8080', // Light Red
-                  23: '#0066CC', // Medium Blue
-                  24: '#CCCCFF', // Very Light Blue
-                };
-                colors[`${header}_bg`] = indexedColors[bgColor.indexed] || '#FFFFFF';
+            // Background color - try multiple approaches
+            if (style.fill) {
+              console.log(`Fill info for ${cellRef}:`, style.fill);
+              
+              if (style.fill.bgColor) {
+                const bgColor = style.fill.bgColor;
+                if (bgColor.rgb) {
+                  colors[`${header}_bg`] = `#${bgColor.rgb}`;
+                  console.log(`RGB color for ${cellRef}: #${bgColor.rgb}`);
+                } else if (bgColor.indexed !== undefined) {
+                  // Handle indexed colors - common Excel color palette
+                  const indexedColors: { [key: number]: string } = {
+                    2: '#FFFFFF', // White
+                    3: '#FF0000', // Red  
+                    4: '#00FF00', // Green
+                    5: '#0000FF', // Blue
+                    6: '#FFFF00', // Yellow
+                    7: '#FF00FF', // Magenta
+                    8: '#00FFFF', // Cyan
+                    9: '#800000', // Maroon
+                    10: '#008000', // Dark Green
+                    11: '#000080', // Navy
+                    12: '#808000', // Olive
+                    13: '#800080', // Purple
+                    14: '#008080', // Teal
+                    15: '#C0C0C0', // Silver
+                    16: '#808080', // Gray
+                    17: '#9999FF', // Light Blue
+                    18: '#993366', // Dark Pink
+                    19: '#FFFFCC', // Light Yellow
+                    20: '#CCFFFF', // Light Cyan
+                    21: '#660066', // Dark Purple
+                    22: '#FF8080', // Light Red
+                    23: '#0066CC', // Medium Blue
+                    24: '#CCCCFF', // Very Light Blue
+                  };
+                  colors[`${header}_bg`] = indexedColors[bgColor.indexed] || '#FFFFFF';
+                  console.log(`Indexed color for ${cellRef}: ${bgColor.indexed} -> ${indexedColors[bgColor.indexed]}`);
+                } else if (bgColor.theme !== undefined) {
+                  console.log(`Theme color for ${cellRef}:`, bgColor.theme);
+                }
+              }
+              
+              // Try fgColor as well
+              if (style.fill.fgColor) {
+                const fgColor = style.fill.fgColor;
+                if (fgColor.rgb) {
+                  colors[`${header}_bg`] = `#${fgColor.rgb}`;
+                  console.log(`FG RGB color for ${cellRef}: #${fgColor.rgb}`);
+                }
               }
             }
             
@@ -166,6 +204,7 @@ export default function AllergensTable() {
               const fontColor = style.font.color;
               if (fontColor.rgb) {
                 colors[`${header}_font`] = `#${fontColor.rgb}`;
+                console.log(`Font color for ${cellRef}: #${fontColor.rgb}`);
               }
             }
           }
@@ -251,6 +290,7 @@ export default function AllergensTable() {
       const fontColor = colors[`${column}_font`];
       
       if (bgColor || fontColor) {
+        console.log(`Using Excel colors for ${column}:`, { bgColor, fontColor });
         return {
           backgroundColor: bgColor || 'transparent',
           color: fontColor || 'inherit',
@@ -258,8 +298,32 @@ export default function AllergensTable() {
       }
     }
     
-    // Fallback to default color coding
-    return {};
+    // Enhanced fallback - try to match typical allergen color patterns
+    if (cellValue === 'Y') {
+      // Green for "Yes" (free from allergen)
+      return {
+        backgroundColor: '#dcfce7', // green-100
+        color: '#166534', // green-800
+      };
+    } else if (cellValue === 'N') {
+      // Red for "No" (contains allergen)  
+      return {
+        backgroundColor: '#fecaca', // red-100
+        color: '#991b1b', // red-800
+      };
+    } else if (cellValue === '') {
+      // Yellow/orange for unknown/not tested
+      return {
+        backgroundColor: '#fef3c7', // yellow-100
+        color: '#92400e', // yellow-800
+      };
+    }
+    
+    // Default gray for other values
+    return {
+      backgroundColor: '#f3f4f6', // gray-100
+      color: '#6b7280', // gray-500
+    };
   };
 
   const getCellClassName = (row: AllergenData, column: string) => {
