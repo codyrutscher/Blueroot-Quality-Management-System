@@ -20,39 +20,8 @@ export async function GET(request: NextRequest) {
 
     const documents = []
 
-    try {
-      // Try database approach first
-      const { data: associations, error: assocError } = await supabase
-        .from('document_associations')
-        .select(`
-          document_id,
-          documents (
-            id,
-            filename,
-            original_filename,
-            file_type,
-            file_size,
-            storage_path,
-            document_type,
-            destinations,
-            uploaded_at,
-            created_at
-          )
-        `)
-        .eq('association_type', associationType)
-        .eq('association_id', associationId)
-
-      if (!assocError && associations?.length > 0) {
-        console.log('✅ Found documents in database:', associations.length)
-        documents.push(...associations.map(assoc => ({
-          ...assoc.documents,
-          association_type: associationType,
-          source: 'database'
-        })))
-      }
-    } catch (dbError) {
-      console.log('⚠️ Database query failed, trying storage approach...')
-    }
+    // Skip database approach for now since we're using storage-based system
+    console.log('📁 Using storage-based document system...')
 
     // Fetch from storage-based associations
     try {

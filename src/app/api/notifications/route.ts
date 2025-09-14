@@ -9,7 +9,9 @@ export async function GET() {
     const session = await getServerSession()
     
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      // Return empty notifications instead of 401 for unauthenticated users
+      console.log('User not authenticated yet')
+      return NextResponse.json({ notifications: [] })
     }
 
     // Filter notifications for current user
