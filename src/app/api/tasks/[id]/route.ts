@@ -54,7 +54,7 @@ export async function PUT(
 
     console.log('📝 Updating task:', taskId, { status })
 
-    const updateData: any = {
+    const updateData: unknown = {
       updated_at: new Date().toISOString()
     }
 

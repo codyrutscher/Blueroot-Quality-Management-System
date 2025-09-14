@@ -95,7 +95,7 @@ export default function ProductDetail({
     fetchProduct();
     fetchProductLabels();
     fetchUploadedDocuments();
-  }, [fetchProduct, fetchProductLabels, fetchUploadedDocuments, sku]);
+  }, [sku]); // Remove function dependencies to avoid temporal dead zone
 
   const fetchUploadedDocuments = async () => {
     try {
