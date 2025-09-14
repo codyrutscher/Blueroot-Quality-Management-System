@@ -16,7 +16,6 @@ import NotificationCenter from "./NotificationCenter";
 import DocxEditor from "./DocxEditor";
 import Labels from "./Labels";
 import AllergensTable from "./AllergensTable";
-import { error } from "console";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -90,16 +89,16 @@ export default function Dashboard() {
     },
     "shelf-life": {
       name: "Shelf-Life Program",
-      icon: "�",
+      icon: "📅",
       pages: [
         { id: "shelf-life", name: "Shelf-Life Program", icon: "📅" }
       ]
     },
     "sops": {
       name: "SOPs",
-      icon: "�",
+      icon: "📋",
       pages: [
-        { id: "sops", name: "SOPs", icon: "�" }
+        { id: "sops", name: "SOPs", icon: "📋" }
       ]
     },
     "regulatory": {
@@ -111,7 +110,7 @@ export default function Dashboard() {
     },
     "customer-complaints": {
       name: "Customer Complaints",
-      icon: "�",
+      icon: "📞",
       pages: [
         { id: "customer-complaints", name: "Customer Complaints", icon: "📞" }
       ]
@@ -125,7 +124,7 @@ export default function Dashboard() {
     },
     "templates": {
       name: "Templates",
-      icon: "�",
+      icon: "📋",
       pages: [
         { id: "templates", name: "Templates", icon: "📋" }
       ]
@@ -245,343 +244,345 @@ export default function Dashboard() {
         <div className="flex">
           {/* Sidebar */}
           <div className="w-72 bg-white shadow-lg border-r border-slate-200 flex flex-col">
-        {/* Sidebar Header */}
-        <div className="p-6 border-b border-slate-200">
-          <button
-            onClick={() => setShowDashboardLanding(true)}
-            className="flex items-center space-x-3 hover:bg-slate-50 rounded-lg p-2 transition-colors w-full"
-          >
-            <img
-              src="/logo.png"
-              alt="Company Logo"
-              className="w-12 h-12 object-contain"
-            />
-            <div className="text-left">
-              <div className="text-lg font-bold text-slate-900">QMS</div>
-              <div className="text-xs text-slate-500">Back to Home</div>
-            </div>
-          </button>
-        </div>
-
-        {/* Navigation Menu - All Categories */}
-        <nav className="flex-1 p-4">
-          <div className="space-y-1">
-            {Object.entries(categories).map(([categoryId, category]) => (
+            {/* Sidebar Header */}
+            <div className="p-6 border-b border-slate-200">
               <button
-                key={categoryId}
-                onClick={() => {
-                  setActiveCategory(categoryId);
-                  setActiveTab(category.pages[0].id);
-                }}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                  activeTab === category.pages[0].id
-                    ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                    : 'text-slate-700 hover:bg-slate-100'
-                }`}
+                onClick={() => setShowDashboardLanding(true)}
+                className="flex items-center space-x-3 hover:bg-slate-50 rounded-lg p-2 transition-colors w-full"
               >
-                <span className="text-xl">{category.icon}</span>
-                <span className="font-medium text-sm">{category.name}</span>
+                <img
+                  src="/logo.png"
+                  alt="Company Logo"
+                  className="w-12 h-12 object-contain"
+                />
+                <div className="text-left">
+                  <div className="text-lg font-bold text-slate-900">QMS</div>
+                  <div className="text-xs text-slate-500">Back to Home</div>
+                </div>
               </button>
-            ))}
-          </div>
-        </nav>
-
-        {/* User Info */}
-        <div className="p-4 border-t border-slate-200">
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-semibold">
-                {session?.user?.name?.charAt(0)?.toUpperCase()}
-              </span>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-slate-900 truncate">
-                {session?.user?.name}
+
+            {/* Navigation Menu - All Categories */}
+            <nav className="flex-1 p-4">
+              <div className="space-y-1">
+                {Object.entries(categories).map(([categoryId, category]) => (
+                  <button
+                    key={categoryId}
+                    onClick={() => {
+                      setActiveCategory(categoryId);
+                      setActiveTab(category.pages[0].id);
+                    }}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                      activeTab === category.pages[0].id
+                        ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                        : 'text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="text-xl">{category.icon}</span>
+                    <span className="font-medium text-sm">{category.name}</span>
+                  </button>
+                ))}
               </div>
-              <button
-                onClick={() => {
-                  console.log("Logging out...");
-                  window.location.href = "/api/auth/signout";
-                }}
-                className="text-xs text-slate-500 hover:text-slate-700"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+            </nav>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Page Header */}
-        <header className="bg-white shadow-sm border-b border-slate-200">
-          <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-slate-900">
-                  {currentCategory?.name || 'Dashboard'}
-                </h1>
+            {/* User Info */}
+            <div className="p-4 border-t border-slate-200">
+              <div className="flex items-center space-x-3">
+                <div className="h-10 w-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-semibold">
+                    {session?.user?.name?.charAt(0)?.toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-slate-900 truncate">
+                    {session?.user?.name}
+                  </div>
+                  <button
+                    onClick={() => {
+                      console.log("Logging out...");
+                      window.location.href = "/api/auth/signout";
+                    }}
+                    className="text-xs text-slate-500 hover:text-slate-700"
+                  >
+                    Logout
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </header>
 
-        {/* Content Area */}
-        <div className="flex-1 p-6 overflow-auto">
-          {editingTemplate ? (
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-              <DocxEditor
-                templatePath={editingTemplate.name}
-                templateName={editingTemplate.name}
-                isOpen={true}
-                onClose={() => {
-                  setEditingTemplate(null);
-                  setActiveTab("templates");
-                  window.scrollTo(0, 0);
-                }}
-                onSave={() => {
-                  setShowAssignmentModal(true);
-                  // Don't clear editingTemplate yet - we need it for the assignment modal
-                }}
-              />
-            </div>
-          ) : editingDocument ? (
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-              <DocxEditor
-                templatePath={
-                  editingDocument.template?.name || editingDocument.filename
-                }
-                templateName={
-                  editingDocument.template?.name || editingDocument.title
-                }
-                documentId={editingDocument.id}
-                isOpen={true}
-                onClose={() => {
-                  setEditingDocument(null);
-                  setActiveTab("documents");
-                  window.scrollTo(0, 0);
-                }}
-                onSave={() => {
-                  // Save document changes and refresh
-                  setEditingDocument(null);
-                  setRefreshDocuments((prev) => prev + 1);
-                  setActiveTab("documents");
-                }}
-              />
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-              <div className="p-6">
-              {activeTab === "search" && <SearchInterface />}
-              {activeTab === "upload" && <DocumentUpload />}
-              {activeTab === "suppliers" && !selectedSupplierName && (
-                <SupplierIndex onSupplierSelect={setSelectedSupplierName} />
-              )}
-              {activeTab === "suppliers" && selectedSupplierName && (
-                <SupplierDetail
-                  supplierName={selectedSupplierName}
-                  onBack={() => setSelectedSupplierName(null)}
-                />
-              )}
-              {activeTab === "products" && !selectedProductSku && (
-                <ProductIndex onProductSelect={setSelectedProductSku} />
-              )}
-              {activeTab === "products" && selectedProductSku && (
-                <ProductDetail
-                  sku={selectedProductSku}
-                  onBack={() => setSelectedProductSku(null)}
-                  onNavigateToDocuments={() => setActiveTab("documents")}
-                />
-              )}
-              {activeTab === "raw-materials" && <RawMaterials />}
-              {activeTab === "templates" && (
-                <TemplateManager onEditTemplate={setEditingTemplate} />
-              )}
-              {activeTab === "document-upload" && <DocumentUpload />}
-              {activeTab === "documents" && (
-                <DocumentList
-                  key={refreshDocuments}
-                  onEditDocument={setEditingDocument}
-                  onNavigateToDocuments={() => setActiveTab("documents")}
-                />
-              )}
-              {activeTab === "labels" && <Labels />}
-              {activeTab === "allergens" && <AllergensTable />}
-              {activeTab === "ccrs" && (
-                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                    <div className="text-6xl mb-4">📊</div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      CCRs Management
-                    </h2>
-                    <p className="text-gray-600">
-                      Critical Control Records management system coming soon.
-                    </p>
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col">
+            {/* Page Header */}
+            <header className="bg-white shadow-sm border-b border-slate-200">
+              <div className="px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <h1 className="text-2xl font-bold text-slate-900">
+                      {currentCategory?.name || 'Dashboard'}
+                    </h1>
+                  </div>
+                </div>
+              </div>
+            </header>
+
+            {/* Content Area */}
+            <div className="flex-1 p-6 overflow-auto">
+              {editingTemplate ? (
+                <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                  <DocxEditor
+                    templatePath={editingTemplate.name}
+                    templateName={editingTemplate.name}
+                    isOpen={true}
+                    onClose={() => {
+                      setEditingTemplate(null);
+                      setActiveTab("templates");
+                      window.scrollTo(0, 0);
+                    }}
+                    onSave={() => {
+                      setShowAssignmentModal(true);
+                      // Don't clear editingTemplate yet - we need it for the assignment modal
+                    }}
+                  />
+                </div>
+              ) : editingDocument ? (
+                <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                  <DocxEditor
+                    templatePath={
+                      editingDocument.template?.name || editingDocument.filename
+                    }
+                    templateName={
+                      editingDocument.template?.name || editingDocument.title
+                    }
+                    documentId={editingDocument.id}
+                    isOpen={true}
+                    onClose={() => {
+                      setEditingDocument(null);
+                      setActiveTab("documents");
+                      window.scrollTo(0, 0);
+                    }}
+                    onSave={() => {
+                      // Save document changes and refresh
+                      setEditingDocument(null);
+                      setRefreshDocuments((prev) => prev + 1);
+                      setActiveTab("documents");
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                  <div className="p-6">
+                    {activeTab === "search" && <SearchInterface />}
+                    {activeTab === "upload" && <DocumentUpload />}
+                    {activeTab === "suppliers" && !selectedSupplierName && (
+                      <SupplierIndex onSupplierSelect={setSelectedSupplierName} />
+                    )}
+                    {activeTab === "suppliers" && selectedSupplierName && (
+                      <SupplierDetail
+                        supplierName={selectedSupplierName}
+                        onBack={() => setSelectedSupplierName(null)}
+                      />
+                    )}
+                    {activeTab === "products" && !selectedProductSku && (
+                      <ProductIndex onProductSelect={setSelectedProductSku} />
+                    )}
+                    {activeTab === "products" && selectedProductSku && (
+                      <ProductDetail
+                        sku={selectedProductSku}
+                        onBack={() => setSelectedProductSku(null)}
+                        onNavigateToDocuments={() => setActiveTab("documents")}
+                      />
+                    )}
+                    {activeTab === "raw-materials" && <RawMaterials />}
+                    {activeTab === "templates" && (
+                      <TemplateManager onEditTemplate={setEditingTemplate} />
+                    )}
+                    {activeTab === "document-upload" && <DocumentUpload />}
+                    {activeTab === "documents" && (
+                      <DocumentList
+                        key={refreshDocuments}
+                        onEditDocument={setEditingDocument}
+                        onNavigateToDocuments={() => setActiveTab("documents")}
+                      />
+                    )}
+                    {activeTab === "labels" && <Labels />}
+                    {activeTab === "allergens" && <AllergensTable />}
+                    {activeTab === "ccrs" && (
+                      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                          <div className="text-6xl mb-4">📊</div>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                            CCRs Management
+                          </h2>
+                          <p className="text-gray-600">
+                            Critical Control Records management system coming soon.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {activeTab === "shelf-life" && (
+                      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                          <div className="text-6xl mb-4">📅</div>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                            Shelf-Life Program
+                          </h2>
+                          <p className="text-gray-600">
+                            Product shelf-life monitoring and expiration tracking coming
+                            soon.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {activeTab === "testing" && (
+                      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                          <div className="text-6xl mb-4">🔬</div>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                            Testing
+                          </h2>
+                          <p className="text-gray-600">
+                            Laboratory testing and analysis system coming soon.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {activeTab === "sops" && (
+                      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                          <div className="text-6xl mb-4">📋</div>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                            SOPs
+                          </h2>
+                          <p className="text-gray-600">
+                            Standard Operating Procedures management coming soon.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {activeTab === "new-products" && (
+                      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                          <div className="text-6xl mb-4">✨</div>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                            New Products
+                          </h2>
+                          <p className="text-gray-600">
+                            New product development and launch system coming soon.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {activeTab === "customer-complaints" && (
+                      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                          <div className="text-6xl mb-4">📞</div>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                            Customer Complaints
+                          </h2>
+                          <p className="text-gray-600">
+                            Customer feedback and complaint management system coming soon.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {activeTab === "regulatory" && (
+                      <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                          <div className="text-6xl mb-4">⚖️</div>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                            Regulatory
+                          </h2>
+                          <p className="text-gray-600">
+                            Regulatory compliance and documentation system coming soon.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
-              {activeTab === "shelf-life" && (
-                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                    <div className="text-6xl mb-4">📅</div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      Shelf-Life Program
-                    </h2>
-                    <p className="text-gray-600">
-                      Product shelf-life monitoring and expiration tracking coming
-                      soon.
-                    </p>
-                  </div>
-                </div>
-              )}
-              {activeTab === "testing" && (
-                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                    <div className="text-6xl mb-4">🔬</div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      Testing
-                    </h2>
-                    <p className="text-gray-600">
-                      Laboratory testing and analysis system coming soon.
-                    </p>
-                  </div>
-                </div>
-              )}
-              {activeTab === "sops" && (
-                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                    <div className="text-6xl mb-4">📖</div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      SOPs
-                    </h2>
-                    <p className="text-gray-600">
-                      Standard Operating Procedures management coming soon.
-                    </p>
-                  </div>
-                </div>
-              )}
-              {activeTab === "new-products" && (
-                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                    <div className="text-6xl mb-4">✨</div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      New Products
-                    </h2>
-                    <p className="text-gray-600">
-                      New product development and launch system coming soon.
-                    </p>
-                  </div>
-                </div>
-              )}
-              {activeTab === "customer-complaints" && (
-                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                    <div className="text-6xl mb-4">📞</div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      Customer Complaints
-                    </h2>
-                    <p className="text-gray-600">
-                      Customer feedback and complaint management system coming soon.
-                    </p>
-                  </div>
-                </div>
-              )}
-              {activeTab === "regulatory" && (
-                <div className="min-h-screen bg-gradient-to-r from-blue-700 to-blue-900 p-6">
-                  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                    <div className="text-6xl mb-4">⚖️</div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      Regulatory
-                    </h2>
-                    <p className="text-gray-600">
-                      Regulatory compliance and documentation system coming soon.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
-        {/* Assignment Modal for completed template edits */}
-        {showAssignmentModal && editingTemplate && (
-          <AssignmentModal
-            template={editingTemplate}
-            isOpen={showAssignmentModal}
-            onClose={() => {
-              setShowAssignmentModal(false);
-              setEditingTemplate(null);
-            }}
-            onSave={async (assignedUsers, productSku, documentName) => {
-              try {
-                console.log("Creating document with data:", {
-                  documentName,
-                  assignedUsers,
-                  productSku,
-                  templateId: editingTemplate.id,
-                });
+              {/* Assignment Modal for completed template edits */}
+              {showAssignmentModal && editingTemplate && (
+                <AssignmentModal
+                  template={editingTemplate}
+                  isOpen={showAssignmentModal}
+                  onClose={() => {
+                    setShowAssignmentModal(false);
+                    setEditingTemplate(null);
+                  }}
+                  onSave={async (assignedUsers, productSku, documentName) => {
+                    try {
+                      console.log("Creating document with data:", {
+                        documentName,
+                        assignedUsers,
+                        productSku,
+                        templateId: editingTemplate.id,
+                      });
 
-                // Create document from template
-                const documentData = {
-                  title: documentName,
-                  templateId: editingTemplate.id,
-                  productSku: productSku || null, // API will convert SKU to ID
-                };
+                      // Create document from template
+                      const documentData = {
+                        title: documentName,
+                        templateId: editingTemplate.id,
+                        productSku: productSku || null, // API will convert SKU to ID
+                      };
 
-                console.log("Creating document:", documentData);
-                const response = await fetch("/api/documents/create", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(documentData),
-                });
-
-                const responseData = await response.json();
-                console.log("Document creation response:", responseData);
-
-                if (response.ok && responseData.document) {
-                  const documentId = responseData.document.id;
-
-                  // Now assign users to the document if any were selected
-                  if (assignedUsers.length > 0) {
-                    console.log("Assigning users to document:", assignedUsers);
-                    const assignResponse = await fetch(
-                      `/api/documents/${documentId}/assign`,
-                      {
+                      console.log("Creating document:", documentData);
+                      const response = await fetch("/api/documents/create", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          assignedUsers,
-                          productSku,
-                        }),
+                        body: JSON.stringify(documentData),
+                      });
+
+                      const responseData = await response.json();
+                      console.log("Document creation response:", responseData);
+
+                      if (response.ok && responseData.document) {
+                        const documentId = responseData.document.id;
+
+                        // Now assign users to the document if any were selected
+                        if (assignedUsers.length > 0) {
+                          console.log("Assigning users to document:", assignedUsers);
+                          const assignResponse = await fetch(
+                            `/api/documents/${documentId}/assign`,
+                            {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                assignedUsers,
+                                productSku,
+                              }),
+                            }
+                          );
+
+                          const assignData = await assignResponse.json();
+                          console.log("Assignment response:", assignData);
+                        }
+
+                        console.log("Document created and assigned successfully");
+                        setShowAssignmentModal(false);
+                        setEditingTemplate(null);
+                        setRefreshDocuments((prev) => prev + 1);
+                        setActiveTab("documents");
+                      } else {
+                        console.error("Failed to create document:", responseData);
+                        alert(
+                          "Failed to create document: " +
+                            (responseData.error || "Unknown error")
+                        );
                       }
-                    );
-
-                    const assignData = await assignResponse.json();
-                    console.log("Assignment response:", assignData);
-                  }
-
-                  console.log("Document created and assigned successfully");
-                  setShowAssignmentModal(false);
-                  setEditingTemplate(null);
-                  setRefreshDocuments((prev) => prev + 1);
-                  setActiveTab("documents");
-                } else {
-                  console.error("Failed to create document:", responseData);
-                  alert(
-                    "Failed to create document: " +
-                      (responseData.error || "Unknown error")
-                  );
-                }
-              } catch (error) {
-                console.error("Error creating document:", error);
-                alert("Error creating document: " + error.message);
-              }
-            }}
-          />
-        )}
+                    } catch (error) {
+                      console.error("Error creating document:", error);
+                      alert("Error creating document: " + error.message);
+                    }
+                  }}
+                />
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -592,7 +593,7 @@ function AssignmentModal({
   onClose,
   onSave,
 }: {
-  template: unknown;
+  template: any;
   isOpen: boolean;
   onClose: () => void;
   onSave: (
@@ -683,7 +684,7 @@ function AssignmentModal({
 
   // Filter products based on search
   const filteredProducts = products.filter(
-    (product) =>
+    (product: any) =>
       product.productName
         ?.toLowerCase()
         .includes(productSearch.toLowerCase()) ||
@@ -691,7 +692,7 @@ function AssignmentModal({
       product.brand?.toLowerCase().includes(productSearch.toLowerCase())
   );
 
-  const handleUserToggle = (user: unknown) => {
+  const handleUserToggle = (user: any) => {
     const userName = user.name;
     setAssignedUsers((prev) =>
       prev.includes(userName)
@@ -746,7 +747,7 @@ function AssignmentModal({
                 Assign to Coworkers *
               </label>
               <div className="border border-gray-300 rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto">
-                {coworkers.map((worker) => (
+                {coworkers.map((worker: any) => (
                   <label
                     key={worker.username}
                     className="flex items-center cursor-pointer"
@@ -790,7 +791,7 @@ function AssignmentModal({
                   <option value="">
                     Select a product... ({filteredProducts.length} available)
                   </option>
-                  {filteredProducts.slice(0, 100).map((product) => (
+                  {filteredProducts.slice(0, 100).map((product: any) => (
                     <option key={product.sku} value={product.sku}>
                       {product.sku} - {product.productName} ({product.brand})
                     </option>
