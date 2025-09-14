@@ -56,15 +56,11 @@ export async function POST(request: NextRequest) {
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
     const uniqueFilename = `${timestamp}_${sanitizedFilename}`
 
-    // Determine storage path based on document type and destinations
+    // Determine storage path based on destinations (user's choice takes priority)
     let storagePath = ''
     
-    // Prioritize based on document type for better organization
-    if (documentType.includes('Supplier') || documentType.includes('Co-Man')) {
-      storagePath = `suppliers/${uniqueFilename}`
-    } else if (documentType.includes('Label')) {
-      storagePath = `labels/${uniqueFilename}`
-    } else if (destinations.includes('suppliers')) {
+    // Prioritize user-selected destinations over document type
+    if (destinations.includes('suppliers')) {
       storagePath = `suppliers/${uniqueFilename}`
     } else if (destinations.includes('products')) {
       storagePath = `products/${uniqueFilename}`
@@ -75,7 +71,14 @@ export async function POST(request: NextRequest) {
     } else if (destinations.includes('shelfLife')) {
       storagePath = `shelf-life/${uniqueFilename}`
     } else {
-      storagePath = `general/${uniqueFilename}`
+      // Fallback to document type if no specific destination
+      if (documentType.includes('Supplier') || documentType.includes('Co-Man')) {
+        storagePath = `suppliers/${uniqueFilename}`
+      } else if (documentType.includes('Label')) {
+        storagePath = `labels/${uniqueFilename}`
+      } else {
+        storagePath = `general/${uniqueFilename}`
+      }
     }
 
     console.log('📁 Uploading to storage path:', storagePath)
@@ -249,14 +252,19 @@ export async function POST(request: NextRequest) {
           const associationPath = `associations/supplier_${supplierId}_${docData.id}.json`
           const associationBuffer = Buffer.from(JSON.stringify(associationRecord, null, 2))
           
-          await supabase.storage
+          const { data: uploadResult, error: uploadError } = await supabase.storage
             .from('documents')
             .upload(associationPath, associationBuffer, {
               contentType: 'application/json',
               upsert: true
             })
 
-          console.log('✅ Created supplier association:', associationPath)
+          if (uploadError) {
+            console.error('❌ Failed to create supplier association:', uploadError)
+          } else {
+            console.log('✅ Created supplier association:', associationPath)
+            console.log('✅ Association upload result:', uploadResult)
+          }
         } catch (assocError) {
           console.warn('⚠️ Could not create supplier association:', assocError)
         }
