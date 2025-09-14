@@ -198,36 +198,32 @@ export async function POST(request: NextRequest) {
 
     // Handle products destination - create product associations
     if (destinations.includes('products') && associations.products?.length > 0) {
-      console.log('📦 Creating product associations...')
+      console.log('📦 Creating product associations in database...')
       
       for (const productSku of associations.products) {
         try {
-          // Store association metadata in storage
           const associationRecord = {
             document_id: docData.id,
             document_filename: file.name,
             document_title: documentTitle.trim(),
             document_path: storagePath,
             document_type: documentType,
-            product_sku: productSku,
             association_type: 'product',
-            created_at: new Date().toISOString(),
+            association_id: productSku,
             file_size: file.size,
             file_type: file.type
           }
 
-          // Store as JSON file for easy retrieval
-          const associationPath = `associations/product_${productSku}_${docData.id}.json`
-          const associationBuffer = Buffer.from(JSON.stringify(associationRecord, null, 2))
-          
-          await supabase.storage
-            .from('documents')
-            .upload(associationPath, associationBuffer, {
-              contentType: 'text/plain',
-              upsert: true
-            })
+          const { data: insertResult, error: insertError } = await supabase
+            .from('document_associations')
+            .insert(associationRecord)
+            .select()
 
-          console.log('✅ Created product association:', associationPath)
+          if (insertError) {
+            console.error('❌ Failed to create product association:', insertError)
+          } else {
+            console.log('✅ Created product association in database:', insertResult)
+          }
         } catch (assocError) {
           console.warn('⚠️ Could not create product association:', assocError)
         }
@@ -254,67 +250,24 @@ export async function POST(request: NextRequest) {
             document_title: documentTitle.trim(),
             document_path: storagePath,
             document_type: documentType,
-            supplier_id: supplierId,
             association_type: 'supplier',
-            created_at: new Date().toISOString(),
+            association_id: supplierId,
             file_size: file.size,
             file_type: file.type
           }
 
-          const associationPath = `associations/supplier_${supplierId}_${docData.id}.json`
-          const associationBuffer = Buffer.from(JSON.stringify(associationRecord, null, 2))
+          console.log('💾 Inserting association record into database:', associationRecord)
           
-          console.log('📤 Attempting to upload association file:', associationPath)
-          console.log('📤 Association data:', associationRecord)
-          
-          // Try to upload the association file
-          let uploadResult, uploadError
-          
-          // First attempt
-          const firstAttempt = await supabase.storage
-            .from('documents')
-            .upload(associationPath, associationBuffer, {
-              contentType: 'text/plain',
-              upsert: true
-            })
-          
-          uploadResult = firstAttempt.data
-          uploadError = firstAttempt.error
-          
-          // If it fails, try creating a simple test file first to ensure the folder exists
-          if (uploadError && uploadError.message.includes('folder')) {
-            console.log('📁 Folder might not exist, creating it...')
-            
-            const testPath = 'associations/.keep'
-            await supabase.storage
-              .from('documents')
-              .upload(testPath, 'folder created', {
-                contentType: 'text/plain',
-                upsert: true
-              })
-            
-            // Try the association upload again
-            const secondAttempt = await supabase.storage
-              .from('documents')
-              .upload(associationPath, associationBuffer, {
-                contentType: 'text/plain',
-                upsert: true
-              })
-            
-            uploadResult = secondAttempt.data
-            uploadError = secondAttempt.error
-          }
+          // Insert association into database
+          const { data: insertResult, error: insertError } = await supabase
+            .from('document_associations')
+            .insert(associationRecord)
+            .select()
 
-          if (uploadError) {
-            console.error('❌ Failed to create supplier association:', uploadError)
-            console.error('❌ Upload error details:', {
-              message: uploadError.message,
-              path: associationPath,
-              bucketName: 'documents'
-            })
+          if (insertError) {
+            console.error('❌ Failed to create supplier association in database:', insertError)
           } else {
-            console.log('✅ Created supplier association:', associationPath)
-            console.log('✅ Association upload result:', uploadResult)
+            console.log('✅ Created supplier association in database:', insertResult)
           }
         } catch (assocError) {
           console.error('❌ Could not create supplier association:', assocError)
@@ -333,7 +286,7 @@ export async function POST(request: NextRequest) {
 
     // Handle raw materials destination
     if (destinations.includes('rawMaterials') && associations.rawMaterials?.length > 0) {
-      console.log('🧪 Creating raw material associations...')
+      console.log('🧪 Creating raw material associations in database...')
       
       for (const materialId of associations.rawMaterials) {
         try {
@@ -343,24 +296,22 @@ export async function POST(request: NextRequest) {
             document_title: documentTitle.trim(),
             document_path: storagePath,
             document_type: documentType,
-            material_id: materialId,
             association_type: 'raw_material',
-            created_at: new Date().toISOString(),
+            association_id: materialId,
             file_size: file.size,
             file_type: file.type
           }
 
-          const associationPath = `associations/material_${materialId}_${docData.id}.json`
-          const associationBuffer = Buffer.from(JSON.stringify(associationRecord, null, 2))
-          
-          await supabase.storage
-            .from('documents')
-            .upload(associationPath, associationBuffer, {
-              contentType: 'text/plain',
-              upsert: true
-            })
+          const { data: insertResult, error: insertError } = await supabase
+            .from('document_associations')
+            .insert(associationRecord)
+            .select()
 
-          console.log('✅ Created raw material association:', associationPath)
+          if (insertError) {
+            console.error('❌ Failed to create raw material association:', insertError)
+          } else {
+            console.log('✅ Created raw material association in database:', insertResult)
+          }
         } catch (assocError) {
           console.warn('⚠️ Could not create raw material association:', assocError)
         }

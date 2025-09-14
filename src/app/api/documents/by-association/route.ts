@@ -20,62 +20,41 @@ export async function GET(request: NextRequest) {
 
     const documents = []
 
-    // Skip database approach for now since we're using storage-based system
-    console.log('📁 Using storage-based document system...')
-
-    // Fetch from storage-based associations
+    // Fetch from database associations
     try {
-      console.log('📁 Fetching from storage associations...')
+      console.log('💾 Fetching from database associations...')
+      console.log('🔍 Searching for associations with type:', associationType, 'and ID:', associationId)
       
-      // List ALL association files to search through them
-      console.log('🔍 Searching for association files with pattern:', `${associationType}_${associationId}_`)
-      
-      const { data: files, error: listError } = await supabase.storage
-        .from('documents')
-        .list('associations')
-      
-      console.log('📁 Found files in associations folder:', files?.map(f => f.name) || [])
-      
-      // Filter files that match our association type and ID
-      const matchingFiles = files?.filter(file => 
-        file.name.startsWith(`${associationType}_${associationId}_`)
-      ) || []
-      
-      console.log('🎯 Matching files for', `${associationType}_${associationId}:`, matchingFiles.map(f => f.name))
+      const { data: associations, error: dbError } = await supabase
+        .from('document_associations')
+        .select('*')
+        .eq('association_type', associationType)
+        .eq('association_id', associationId)
+        .order('created_at', { ascending: false })
 
-      if (!listError && matchingFiles?.length > 0) {
-        console.log('📄 Found matching association files:', matchingFiles.length)
+      if (dbError) {
+        console.error('❌ Database query error:', dbError)
+      } else {
+        console.log('📄 Found database associations:', associations?.length || 0)
         
-        for (const file of matchingFiles) {
-          try {
-            // Download and parse each association file
-            const { data: fileData, error: downloadError } = await supabase.storage
-              .from('documents')
-              .download(`associations/${file.name}`)
-
-            if (!downloadError && fileData) {
-              const text = await fileData.text()
-              const associationData = JSON.parse(text)
-              
-              documents.push({
-                id: associationData.document_id,
-                filename: associationData.document_filename,
-                file_type: associationData.file_type,
-                file_size: associationData.file_size,
-                storage_path: associationData.document_path,
-                document_type: associationData.document_type,
-                uploaded_at: associationData.created_at,
-                association_type: associationType,
-                source: 'storage'
-              })
-            }
-          } catch (parseError) {
-            console.warn('⚠️ Could not parse association file:', file.name, parseError)
+        if (associations && associations.length > 0) {
+          for (const assoc of associations) {
+            documents.push({
+              id: assoc.document_id,
+              filename: assoc.document_filename,
+              file_type: assoc.file_type,
+              file_size: assoc.file_size,
+              storage_path: assoc.document_path,
+              document_type: assoc.document_type,
+              uploaded_at: assoc.created_at,
+              association_type: associationType,
+              source: 'database'
+            })
           }
         }
       }
-    } catch (storageError) {
-      console.warn('⚠️ Storage query failed:', storageError)
+    } catch (dbError) {
+      console.warn('⚠️ Database query failed:', dbError)
     }
 
     // For labels, also check the labels table
