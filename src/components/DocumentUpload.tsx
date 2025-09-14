@@ -328,26 +328,55 @@ export default function DocumentUpload() {
     setUploadStatus({ type: null, message: '' })
 
     try {
-      const uploadPromises = validFiles.map(async (file) => {
+      console.log('Starting upload process...')
+      console.log('Document Type:', documentType)
+      console.log('Selected Destinations:', selectedDestinations)
+      console.log('Associations:', associations)
+      console.log('Files to upload:', validFiles.map(f => ({ name: f.name, size: f.size, type: f.type })))
+
+      const uploadPromises = validFiles.map(async (file, index) => {
+        console.log(`Uploading file ${index + 1}/${validFiles.length}: ${file.name}`)
+        
         const formData = new FormData()
         formData.append('file', file)
         formData.append('documentType', documentType)
         formData.append('destinations', JSON.stringify(selectedDestinations))
         formData.append('associations', JSON.stringify(associations))
 
-        const response = await fetch('/api/documents/upload', {
-          method: 'POST',
-          body: formData,
-        })
+        console.log('FormData prepared for:', file.name)
+        console.log('Sending POST to /api/documents/upload')
 
-        if (!response.ok) {
-          throw new Error(`Failed to upload ${file.name}`)
+        try {
+          const response = await fetch('/api/documents/upload', {
+            method: 'POST',
+            body: formData,
+          })
+
+          console.log(`Response status for ${file.name}:`, response.status)
+          console.log(`Response ok for ${file.name}:`, response.ok)
+
+          if (!response.ok) {
+            const errorText = await response.text()
+            console.error(`Upload failed for ${file.name}:`, {
+              status: response.status,
+              statusText: response.statusText,
+              errorText: errorText
+            })
+            throw new Error(`Failed to upload ${file.name}: ${response.status} ${response.statusText} - ${errorText}`)
+          }
+
+          const result = await response.json()
+          console.log(`Upload successful for ${file.name}:`, result)
+          return result
+        } catch (fetchError) {
+          console.error(`Network error uploading ${file.name}:`, fetchError)
+          throw new Error(`Network error uploading ${file.name}: ${fetchError.message}`)
         }
-
-        return await response.json()
       })
 
-      await Promise.all(uploadPromises)
+      console.log('Waiting for all uploads to complete...')
+      const results = await Promise.all(uploadPromises)
+      console.log('All uploads completed successfully:', results)
       
       const destinationNames = selectedDestinations.map(id => 
         destinations.find(d => d.id === id)?.name
@@ -357,11 +386,23 @@ export default function DocumentUpload() {
         type: 'success',
         message: `Successfully uploaded ${validFiles.length} file(s) as ${documentType} to ${destinationNames}. Processing may take a few moments.`
       })
+      
+      // Reset form after successful upload
+      setDocumentType('')
+      setSelectedDestinations([])
+      setAssociations({ products: [], suppliers: [], rawMaterials: [] })
+      
     } catch (error) {
-      console.error('Upload error:', error)
+      console.error('Upload process failed:', error)
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
+      
       setUploadStatus({
         type: 'error',
-        message: 'Failed to upload one or more files. Please try again.'
+        message: `Upload failed: ${error.message || 'Unknown error occurred. Please check the console for details.'}`
       })
     } finally {
       setUploading(false)

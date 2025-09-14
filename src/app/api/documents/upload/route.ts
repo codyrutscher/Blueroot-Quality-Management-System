@@ -8,21 +8,35 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('📤 Document upload API called')
+    
     const formData = await request.formData()
     const file = formData.get('file') as File
     const documentType = formData.get('documentType') as string
     const destinations = JSON.parse(formData.get('destinations') as string || '[]')
     const associations = JSON.parse(formData.get('associations') as string || '{}')
 
+    console.log('📋 Upload request details:', {
+      fileName: file?.name,
+      fileSize: file?.size,
+      fileType: file?.type,
+      documentType,
+      destinations,
+      associations
+    })
+
     if (!file) {
+      console.error('❌ No file provided')
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
     if (!documentType) {
+      console.error('❌ Document type is required')
       return NextResponse.json({ error: 'Document type is required' }, { status: 400 })
     }
 
     if (!destinations || destinations.length === 0) {
+      console.error('❌ At least one destination is required')
       return NextResponse.json({ error: 'At least one destination is required' }, { status: 400 })
     }
 
@@ -51,6 +65,8 @@ export async function POST(request: NextRequest) {
       storagePath = `general/${uniqueFilename}`
     }
 
+    console.log('📁 Uploading to storage path:', storagePath)
+    
     // Upload to Supabase storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('documents')
@@ -60,9 +76,14 @@ export async function POST(request: NextRequest) {
       })
 
     if (uploadError) {
-      console.error('Storage upload error:', uploadError)
-      return NextResponse.json({ error: 'Failed to upload file to storage' }, { status: 500 })
+      console.error('❌ Storage upload error:', uploadError)
+      return NextResponse.json({ 
+        error: 'Failed to upload file to storage', 
+        details: uploadError.message 
+      }, { status: 500 })
     }
+
+    console.log('✅ File uploaded to storage successfully:', uploadData)
 
     // Create document record
     const documentRecord = {
@@ -78,6 +99,8 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString()
     }
 
+    console.log('💾 Creating document record:', documentRecord)
+    
     // Insert into documents table
     const { data: docData, error: docError } = await supabase
       .from('documents')
@@ -86,11 +109,18 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (docError) {
-      console.error('Database insert error:', docError)
+      console.error('❌ Database insert error:', docError)
+      console.error('❌ Document record that failed:', documentRecord)
       // Try to clean up uploaded file
       await supabase.storage.from('documents').remove([storagePath])
-      return NextResponse.json({ error: 'Failed to create document record' }, { status: 500 })
+      return NextResponse.json({ 
+        error: 'Failed to create document record', 
+        details: docError.message,
+        hint: docError.hint 
+      }, { status: 500 })
     }
+
+    console.log('✅ Document record created successfully:', docData)
 
     // Create association records for specific destinations
     const associationPromises = []
@@ -158,6 +188,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log('🎉 Upload completed successfully!')
+    
     return NextResponse.json({
       success: true,
       document: docData,
@@ -165,7 +197,11 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Upload error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('❌ Upload error:', error)
+    console.error('❌ Error stack:', error.stack)
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error.message 
+    }, { status: 500 })
   }
 }
