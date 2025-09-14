@@ -217,6 +217,8 @@ export async function POST(request: NextRequest) {
             file_type: file.type
           }
 
+          console.log('💾 About to insert product association:', JSON.stringify(associationRecord, null, 2))
+          
           const { data: insertResult, error: insertError } = await supabase
             .from('document_associations')
             .insert(associationRecord)
@@ -224,6 +226,12 @@ export async function POST(request: NextRequest) {
 
           if (insertError) {
             console.error('❌ Failed to create product association:', insertError)
+            console.error('❌ Product insert error details:', {
+              message: insertError.message,
+              details: insertError.details,
+              hint: insertError.hint,
+              code: insertError.code
+            })
           } else {
             console.log('✅ Created product association in database:', insertResult)
           }
@@ -262,6 +270,8 @@ export async function POST(request: NextRequest) {
           console.log('💾 Inserting association record into database:', associationRecord)
           
           // Insert association into database
+          console.log('💾 About to insert association record:', JSON.stringify(associationRecord, null, 2))
+          
           const { data: insertResult, error: insertError } = await supabase
             .from('document_associations')
             .insert(associationRecord)
@@ -269,6 +279,12 @@ export async function POST(request: NextRequest) {
 
           if (insertError) {
             console.error('❌ Failed to create supplier association in database:', insertError)
+            console.error('❌ Insert error details:', {
+              message: insertError.message,
+              details: insertError.details,
+              hint: insertError.hint,
+              code: insertError.code
+            })
           } else {
             console.log('✅ Created supplier association in database:', insertResult)
           }
@@ -305,6 +321,8 @@ export async function POST(request: NextRequest) {
             file_type: file.type
           }
 
+          console.log('💾 About to insert raw material association:', JSON.stringify(associationRecord, null, 2))
+          
           const { data: insertResult, error: insertError } = await supabase
             .from('document_associations')
             .insert(associationRecord)
@@ -312,6 +330,12 @@ export async function POST(request: NextRequest) {
 
           if (insertError) {
             console.error('❌ Failed to create raw material association:', insertError)
+            console.error('❌ Raw material insert error details:', {
+              message: insertError.message,
+              details: insertError.details,
+              hint: insertError.hint,
+              code: insertError.code
+            })
           } else {
             console.log('✅ Created raw material association in database:', insertResult)
           }
@@ -348,7 +372,8 @@ export async function POST(request: NextRequest) {
         suppliersLength: associations.suppliers?.length || 0,
         conditionsMet: destinations.includes('suppliers') && associations.suppliers?.length > 0,
         actualAssociationsAttempted
-      }
+      },
+      note: "Check server logs for detailed database insert results"
     }
     
     return NextResponse.json({
