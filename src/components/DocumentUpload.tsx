@@ -139,20 +139,73 @@ export default function DocumentUpload() {
       }))
       setRawMaterials(rawMaterialOptions)
     } catch (error) {
-      console.error('Error fetching raw materials:', error)
-      // Mock data for now
-      setRawMaterials([
-        { id: 'vitamin-c', name: 'Vitamin C (Ascorbic Acid)' },
-        { id: 'vitamin-d3', name: 'Vitamin D3 (Cholecalciferol)' },
-        { id: 'calcium-carbonate', name: 'Calcium Carbonate' },
-        { id: 'magnesium-oxide', name: 'Magnesium Oxide' },
-        { id: 'iron-fumarate', name: 'Iron Fumarate' },
-        { id: 'zinc-gluconate', name: 'Zinc Gluconate' },
-        { id: 'b12-cyanocobalamin', name: 'B12 (Cyanocobalamin)' },
-        { id: 'folate', name: 'Folate (Folic Acid)' },
-        { id: 'biotin', name: 'Biotin' },
-        { id: 'probiotics', name: 'Probiotic Blend' }
-      ])
+      console.error('Error fetching raw materials API, trying CSV fallback:', error)
+      // Fallback to CSV data
+      try {
+        const csvResponse = await fetch('/rawmaterials.csv')
+        const csvText = await csvResponse.text()
+        const lines = csvText.trim().split('\n')
+        
+        // Skip header row and parse CSV
+        const rawMaterialOptions = lines.slice(1).map((line, index) => {
+          const columns = []
+          let current = ''
+          let inQuotes = false
+          
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i]
+            if (char === '"') {
+              inQuotes = !inQuotes
+            } else if (char === ',' && !inQuotes) {
+              columns.push(current.trim())
+              current = ''
+            } else {
+              current += char
+            }
+          }
+          columns.push(current.trim())
+          
+          const item = columns[0] ? columns[0].replace(/^"|"$/g, '') : ''
+          const description = columns[1] ? columns[1].replace(/^"|"$/g, '') : ''
+          
+          // Use description if available, otherwise use item code
+          const name = description || item || `Raw Material ${index + 1}`
+          
+          return {
+            id: item || `rm-${index}`,
+            name: name,
+            item: item,
+            description: description
+          }
+        }).filter(material => material.item && material.name) // Filter out empty rows
+        
+        // Remove duplicates based on item code
+        const uniqueMaterials = rawMaterialOptions.filter((material, index, self) => 
+          index === self.findIndex(m => m.item === material.item)
+        )
+        
+        console.log('Loaded raw materials from CSV:', uniqueMaterials.length)
+        setRawMaterials(uniqueMaterials)
+      } catch (csvError) {
+        console.error('Error fetching raw materials from CSV:', csvError)
+        // Final fallback with sample raw materials
+        setRawMaterials([
+          { id: 'RM5HTP', name: '5HTP' },
+          { id: 'RM5MTHF', name: 'L-5-Methyltetrahydrofolic Acid' },
+          { id: 'RM7KETODHEA', name: '7-Keto-DHEA' },
+          { id: 'RMACETL-CARN', name: 'Acetyl-L-Carnitine HCL' },
+          { id: 'RMADRENALCORTE', name: 'Adrenal Cortex Bovine' },
+          { id: 'RMADRENALWHOLE', name: 'Adrenal Whole Bovine' },
+          { id: 'RMALGALDHA', name: 'Vegan Omega 3 powder 30% DHA' },
+          { id: 'RMALGALDHA20%', name: 'Deodorized Algal DHA 20%' },
+          { id: 'RM00CAP', name: '#00 Size Gel Capsule 70M/cs' },
+          { id: 'RM00CAPVEG', name: '#00 Size VEG Capsule 70M/cs' },
+          { id: 'RM0CAP', name: '#0 Size Gel Capsule 100M/cs' },
+          { id: 'RM0CAPVEG', name: '#0 Size VEG Capsule 100M/cs' },
+          { id: 'RM1CAPVEG', name: '#1 Size VEG Capsule 130M/cs' },
+          { id: 'RM3CAPVEG', name: '#3 Size Veg Capsule 240,000/cs' }
+        ])
+      }
     }
   }
 
