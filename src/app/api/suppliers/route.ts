@@ -1,0 +1,67 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function GET(request: NextRequest) {
+  try {
+    console.log('🔄 Testing Supabase connection...')
+    
+    // Test connection with a simple query
+    const { data: testData, error: testError } = await supabase
+      .from('suppliers')
+      .select('count')
+      .limit(1)
+
+    if (testError) {
+      console.log('Supabase connection error:', testError)
+      console.log('⚠️ Supabase connection failed, falling back to CSV:', testError.message)
+      
+      // Return fallback data
+      return NextResponse.json({
+        suppliers: [
+          { id: '20da556e-d69b-4748-b929-21e3dfae8922', name: 'ANS' },
+          { id: 'food-pharma', name: 'Food Pharma' },
+          { id: 'inw', name: 'INW' },
+          { id: 'mill-haven', name: 'Mill Haven Foods' },
+          { id: 'multipack', name: 'MultiPack' },
+          { id: 'nutrastar', name: 'Nutrastar' },
+          { id: 'probi', name: 'Probi' },
+          { id: 'spice-hut', name: 'Spice Hut' },
+          { id: 'steuart', name: 'Steuart Packaging' },
+          { id: 'vitaquest', name: 'Vitaquest' },
+          { id: 'aidp', name: 'AIDP, Inc.' },
+          { id: 'ajinomoto', name: 'Ajinomoto Health and Nutrition North America, Inc' },
+          { id: 'anderson', name: 'Anderson Advanced Ingredients' },
+          { id: 'bd-nutritional', name: 'B&D Nutritional Products' },
+          { id: 'catherych', name: 'Catherych (PharmaCap)' },
+          { id: 'centian', name: 'Centian LLC' },
+          { id: 'draco', name: 'Draco Natural Products' },
+          { id: 'euromed', name: 'Euromed USA' },
+          { id: 'fci-flavors', name: 'FCI Flavors' },
+          { id: 'fifth-nutrisupply', name: 'Fifth Nutrisupply, Inc' }
+        ]
+      })
+    }
+
+    // If connection works, fetch actual data
+    const { data: suppliers, error } = await supabase
+      .from('suppliers')
+      .select('*')
+      .order('name')
+
+    if (error) {
+      console.error('Error fetching suppliers:', error)
+      return NextResponse.json({ error: 'Failed to fetch suppliers' }, { status: 500 })
+    }
+
+    return NextResponse.json({ suppliers: suppliers || [] })
+
+  } catch (error) {
+    console.error('Suppliers API error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

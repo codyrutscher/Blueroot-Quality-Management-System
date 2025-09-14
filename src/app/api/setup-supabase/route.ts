@@ -9,7 +9,7 @@ export async function GET() {
     // Test connection
     const { data: testData, error: testError } = await supabase
       .from('suppliers')
-      .select('count(*)')
+      .select('count')
       .limit(1)
     
     if (testError) {

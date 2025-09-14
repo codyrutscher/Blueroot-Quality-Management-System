@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { CloudArrowUpIcon, DocumentIcon } from '@heroicons/react/24/outline'
+import { CloudArrowUpIcon } from '@heroicons/react/24/outline'
 import MultiSelectDropdown from './MultiSelectDropdown'
 
 export default function DocumentUpload() {
@@ -41,7 +41,7 @@ export default function DocumentUpload() {
         response = await fetch('/api/products')
       }
       const data = await response.json()
-      const productOptions = (data.products || []).map((product: any) => ({
+      const productOptions = (data.products || []).map((product: { id?: string; sku?: string; productName?: string; name?: string }) => ({
         id: product.sku || product.id,
         name: product.productName || product.name,
         sku: product.sku
@@ -56,7 +56,7 @@ export default function DocumentUpload() {
     try {
       const response = await fetch('/api/suppliers')
       const data = await response.json()
-      const supplierOptions = (data.suppliers || []).map((supplier: any) => ({
+      const supplierOptions = (data.suppliers || []).map((supplier: { id?: string; name: string }) => ({
         id: supplier.id || supplier.name,
         name: supplier.name
       }))
@@ -134,7 +134,7 @@ export default function DocumentUpload() {
     try {
       const response = await fetch('/api/raw-materials')
       const data = await response.json()
-      const rawMaterialOptions = (data.rawMaterials || []).map((material: any) => ({
+      const rawMaterialOptions = (data.rawMaterials || []).map((material: { id?: string; name: string }) => ({
         id: material.id || material.name,
         name: material.name
       }))
@@ -373,7 +373,8 @@ export default function DocumentUpload() {
           return result
         } catch (fetchError) {
           console.error(`Network error uploading ${file.name}:`, fetchError)
-          throw new Error(`Network error uploading ${file.name}: ${fetchError.message}`)
+          const errorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown error'
+          throw new Error(`Network error uploading ${file.name}: ${errorMessage}`)
         }
       })
 
@@ -398,15 +399,16 @@ export default function DocumentUpload() {
       
     } catch (error) {
       console.error('Upload process failed:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
+        message: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined,
+        name: error instanceof Error ? error.name : undefined
       })
       
       setUploadStatus({
         type: 'error',
-        message: `Upload failed: ${error.message || 'Unknown error occurred. Please check the console for details.'}`
+        message: `Upload failed: ${errorMessage}. Please check the console for details.`
       })
     } finally {
       setUploading(false)
@@ -449,7 +451,7 @@ export default function DocumentUpload() {
                   : 'border-slate-300 bg-white'
               }`}
             >
-              <option value="">Select document type...</option>
+              <option className="text-black" value="">Select document type...</option>
               {documentTypes.map(type => {
                 const isBlueType = ['BRH Documents', 'Templates'].includes(type)
                 return (

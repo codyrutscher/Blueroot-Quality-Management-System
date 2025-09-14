@@ -5,7 +5,7 @@ export async function testSupabaseConnection() {
     // Test basic connection
     const { data, error } = await supabase
       .from('suppliers')
-      .select('count(*)')
+      .select('count')
       .limit(1)
 
     if (error) {
