@@ -309,10 +309,28 @@ export async function POST(request: NextRequest) {
 
     console.log('🎉 Upload completed successfully!')
     
+    // Count associations created
+    let associationsCreated = 0
+    if (destinations.includes('suppliers') && associations.suppliers?.length > 0) {
+      associationsCreated += associations.suppliers.length
+    }
+    if (destinations.includes('products') && associations.products?.length > 0) {
+      associationsCreated += associations.products.length
+    }
+    if (destinations.includes('rawMaterials') && associations.rawMaterials?.length > 0) {
+      associationsCreated += associations.rawMaterials.length
+    }
+    
     return NextResponse.json({
       success: true,
       document: docData,
-      message: 'Document uploaded successfully'
+      message: 'Document uploaded successfully',
+      debug: {
+        associationsCreated,
+        destinations,
+        supplierIds: associations.suppliers || [],
+        storagePath
+      }
     })
 
   } catch (error) {
