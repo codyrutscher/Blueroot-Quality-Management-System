@@ -82,7 +82,7 @@ export default function ProductDetail({
   const [documentToDelete, setDocumentToDelete] = useState<Document | null>(
     null
   );
-  const [uploadedDocuments, setUploadedDocuments] = useState<any[]>([]);
+  const [uploadedDocuments, setUploadedDocuments] = useState<unknown[]>([]);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
@@ -99,20 +99,20 @@ export default function ProductDetail({
 
   const fetchUploadedDocuments = async () => {
     try {
-      console.log('📄 Fetching uploaded documents for product:', sku);
-      
+      console.log("📄 Fetching uploaded documents for product:", sku);
+
       const response = await fetch(
         `/api/documents/by-association?type=product&id=${sku}`
       );
-      
-      console.log('📄 Documents API response status:', response.status);
-      
+
+      console.log("📄 Documents API response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
-        console.log('📄 Uploaded documents data:', data);
+        console.log("📄 Uploaded documents data:", data);
         setUploadedDocuments(data.documents || []);
       } else {
-        console.log('⚠️ Documents API failed, no uploaded documents found');
+        console.log("⚠️ Documents API failed, no uploaded documents found");
         setUploadedDocuments([]);
       }
     } catch (error) {
@@ -145,35 +145,37 @@ export default function ProductDetail({
 
   const fetchProduct = async () => {
     try {
-      console.log('🔍 Fetching product details for SKU:', sku);
-      
+      console.log("🔍 Fetching product details for SKU:", sku);
+
       // Try the API first
       const response = await fetch(`/api/products/${sku}`);
-      console.log('📡 API response status:', response.status);
-      
+      console.log("📡 API response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Product data from API:', data);
+        console.log("✅ Product data from API:", data);
         setProduct(data.product);
       } else {
-        console.log('⚠️ API failed, trying fallback approach...');
-        
+        console.log("⚠️ API failed, trying fallback approach...");
+
         // Fallback: get product from the products list API
-        const fallbackResponse = await fetch('/api/debug/products');
+        const fallbackResponse = await fetch("/api/debug/products");
         if (fallbackResponse.ok) {
           const fallbackData = await fallbackResponse.json();
-          const foundProduct = fallbackData.products?.find((p: any) => p.sku === sku);
-          
+          const foundProduct = fallbackData.products?.find(
+            (p: any) => p.sku === sku
+          );
+
           if (foundProduct) {
-            console.log('✅ Found product in fallback data:', foundProduct);
+            console.log("✅ Found product in fallback data:", foundProduct);
             // Add empty documents array if not present
             foundProduct.documents = foundProduct.documents || [];
             setProduct(foundProduct);
           } else {
-            console.error('❌ Product not found in fallback data');
+            console.error("❌ Product not found in fallback data");
           }
         } else {
-          console.error('❌ Fallback API also failed');
+          console.error("❌ Fallback API also failed");
         }
       }
     } catch (error) {
@@ -186,13 +188,36 @@ export default function ProductDetail({
   const fetchProductLabels = async () => {
     try {
       setLabelsLoading(true);
+      console.log('🏷️ Fetching labels for product:', sku);
+      
+      // Try the specific product labels API first
       const response = await fetch(`/api/products/${sku}/labels`);
       if (response.ok) {
         const data = await response.json();
+        console.log('🏷️ Labels from product API:', data);
         setLabels(data.labels || []);
+      } else {
+        console.log('⚠️ Product labels API failed, trying by-association API...');
+        
+        // Fallback to by-association API which now includes labels
+        const assocResponse = await fetch(`/api/documents/by-association?type=product&id=${sku}`);
+        if (assocResponse.ok) {
+          const assocData = await assocResponse.json();
+          console.log('🏷️ Documents from association API:', assocData);
+          
+          // Filter for labels
+          const labelDocs = assocData.documents?.filter((doc: any) => 
+            doc.association_type === 'label' || 
+            doc.document_type === 'Label' ||
+            doc.file_type === 'label'
+          ) || [];
+          
+          console.log('🏷️ Filtered labels:', labelDocs);
+          setLabels(labelDocs);
+        }
       }
     } catch (error) {
-      console.error("Error fetching product labels:", error);
+      console.error("❌ Error fetching product labels:", error);
     } finally {
       setLabelsLoading(false);
     }
@@ -774,19 +799,24 @@ export default function ProductDetail({
                           <DocumentIcon className="h-6 w-6 text-gray-400 mt-1" />
                           <div>
                             <h4 className="font-semibold text-gray-900">
-                              {doc.filename || doc.title || 'Untitled Document'}
+                              {doc.filename || doc.title || "Untitled Document"}
                             </h4>
                             <p className="text-sm text-gray-600">
-                              {doc.document_type || doc.documentType || 'Document'}
+                              {doc.document_type ||
+                                doc.documentType ||
+                                "Document"}
                             </p>
                             <p className="text-xs text-gray-500">
-                              Uploaded: {new Date(doc.uploaded_at || doc.createdAt || Date.now()).toLocaleDateString()}
+                              Uploaded:{" "}
+                              {new Date(
+                                doc.uploaded_at || doc.createdAt || Date.now()
+                              ).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
                           <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
-                            {doc.file_type || doc.fileType || 'File'}
+                            {doc.file_type || doc.fileType || "File"}
                           </span>
                           {doc.file_size && (
                             <span className="text-xs text-gray-500">
@@ -795,15 +825,20 @@ export default function ProductDetail({
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-600">
-                          {doc.destinations && Array.isArray(doc.destinations) && (
-                            <span>Destinations: {doc.destinations.join(', ')}</span>
-                          )}
+                          {doc.destinations &&
+                            Array.isArray(doc.destinations) && (
+                              <span>
+                                Destinations: {doc.destinations.join(", ")}
+                              </span>
+                            )}
                         </div>
                         <button
-                          onClick={() => handleDownloadDocument(doc.id, doc.filename)}
+                          onClick={() =>
+                            handleDownloadDocument(doc.id, doc.filename)
+                          }
                           className="flex items-center px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
                         >
                           <EyeIcon className="h-3 w-3 mr-1" />

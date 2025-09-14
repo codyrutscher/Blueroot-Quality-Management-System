@@ -85,10 +85,7 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ File uploaded to storage successfully:', uploadData)
 
-    // For now, skip database storage and just store the file
-    // This ensures uploads work while we fix the database schema
-    console.log('📁 File uploaded successfully to storage, skipping database for now')
-    
+    // Create document record with proper associations
     const docData = {
       id: `upload_${timestamp}`,
       filename: file.name,
@@ -101,31 +98,187 @@ export async function POST(request: NextRequest) {
       file_type: file.type
     }
 
-    console.log('✅ Document record created successfully:', docData)
+    console.log('💾 Creating document record with associations:', docData)
 
-    // Handle labels destination - try to insert into labels table
+    // Store document metadata in a simple JSON file for each destination
+    try {
+      // Create a metadata record for tracking
+      const metadataRecord = {
+        ...docData,
+        created_at: new Date().toISOString()
+      }
+
+      // Store metadata as JSON file in storage for easy retrieval
+      const metadataPath = `metadata/${docData.id}.json`
+      const metadataBuffer = Buffer.from(JSON.stringify(metadataRecord, null, 2))
+      
+      await supabase.storage
+        .from('documents')
+        .upload(metadataPath, metadataBuffer, {
+          contentType: 'application/json',
+          upsert: true
+        })
+
+      console.log('✅ Document metadata stored at:', metadataPath)
+    } catch (metadataError) {
+      console.warn('⚠️ Could not store metadata:', metadataError)
+    }
+
+    // Handle specific destinations and create proper associations
+    console.log('🔗 Creating associations for destinations:', destinations)
+    console.log('🔗 Association data:', associations)
+
+    // Handle labels destination
     if (destinations.includes('labels')) {
       try {
         console.log('🏷️ Adding to labels table...')
-        await supabase.from('labels').insert({
+        
+        // Determine company from associations
+        let company = 'General'
+        if (associations.products && associations.products.length > 0) {
+          // Try to get brand from first associated product
+          const productSku = associations.products[0]
+          console.log('🏷️ Looking up brand for product SKU:', productSku)
+          
+          // Get product info to determine brand/company
+          try {
+            const productResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/debug/products`)
+            if (productResponse.ok) {
+              const productData = await productResponse.json()
+              const product = productData.products?.find((p: any) => p.sku === productSku)
+              if (product?.brand) {
+                company = product.brand
+                console.log('🏷️ Found brand for label:', company)
+              }
+            }
+          } catch (productError) {
+            console.warn('⚠️ Could not fetch product for brand:', productError)
+          }
+        }
+
+        const labelRecord = {
           filename: file.name,
-          company: 'General',
+          company: company,
           storage_path: storagePath,
           file_size: file.size,
-          uploaded_at: new Date().toISOString()
-        })
-        console.log('✅ Added to labels table successfully')
+          uploaded_at: new Date().toISOString(),
+          product_sku: associations.products?.[0] || null,
+          document_type: documentType
+        }
+
+        await supabase.from('labels').insert(labelRecord)
+        console.log('✅ Added to labels table successfully:', labelRecord)
       } catch (labelError) {
         console.warn('⚠️ Could not add to labels table:', labelError)
       }
     }
 
-    // Log associations for future database setup
-    console.log('📋 Document associations (stored in file metadata):', {
-      products: associations.products || [],
-      suppliers: associations.suppliers || [],
-      rawMaterials: associations.rawMaterials || []
-    })
+    // Handle products destination - create product associations
+    if (destinations.includes('products') && associations.products?.length > 0) {
+      console.log('📦 Creating product associations...')
+      
+      for (const productSku of associations.products) {
+        try {
+          // Store association metadata in storage
+          const associationRecord = {
+            document_id: docData.id,
+            document_filename: file.name,
+            document_path: storagePath,
+            document_type: documentType,
+            product_sku: productSku,
+            association_type: 'product',
+            created_at: new Date().toISOString(),
+            file_size: file.size,
+            file_type: file.type
+          }
+
+          // Store as JSON file for easy retrieval
+          const associationPath = `associations/product_${productSku}_${docData.id}.json`
+          const associationBuffer = Buffer.from(JSON.stringify(associationRecord, null, 2))
+          
+          await supabase.storage
+            .from('documents')
+            .upload(associationPath, associationBuffer, {
+              contentType: 'application/json',
+              upsert: true
+            })
+
+          console.log('✅ Created product association:', associationPath)
+        } catch (assocError) {
+          console.warn('⚠️ Could not create product association:', assocError)
+        }
+      }
+    }
+
+    // Handle suppliers destination
+    if (destinations.includes('suppliers') && associations.suppliers?.length > 0) {
+      console.log('🏢 Creating supplier associations...')
+      
+      for (const supplierId of associations.suppliers) {
+        try {
+          const associationRecord = {
+            document_id: docData.id,
+            document_filename: file.name,
+            document_path: storagePath,
+            document_type: documentType,
+            supplier_id: supplierId,
+            association_type: 'supplier',
+            created_at: new Date().toISOString(),
+            file_size: file.size,
+            file_type: file.type
+          }
+
+          const associationPath = `associations/supplier_${supplierId}_${docData.id}.json`
+          const associationBuffer = Buffer.from(JSON.stringify(associationRecord, null, 2))
+          
+          await supabase.storage
+            .from('documents')
+            .upload(associationPath, associationBuffer, {
+              contentType: 'application/json',
+              upsert: true
+            })
+
+          console.log('✅ Created supplier association:', associationPath)
+        } catch (assocError) {
+          console.warn('⚠️ Could not create supplier association:', assocError)
+        }
+      }
+    }
+
+    // Handle raw materials destination
+    if (destinations.includes('rawMaterials') && associations.rawMaterials?.length > 0) {
+      console.log('🧪 Creating raw material associations...')
+      
+      for (const materialId of associations.rawMaterials) {
+        try {
+          const associationRecord = {
+            document_id: docData.id,
+            document_filename: file.name,
+            document_path: storagePath,
+            document_type: documentType,
+            material_id: materialId,
+            association_type: 'raw_material',
+            created_at: new Date().toISOString(),
+            file_size: file.size,
+            file_type: file.type
+          }
+
+          const associationPath = `associations/material_${materialId}_${docData.id}.json`
+          const associationBuffer = Buffer.from(JSON.stringify(associationRecord, null, 2))
+          
+          await supabase.storage
+            .from('documents')
+            .upload(associationPath, associationBuffer, {
+              contentType: 'application/json',
+              upsert: true
+            })
+
+          console.log('✅ Created raw material association:', associationPath)
+        } catch (assocError) {
+          console.warn('⚠️ Could not create raw material association:', assocError)
+        }
+      }
+    }
 
     console.log('🎉 Upload completed successfully!')
     
