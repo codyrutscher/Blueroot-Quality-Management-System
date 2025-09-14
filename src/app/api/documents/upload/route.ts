@@ -27,6 +27,12 @@ export async function POST(request: NextRequest) {
       associations
     })
 
+    console.log('🔍 Checking association conditions:')
+    console.log('  - destinations.includes("suppliers"):', destinations.includes('suppliers'))
+    console.log('  - associations.suppliers:', associations.suppliers)
+    console.log('  - associations.suppliers?.length:', associations.suppliers?.length)
+    console.log('  - Will create supplier associations:', destinations.includes('suppliers') && associations.suppliers?.length > 0)
+
     if (!file) {
       console.error('❌ No file provided')
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
@@ -229,8 +235,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle suppliers destination
+    console.log('🔍 About to check supplier associations...')
+    console.log('🔍 Condition check - destinations includes suppliers:', destinations.includes('suppliers'))
+    console.log('🔍 Condition check - associations.suppliers exists:', !!associations.suppliers)
+    console.log('🔍 Condition check - associations.suppliers length:', associations.suppliers?.length)
+    
     if (destinations.includes('suppliers') && associations.suppliers?.length > 0) {
-      console.log('🏢 Creating supplier associations...')
+      console.log('🏢 ✅ CONDITIONS MET - Creating supplier associations...')
       console.log('🏢 Supplier IDs from associations:', associations.suppliers)
       
       for (const supplierId of associations.suppliers) {
@@ -269,6 +280,10 @@ export async function POST(request: NextRequest) {
           console.warn('⚠️ Could not create supplier association:', assocError)
         }
       }
+    } else {
+      console.log('🏢 ❌ CONDITIONS NOT MET - Skipping supplier associations')
+      console.log('🏢 Reason: destinations.includes("suppliers"):', destinations.includes('suppliers'))
+      console.log('🏢 Reason: associations.suppliers?.length > 0:', associations.suppliers?.length > 0)
     }
 
     // Handle raw materials destination
