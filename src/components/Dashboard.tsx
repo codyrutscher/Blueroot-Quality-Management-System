@@ -34,7 +34,6 @@ export default function Dashboard() {
     "products": {
       name: "Products",
       icon: "📦",
-      description: "Manage product catalog and documentation",
       pages: [
         { id: "products", name: "Products", icon: "📦" }
       ]
@@ -42,7 +41,6 @@ export default function Dashboard() {
     "suppliers": {
       name: "Suppliers & Co-Men",
       icon: "🏢",
-      description: "View suppliers and co-men and uploaded documents",
       pages: [
         { id: "suppliers", name: "Suppliers & Co-Men", icon: "🏢" }
       ]
@@ -50,7 +48,6 @@ export default function Dashboard() {
     "raw-materials": {
       name: "Raw Materials",
       icon: "🧪",
-      description: "Browse ingredient inventory and specs",
       pages: [
         { id: "raw-materials", name: "Raw Materials", icon: "🧪" }
       ]
@@ -58,7 +55,6 @@ export default function Dashboard() {
     "templates": {
       name: "Templates",
       icon: "📋",
-      description: "Create documents from quality templates",
       pages: [
         { id: "templates", name: "Templates", icon: "📋" }
       ]
@@ -66,7 +62,6 @@ export default function Dashboard() {
     "documents": {
       name: "BRH Documents",
       icon: "📄",
-      description: "Access and manage company documents",
       pages: [
         { id: "documents", name: "BRH Documents", icon: "📄" }
       ]
@@ -74,7 +69,6 @@ export default function Dashboard() {
     "document-upload": {
       name: "Document Upload",
       icon: "📤",
-      description: "Upload documents to the system",
       pages: [
         { id: "document-upload", name: "Document Upload", icon: "📤" }
       ]
@@ -82,7 +76,6 @@ export default function Dashboard() {
     "labels": {
       name: "Labels",
       icon: "🏷️",
-      description: "Manage product labels and specifications",
       pages: [
         { id: "labels", name: "Labels", icon: "🏷️" }
       ]
@@ -90,7 +83,6 @@ export default function Dashboard() {
     "allergens": {
       name: "Allergens",
       icon: "⚠️",
-      description: "Track and manage allergen information",
       pages: [
         { id: "allergens", name: "Allergens", icon: "⚠️" }
       ]
@@ -98,7 +90,6 @@ export default function Dashboard() {
     "ccrs": {
       name: "CCRs",
       icon: "📊",
-      description: "Critical Control Records management",
       pages: [
         { id: "ccrs", name: "CCRs", icon: "📊" }
       ]
@@ -106,7 +97,6 @@ export default function Dashboard() {
     "shelf-life": {
       name: "Shelf-Life Program",
       icon: "📅",
-      description: "Monitor product shelf-life and expiration",
       pages: [
         { id: "shelf-life", name: "Shelf-Life Program", icon: "📅" }
       ]
@@ -114,7 +104,6 @@ export default function Dashboard() {
     "testing": {
       name: "Testing",
       icon: "🔬",
-      description: "Laboratory testing and analysis",
       pages: [
         { id: "testing", name: "Testing", icon: "🔬" }
       ]
@@ -122,7 +111,6 @@ export default function Dashboard() {
     "sops": {
       name: "SOPs",
       icon: "📖",
-      description: "Standard Operating Procedures",
       pages: [
         { id: "sops", name: "SOPs", icon: "📖" }
       ]
@@ -130,7 +118,6 @@ export default function Dashboard() {
     "new-products": {
       name: "New Products",
       icon: "✨",
-      description: "New product development and launch",
       pages: [
         { id: "new-products", name: "New Products", icon: "✨" }
       ]
@@ -138,7 +125,6 @@ export default function Dashboard() {
     "customer-complaints": {
       name: "Customer Complaints",
       icon: "📞",
-      description: "Customer feedback and complaint management",
       pages: [
         { id: "customer-complaints", name: "Customer Complaints", icon: "📞" }
       ]
@@ -146,7 +132,6 @@ export default function Dashboard() {
     "regulatory": {
       name: "Regulatory",
       icon: "⚖️",
-      description: "Regulatory compliance and documentation",
       pages: [
         { id: "regulatory", name: "Regulatory", icon: "⚖️" }
       ]
