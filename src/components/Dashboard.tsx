@@ -52,11 +52,11 @@ export default function Dashboard() {
       description: "",
       pages: [{ id: "raw-materials", name: "Raw Materials", icon: "🧪" }],
     },
-    allergens: {
-      name: "Allergens",
-      icon: "⚠️",
+    "new-products": {
+      name: "New Products",
+      icon: "✨",
       description: "",
-      pages: [{ id: "allergens", name: "Allergens", icon: "⚠️" }],
+      pages: [{ id: "new-products", name: "New Products", icon: "✨" }],
     },
     labels: {
       name: "Labels",
@@ -64,11 +64,11 @@ export default function Dashboard() {
       description: "",
       pages: [{ id: "labels", name: "Labels", icon: "🏷️" }],
     },
-    "new-products": {
-      name: "New Products",
-      icon: "✨",
+    allergens: {
+      name: "Allergens",
+      icon: "⚠️",
       description: "",
-      pages: [{ id: "new-products", name: "New Products", icon: "✨" }],
+      pages: [{ id: "allergens", name: "Allergens", icon: "⚠️" }],
     },
     testing: {
       name: "Testing",
@@ -780,7 +780,7 @@ function AssignmentModal({
                   <option value="">
                     Select a product... ({filteredProducts.length} available)
                   </option>
-                  {filteredProducts.slice(0, 100).map((product: any) => (
+                  {filteredProducts.slice(0, 100).map((product: unknown) => (
                     <option key={product.sku} value={product.sku}>
                       {product.sku} - {product.productName} ({product.brand})
                     </option>
