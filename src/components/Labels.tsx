@@ -17,6 +17,8 @@ export default function Labels() {
   const [companies, setCompanies] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [previewLabel, setPreviewLabel] = useState<Label | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   useEffect(() => {
     fetchLabels();
@@ -74,6 +76,34 @@ export default function Labels() {
     } catch (error) {
       console.error("Error downloading label:", error);
     }
+  };
+
+  const handlePreview = async (label: Label) => {
+    try {
+      const response = await fetch(
+        `/api/labels/download?path=${encodeURIComponent(label.filePath)}`
+      );
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        setPreviewUrl(url);
+        setPreviewLabel(label);
+      }
+    } catch (error) {
+      console.error("Error previewing label:", error);
+    }
+  };
+
+  const closePreview = () => {
+    if (previewUrl) {
+      window.URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl("");
+    setPreviewLabel(null);
+  };
+
+  const getFileExtension = (filename: string) => {
+    return filename.split('.').pop()?.toLowerCase() || '';
   };
 
   if (loading) {
@@ -153,12 +183,20 @@ export default function Labels() {
               <span className="text-xs text-gray-400">
                 {new Date(label.uploadDate).toLocaleDateString()}
               </span>
-              <button
-                onClick={() => handleDownload(label)}
-                className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-              >
-                Download
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handlePreview(label)}
+                  className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                >
+                  Preview
+                </button>
+                <button
+                  onClick={() => handleDownload(label)}
+                  className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  Download
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -176,11 +214,85 @@ export default function Labels() {
               : "Ready to start fresh! No labels have been uploaded yet."}
           </p>
           <p className="text-sm text-blue-600 mb-2">
-            Upload label files through the Document Upload section and select "Labels&quot; as the destination.
+            Upload label files through the Document Upload section and select &quot;Labels&quot; as the destination.
           </p>
           <p className="text-xs text-gray-400">
             Labels will be organized and searchable once uploaded.
           </p>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {previewLabel && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-full flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {previewLabel.filename}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {previewLabel.company} • {previewLabel.productSku && `SKU: ${previewLabel.productSku}`}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleDownload(previewLabel)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  Download
+                </button>
+                <button
+                  onClick={closePreview}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-auto p-4">
+              {previewUrl && (
+                <div className="w-full h-full flex items-center justify-center">
+                  {['pdf'].includes(getFileExtension(previewLabel.filename)) ? (
+                    <iframe
+                      src={previewUrl}
+                      className="w-full h-96 border border-gray-300 rounded"
+                      title="Document Preview"
+                    />
+                  ) : ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(getFileExtension(previewLabel.filename)) ? (
+                    <img
+                      src={previewUrl}
+                      alt="Label Preview"
+                      className="max-w-full max-h-96 object-contain border border-gray-300 rounded"
+                    />
+                  ) : ['txt', 'csv'].includes(getFileExtension(previewLabel.filename)) ? (
+                    <iframe
+                      src={previewUrl}
+                      className="w-full h-96 border border-gray-300 rounded"
+                      title="Text Preview"
+                    />
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="text-6xl mb-4">📄</div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Preview not available
+                      </h3>
+                      <p className="text-gray-500 mb-4">
+                        This file type cannot be previewed in the browser.
+                      </p>
+                      <button
+                        onClick={() => handleDownload(previewLabel)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                      >
+                        Download to view
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
